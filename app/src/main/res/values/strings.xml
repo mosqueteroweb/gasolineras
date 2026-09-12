@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Gasolineras España</string>
+    <string name="app_name">Gass</string>
     <string name="loading_stations">Cargando gasolineras y precios oficiales…</string>
     <string name="error_loading">Error al cargar los datos. Comprueba tu conexión a Internet.</string>
     <string name="retry">Reintentar</string>

@@ -128,7 +128,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
-                                text = "Gasolineras",
+                                text = "Gass",
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
@@ -161,6 +161,14 @@ fun HomeScreen(
                             }
                         }
                     } else {
+                        // 0. Toggle Lista / Mapa
+                        IconButton(onClick = { viewModel.setMapView(!state.isMapView) }) {
+                            Icon(
+                                imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
+                                contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                         // 1. Favorites Heart Button in TopBar
                         IconButton(onClick = {
                             viewModel.onToggleOnlyFavorites {
@@ -230,42 +238,6 @@ fun HomeScreen(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             )
-        },
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = !state.isMapView,
-                    onClick = { viewModel.setMapView(false) },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ViewList,
-                            contentDescription = "Ver lista"
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = "Lista",
-                            fontWeight = if (!state.isMapView) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
-                )
-                NavigationBarItem(
-                    selected = state.isMapView,
-                    onClick = { viewModel.setMapView(true) },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Map,
-                            contentDescription = "Ver mapa"
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = "Mapa",
-                            fontWeight = if (state.isMapView) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
-                )
-            }
         },
         modifier = modifier
     ) { innerPadding ->
