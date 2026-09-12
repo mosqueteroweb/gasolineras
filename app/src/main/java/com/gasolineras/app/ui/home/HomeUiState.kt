@@ -21,5 +21,7 @@ data class HomeUiState(
     val selectedStationForDetail: GasStation? = null,
     val hasLocationPermission: Boolean = false,
     val onlyGLP: Boolean = false,
+    val onlyFavorites: Boolean = false,
+    val favoriteIds: Set<String> = emptySet(),
     val isMapView: Boolean = false
 )

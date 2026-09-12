@@ -219,7 +219,7 @@ fun HomeScreen(
                 onFuelSelected = { viewModel.onFuelSelected(it) }
             )
 
-            // Radius and GLP quick toggle row
+            // Radius and quick toggle filters row (GLP, Favoritas, Radio)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -242,7 +242,25 @@ fun HomeScreen(
                     )
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+
+                FilterChip(
+                    selected = state.onlyFavorites,
+                    onClick = { viewModel.onToggleOnlyFavorites() },
+                    label = {
+                        Text(
+                            text = if (state.onlyFavorites) "✓ Favoritas" else "❤️ Favoritas",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFFC62828),
+                        selectedLabelColor = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
 
                 RadiusFilterBar(
                     selectedRadiusKm = state.selectedRadiusKm,
@@ -394,6 +412,9 @@ fun HomeScreen(
                                         onClick = { viewModel.onSelectStation(station) },
                                         onNavigateClick = {
                                             NavigationHelper.navigateToStation(context, station)
+                                        },
+                                        onToggleFavorite = {
+                                            viewModel.onToggleFavorite(station.id)
                                         }
                                     )
                                 }
@@ -413,6 +434,9 @@ fun HomeScreen(
             onNavigate = {
                 viewModel.onSelectStation(null)
                 NavigationHelper.navigateToStation(context, station)
+            },
+            onToggleFavorite = {
+                viewModel.onToggleFavorite(station.id)
             }
         )
     }

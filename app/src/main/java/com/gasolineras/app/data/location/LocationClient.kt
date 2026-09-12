@@ -27,8 +27,13 @@ data class UserLocation(
 
 class LocationClient(private val context: Context) {
 
-    private val fusedLocationClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
+    private val fusedLocationClient: FusedLocationProviderClient? by lazy {
+        try {
+            LocationServices.getFusedLocationProviderClient(context)
+        } catch (t: Throwable) {
+            null
+        }
+    }
 
     fun hasLocationPermission(): Boolean {
         val fineLocation = ContextCompat.checkSelfPermission(
@@ -53,9 +58,11 @@ class LocationClient(private val context: Context) {
             return UserLocation.DEFAULT
         }
 
+        val client = fusedLocationClient ?: return UserLocation.DEFAULT
+
         return try {
             val cancellationTokenSource = CancellationTokenSource()
-            val location = fusedLocationClient.getCurrentLocation(
+            val location = client.getCurrentLocation(
                 Priority.PRIORITY_BALANCED_POWER_ACCURACY,
                 cancellationTokenSource.token
             ).await()
@@ -68,7 +75,7 @@ class LocationClient(private val context: Context) {
                 )
             } else {
                 // Fallback to last known location
-                val lastKnown = fusedLocationClient.lastLocation.await()
+                val lastKnown = client.lastLocation.await()
                 if (lastKnown != null) {
                     UserLocation(
                         latitude = lastKnown.latitude,
@@ -79,9 +86,7 @@ class LocationClient(private val context: Context) {
                     UserLocation.DEFAULT
                 }
             }
-        } catch (e: SecurityException) {
-            UserLocation.DEFAULT
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             UserLocation.DEFAULT
         }
     }

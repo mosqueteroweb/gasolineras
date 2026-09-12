@@ -26,6 +26,8 @@ interface FuelRepository {
         sortOption: SortOption,
         searchQuery: String = "",
         onlyGLP: Boolean = false,
+        onlyFavorites: Boolean = false,
+        favoriteIds: Set<String> = emptySet(),
         forceRefresh: Boolean = false
     ): Result<NearbyStationsResult>
 }
@@ -47,6 +49,8 @@ class FuelRepositoryImpl(
         sortOption: SortOption,
         searchQuery: String,
         onlyGLP: Boolean,
+        onlyFavorites: Boolean,
+        favoriteIds: Set<String>,
         forceRefresh: Boolean
     ): Result<NearbyStationsResult> = withContext(Dispatchers.IO) {
         try {
@@ -72,7 +76,10 @@ class FuelRepositoryImpl(
                         userLat, userLon,
                         station.latitude, station.longitude
                     )
-                    station.copy(distanceMeters = distance)
+                    station.copy(
+                        distanceMeters = distance,
+                        isFavorite = favoriteIds.contains(station.id)
+                    )
                 }
                 .filter { station ->
                     // Distance check
@@ -83,6 +90,9 @@ class FuelRepositoryImpl(
 
                     // GLP special filter
                     val matchesGLP = !onlyGLP || station.hasGLP
+
+                    // Favorites filter
+                    val matchesFavorites = !onlyFavorites || favoriteIds.contains(station.id)
 
                     // Public sale filter (exclude wholesale or restricted cooperative stations)
                     val isPublic = station.saleType.equals("P", ignoreCase = true)
@@ -97,7 +107,7 @@ class FuelRepositoryImpl(
                         station.address.lowercase().contains(normalizedQuery)
                     }
 
-                    withinRadius && hasFuel && matchesGLP && isPublic && matchesSearch
+                    withinRadius && hasFuel && matchesGLP && matchesFavorites && isPublic && matchesSearch
                 }
 
             // 2. Compute price stats for selected fuel in this local radius

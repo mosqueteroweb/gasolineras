@@ -3,6 +3,7 @@ package com.gasolineras.app.ui.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.gasolineras.app.data.local.FavoritesManager
 import com.gasolineras.app.data.location.LocationClient
 import com.gasolineras.app.data.location.UserLocation
 import com.gasolineras.app.data.repository.FuelRepository
@@ -18,13 +19,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class HomeViewModel(
+class HomeViewModel @JvmOverloads constructor(
     application: Application,
     private val repository: FuelRepository = FuelRepositoryImpl(),
     private val locationClient: LocationClient = LocationClient(application)
 ) : AndroidViewModel(application) {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val favoritesManager = FavoritesManager(application)
+
+    private val _uiState = MutableStateFlow(
+        HomeUiState(favoriteIds = favoritesManager.getFavoriteIds())
+    )
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private var searchDebounceJob: Job? = null
@@ -91,6 +96,34 @@ class HomeViewModel(
         fetchStations(forceRefresh = false)
     }
 
+    fun onToggleOnlyFavorites() {
+        _uiState.update { it.copy(onlyFavorites = !it.onlyFavorites) }
+        fetchStations(forceRefresh = false)
+    }
+
+    fun onToggleFavorite(stationId: String) {
+        favoritesManager.toggleFavorite(stationId)
+        val updatedFavorites = favoritesManager.getFavoriteIds()
+        _uiState.update { state ->
+            val updatedStations = state.stations.map { s ->
+                if (s.id == stationId) s.copy(isFavorite = updatedFavorites.contains(s.id)) else s
+            }
+            val filteredStations = if (state.onlyFavorites) {
+                updatedStations.filter { it.isFavorite }
+            } else {
+                updatedStations
+            }
+            val updatedDetail = state.selectedStationForDetail?.let { detail ->
+                if (detail.id == stationId) detail.copy(isFavorite = updatedFavorites.contains(detail.id)) else detail
+            }
+            state.copy(
+                favoriteIds = updatedFavorites,
+                stations = filteredStations,
+                selectedStationForDetail = updatedDetail
+            )
+        }
+    }
+
     fun onToggleMapView() {
         _uiState.update { it.copy(isMapView = !it.isMapView) }
     }
@@ -124,6 +157,8 @@ class HomeViewModel(
                 sortOption = currentState.selectedSort,
                 searchQuery = currentState.searchQuery,
                 onlyGLP = currentState.onlyGLP,
+                onlyFavorites = currentState.onlyFavorites,
+                favoriteIds = currentState.favoriteIds,
                 forceRefresh = forceRefresh
             )
 

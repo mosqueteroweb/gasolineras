@@ -15,7 +15,8 @@ data class GasStation(
     val prices: Map<FuelType, Double>,
     val distanceMeters: Double? = null,
     val saleType: String = "P",
-    val margin: String = "I"
+    val margin: String = "I",
+    val isFavorite: Boolean = false
 ) {
     val formattedDistance: String
         get() = DistanceCalculator.formatDistance(distanceMeters)
