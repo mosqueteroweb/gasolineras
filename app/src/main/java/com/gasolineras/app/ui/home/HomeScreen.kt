@@ -91,6 +91,7 @@ fun HomeScreen(
     val context = LocalContext.current
     var isSearchExpanded by remember { mutableStateOf(false) }
     var mapCenterTrigger by remember { mutableIntStateOf(0) }
+    var mapVisibleCount by remember { mutableIntStateOf(0) }
 
     Scaffold(
         topBar = {
@@ -220,36 +221,38 @@ fun HomeScreen(
                                 }
                             }
 
-                            // 2. Radius Cycler button in TopBar (3km, 10km, 25km, 100km)
-                            Surface(
-                                onClick = {
-                                    val nextRadius = viewModel.cycleRadius()
-                                    Toast.makeText(context, "Radio: ${nextRadius.toInt()} km", Toast.LENGTH_SHORT).show()
-                                },
-                                shape = RoundedCornerShape(16.dp),
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.defaultMinSize(minHeight = 36.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 6.dp)
+                            // 2. Radius Cycler button in TopBar (only in List Mode - unnecessary in Map mode)
+                            if (!state.isMapView) {
+                                Surface(
+                                    onClick = {
+                                        val nextRadius = viewModel.cycleRadius()
+                                        Toast.makeText(context, "Radio: ${nextRadius.toInt()} km", Toast.LENGTH_SHORT).show()
+                                    },
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.NearMe,
-                                        contentDescription = "Cambiar radio de distancia",
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(3.dp))
-                                    Text(
-                                        text = "${state.selectedRadiusKm.toInt()}km",
-                                        color = MaterialTheme.colorScheme.onPrimary,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        maxLines = 1,
-                                        softWrap = false
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 6.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.NearMe,
+                                            contentDescription = "Cambiar radio de distancia",
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = "${state.selectedRadiusKm.toInt()}km",
+                                            color = MaterialTheme.colorScheme.onPrimary,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1,
+                                            softWrap = false
+                                        )
+                                    }
                                 }
                             }
 
@@ -309,11 +312,12 @@ fun HomeScreen(
                 Box(modifier = Modifier.fillMaxSize()) {
                     OsmMapView(
                         userLocation = state.userLocation,
-                        stations = state.stations,
+                        stations = state.mapStations,
                         selectedFuels = state.selectedFuels,
                         minPricePerFuel = state.minPricePerFuel,
                         selectedRadiusKm = state.selectedRadiusKm,
                         onSelectStation = { viewModel.onSelectStation(it) },
+                        onVisibleCountChanged = { count -> mapVisibleCount = count },
                         centerTrigger = mapCenterTrigger,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -337,7 +341,7 @@ fun HomeScreen(
                             .padding(start = 14.dp, bottom = 72.dp)
                     ) {
                         Text(
-                            text = "${state.stations.size} gasolineras",
+                            text = if (mapVisibleCount > 0) "$mapVisibleCount gasolineras en esta zona" else "0 gasolineras en esta zona",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -364,8 +368,8 @@ fun HomeScreen(
                         )
                     }
 
-                    // Floating empty state banner in map mode
-                    if (state.stations.isEmpty() && !state.isLoading) {
+                    // Floating empty state banner in map mode (when current map viewport has no stations)
+                    if (mapVisibleCount == 0 && state.mapStations.isNotEmpty() && !state.isLoading) {
                         Surface(
                             shape = RoundedCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
@@ -379,24 +383,18 @@ fun HomeScreen(
                                 modifier = Modifier.padding(20.dp)
                             ) {
                                 Text(
-                                    text = if (state.onlyFavorites) "No tienes gasolineras favoritas" else "No hay gasolineras a ${state.selectedRadiusKm.toInt()} km",
+                                    text = if (state.onlyFavorites) "No tienes gasolineras favoritas en esta zona" else "No hay gasolineras en este encuadre",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Button(
-                                    onClick = {
-                                        if (state.onlyFavorites) {
-                                            viewModel.onToggleOnlyFavorites()
-                                        } else {
-                                            viewModel.onRadiusSelected(25.0)
-                                        }
-                                    },
+                                    onClick = { mapCenterTrigger++ },
                                     shape = RoundedCornerShape(10.dp)
                                 ) {
                                     Text(
-                                        text = if (state.onlyFavorites) "Ver todas las gasolineras" else "Ampliar radio a 25 km",
+                                        text = "Centrar en mi ubicación",
                                         fontSize = 13.sp
                                     )
                                 }

@@ -1,21 +1,34 @@
 package com.gasolineras.app.ui.map
 
 import android.graphics.Color
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.gasolineras.app.data.location.UserLocation
 import com.gasolineras.app.domain.model.FuelType
 import com.gasolineras.app.domain.model.GasStation
+import com.gasolineras.app.domain.util.DistanceCalculator
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
-import android.view.View
-import android.view.ViewGroup
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
@@ -35,10 +48,15 @@ fun OsmMapView(
     minPricePerFuel: Map<FuelType, Double> = emptyMap(),
     selectedRadiusKm: Double = 10.0,
     onSelectStation: (GasStation) -> Unit,
+    onVisibleCountChanged: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
     centerTrigger: Int = 0
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
+    var mapMoveTrigger by remember { mutableIntStateOf(0) }
+
     val mapView = remember {
         Configuration.getInstance().apply {
             userAgentValue = context.packageName
@@ -52,47 +70,63 @@ fun OsmMapView(
             controller.setZoom(initialZoom)
             val center = GeoPoint(userLocation.latitude, userLocation.longitude)
             controller.setCenter(center)
+
+            // Listen to user map movements (pan & zoom) with debounce
+            addMapListener(object : MapListener {
+                override fun onScroll(event: ScrollEvent?): Boolean {
+                    debounceJob?.cancel()
+                    debounceJob = coroutineScope.launch {
+                        delay(350)
+                        mapMoveTrigger++
+                    }
+                    return false
+                }
+
+                override fun onZoom(event: ZoomEvent?): Boolean {
+                    debounceJob?.cancel()
+                    debounceJob = coroutineScope.launch {
+                        delay(350)
+                        mapMoveTrigger++
+                    }
+                    return false
+                }
+            })
         }
     }
 
     DisposableEffect(mapView) {
         mapView.onResume()
         onDispose {
+            debounceJob?.cancel()
             mapView.onPause()
         }
     }
 
-    // On initial display, guarantee camera is centered and at optimal zoom for the radius
-    androidx.compose.runtime.LaunchedEffect(Unit) {
+    // On initial display, guarantee camera is centered and at optimal zoom for the initial radius
+    LaunchedEffect(Unit) {
         val center = GeoPoint(userLocation.latitude, userLocation.longitude)
         val zoom = zoomLevelForRadius(selectedRadiusKm)
         mapView.controller.setZoom(zoom)
         mapView.controller.setCenter(center)
     }
 
-    // Auto-center camera on GPS location once acquired
-    androidx.compose.runtime.LaunchedEffect(userLocation) {
+    // Auto-center camera on GPS location once acquired if starting from default
+    LaunchedEffect(userLocation) {
         if (!userLocation.isDefaultLocation) {
             val center = GeoPoint(userLocation.latitude, userLocation.longitude)
-            mapView.controller.setZoom(zoomLevelForRadius(selectedRadiusKm))
             mapView.controller.animateTo(center)
         }
     }
 
-    // Re-center and adjust zoom on centerTrigger
-    androidx.compose.runtime.LaunchedEffect(centerTrigger) {
+    // Re-center and adjust zoom ONLY when explicitly requested (centerTrigger / GPS recenter FAB)
+    LaunchedEffect(centerTrigger) {
         if (centerTrigger > 0) {
             val center = GeoPoint(userLocation.latitude, userLocation.longitude)
-            mapView.controller.setZoom(zoomLevelForRadius(selectedRadiusKm))
+            val zoom = zoomLevelForRadius(selectedRadiusKm)
+            mapView.controller.setZoom(zoom)
             mapView.controller.animateTo(center)
+            mapMoveTrigger++
         }
-    }
-
-    // Adjust zoom and center when radius changes
-    androidx.compose.runtime.LaunchedEffect(selectedRadiusKm) {
-        val center = GeoPoint(userLocation.latitude, userLocation.longitude)
-        mapView.controller.setZoom(zoomLevelForRadius(selectedRadiusKm))
-        mapView.controller.animateTo(center)
     }
 
     // Helper for marker price string with large, clean numbers and no clutter
@@ -118,9 +152,13 @@ fun OsmMapView(
         factory = { mapView },
         modifier = modifier.fillMaxSize(),
         update = { view ->
+            // Reading mapMoveTrigger ensures this block re-runs whenever the user finishes zooming or panning
+            @Suppress("UNUSED_VARIABLE")
+            val trigger = mapMoveTrigger
+
             view.overlays.clear()
 
-            // 1. Distinctive User Position Marker (Blue GPS circle with white ring & halo)
+            // 1. User Position Marker
             val userPoint = GeoPoint(userLocation.latitude, userLocation.longitude)
             val userMarker = Marker(view).apply {
                 position = userPoint
@@ -131,20 +169,56 @@ fun OsmMapView(
             }
             view.overlays.add(userMarker)
 
-            // Determine cheapest prices per fuel across the displayed stations
-            val activeFuels = if (selectedFuels.isEmpty()) FuelType.values().toSet() else selectedFuels
-            val effectiveMinPrices = if (minPricePerFuel.isNotEmpty()) {
-                minPricePerFuel
+            // 2. Filter stations within current visible BoundingBox (with 8% margin for seamless edge panning)
+            val box = view.boundingBox
+            val visibleStations = if (box != null && box.latNorth != box.latSouth) {
+                val latMargin = (box.latNorth - box.latSouth) * 0.08
+                val lonMargin = (box.lonEast - box.lonWest) * 0.08
+                val minLat = box.latSouth - latMargin
+                val maxLat = box.latNorth + latMargin
+                val minLon = box.lonWest - lonMargin
+                val maxLon = box.lonEast + lonMargin
+
+                stations.filter { station ->
+                    station.latitude in minLat..maxLat && station.longitude in minLon..maxLon
+                }
             } else {
-                activeFuels.associateWith { fuel -> stations.mapNotNull { it.prices[fuel] }.minOrNull() }
-                    .filterValues { it != null } as Map<FuelType, Double>
+                stations
             }
 
-            // Find nearest station
-            val nearestStation = stations.minByOrNull { it.distanceMeters ?: Double.MAX_VALUE }
+            // Report visible station count back to HomeScreen for the pill
+            onVisibleCountChanged(visibleStations.size)
 
-            // Configure the shared InfoWindow so that tapping the legend (bubble) opens the full detail card
-            // and style it for larger, bolder price visibility
+            val activeFuels = if (selectedFuels.isEmpty()) FuelType.values().toSet() else selectedFuels
+
+            // Calculate cheapest prices per fuel among VISIBLE stations
+            val effectiveMinPrices = activeFuels.mapNotNull { fuel ->
+                val minP = visibleStations.mapNotNull { it.prices[fuel] }.minOrNull()
+                if (minP != null) fuel to minP else null
+            }.toMap()
+
+            // 3. Performance capping: If more than 80 stations are visible, select top 80
+            // prioritizing cheapest prices, stations with GLP and proximity to screen center
+            val centerGeo = view.mapCenter
+            val displayStations = if (visibleStations.size > 80) {
+                visibleStations.sortedWith(
+                    compareBy<GasStation> { s ->
+                        activeFuels.mapNotNull { s.prices[it] }.minOrNull() ?: Double.MAX_VALUE
+                    }.thenBy { s ->
+                        DistanceCalculator.calculateDistanceMeters(
+                            centerGeo.latitude, centerGeo.longitude,
+                            s.latitude, s.longitude
+                        )
+                    }
+                ).take(80)
+            } else {
+                visibleStations
+            }
+
+            // Find nearest station to user GPS among displayed stations
+            val nearestStation = displayStations.minByOrNull { it.distanceMeters ?: Double.MAX_VALUE }
+
+            // Configure shared InfoWindow for tap-to-open detail
             val sampleMarker = Marker(view)
             sampleMarker.infoWindow?.view?.let { infoView ->
                 val titleView = infoView.findViewById<android.widget.TextView>(org.osmdroid.library.R.id.bubble_title)
@@ -167,12 +241,11 @@ fun OsmMapView(
                 }
             }
 
-            // 2. Gas Stations Markers with highlights
-            stations.forEach { station ->
+            // 4. Gas Stations Markers
+            displayStations.forEach { station ->
                 val stationPoint = GeoPoint(station.latitude, station.longitude)
                 val priceDesc = priceStringFor(station)
 
-                // Check which fuels this station is cheapest for
                 val cheapestFuels = activeFuels.filter { fuel ->
                     val p = station.prices[fuel]
                     val minP = effectiveMinPrices[fuel]
@@ -225,7 +298,6 @@ fun OsmMapView(
                     }
 
                     setAnchor(Marker.ANCHOR_CENTER, 0.86f)
-                    // On marker click: ONLY show the info window (leyenda), do NOT open full card yet
                     setOnMarkerClickListener { clickedMarker, _ ->
                         clickedMarker.showInfoWindow()
                         true

@@ -10,6 +10,7 @@ data class HomeUiState(
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
     val stations: List<GasStation> = emptyList(),
+    val mapStations: List<GasStation> = emptyList(),
     val userLocation: UserLocation = UserLocation.DEFAULT,
     val selectedFuels: Set<FuelType> = setOf(
         FuelType.GASOLEO_A,

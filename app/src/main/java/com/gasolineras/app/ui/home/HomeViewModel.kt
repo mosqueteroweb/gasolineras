@@ -156,12 +156,21 @@ class HomeViewModel @JvmOverloads constructor(
             } else {
                 updatedStations
             }
+            val updatedMapStations = state.mapStations.map { s ->
+                if (s.id == stationId) s.copy(isFavorite = updatedFavorites.contains(s.id)) else s
+            }
+            val filteredMapStations = if (state.onlyFavorites) {
+                updatedMapStations.filter { it.isFavorite }
+            } else {
+                updatedMapStations
+            }
             val updatedDetail = state.selectedStationForDetail?.let { detail ->
                 if (detail.id == stationId) detail.copy(isFavorite = updatedFavorites.contains(detail.id)) else detail
             }
             state.copy(
                 favoriteIds = updatedFavorites,
                 stations = filteredStations,
+                mapStations = filteredMapStations,
                 selectedStationForDetail = updatedDetail
             )
         }
@@ -230,6 +239,7 @@ class HomeViewModel @JvmOverloads constructor(
                             isLoading = false,
                             isRefreshing = false,
                             stations = data.stations,
+                            mapStations = data.mapStations,
                             minPrice = data.minPrice,
                             maxPrice = data.maxPrice,
                             averagePrice = data.averagePrice,

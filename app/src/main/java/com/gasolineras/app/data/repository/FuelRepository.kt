@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 
 data class NearbyStationsResult(
     val stations: List<GasStation>,
+    val mapStations: List<GasStation> = emptyList(),
     val minPrice: Double?,
     val maxPrice: Double?,
     val averagePrice: Double?,
@@ -43,13 +44,12 @@ class FuelRepositoryImpl(
     private val apiService: FuelApiService = ApiClient.fuelApiService
 ) : FuelRepository {
 
-    // In-memory cache (only stores stations within 100 km of the user)
+    // In-memory cache of all stations
     private var cachedStations: List<GasStation> = emptyList()
     private var lastFetchTimestamp: Long = 0
     private var lastFetchLat: Double? = null
     private var lastFetchLon: Double? = null
     private val cacheDurationMillis = 30 * 60 * 1000L // 30 minutes
-    private val maxCacheRadiusMeters = 100_000.0 // 100 km max API radius
 
     override suspend fun getNearbyStations(
         userLat: Double,
@@ -64,24 +64,14 @@ class FuelRepositoryImpl(
     ): Result<NearbyStationsResult> = withContext(Dispatchers.IO) {
         try {
             val currentTime = System.currentTimeMillis()
-            val movedSignificantly = lastFetchLat == null || lastFetchLon == null ||
-                    DistanceCalculator.calculateDistanceMeters(userLat, userLon, lastFetchLat!!, lastFetchLon!!) > 10_000.0
-
             val needRefresh = forceRefresh ||
                     cachedStations.isEmpty() ||
-                    movedSignificantly ||
                     (currentTime - lastFetchTimestamp > cacheDurationMillis)
 
             if (needRefresh) {
                 val response = apiService.getAllStations()
                 val rawList = response.stations.orEmpty()
-                // Eliminate stations beyond 100 km from the user when querying the API
-                cachedStations = rawList.mapNotNull { it.toDomain() }.filter { station ->
-                    DistanceCalculator.calculateDistanceMeters(
-                        userLat, userLon,
-                        station.latitude, station.longitude
-                    ) <= maxCacheRadiusMeters
-                }
+                cachedStations = rawList.mapNotNull { it.toDomain() }
                 lastFetchTimestamp = currentTime
                 lastFetchLat = userLat
                 lastFetchLon = userLon
@@ -90,7 +80,7 @@ class FuelRepositoryImpl(
             val radiusMeters = radiusKm * 1000.0
             val normalizedQuery = searchQuery.trim().lowercase()
 
-            // 1. Calculate distance & map favorite status
+            // 1. Calculate distance from user GPS & map favorite status
             val processedStations = cachedStations
                 .map { station ->
                     val distance = DistanceCalculator.calculateDistanceMeters(
@@ -103,9 +93,6 @@ class FuelRepositoryImpl(
                     )
                 }
                 .filter { station ->
-                    // Distance check
-                    val withinRadius = (station.distanceMeters ?: Double.MAX_VALUE) <= radiusMeters
-
                     // Fuel availability check: must have at least one of the selected fuels
                     val hasSelectedFuel = if (selectedFuels.isEmpty()) {
                         true
@@ -129,8 +116,11 @@ class FuelRepositoryImpl(
                         station.address.lowercase().contains(normalizedQuery)
                     }
 
-                    withinRadius && hasSelectedFuel && matchesFavorites && isPublic && matchesSearch
+                    hasSelectedFuel && matchesFavorites && isPublic && matchesSearch
                 }
+
+            // Stations within user-selected radius (for List Mode)
+            val inRadiusStations = processedStations.filter { (it.distanceMeters ?: Double.MAX_VALUE) <= radiusMeters }
 
             // Helper for best price among selected fuels
             fun GasStation.bestPrice(): Double? {
@@ -143,7 +133,7 @@ class FuelRepositoryImpl(
             }
 
             // 2. Compute price stats for selected fuels in this local radius
-            val pricesList = processedStations.mapNotNull { it.bestPrice() }
+            val pricesList = inRadiusStations.mapNotNull { it.bestPrice() }
             val minPrice = pricesList.minOrNull()
             val maxPrice = pricesList.maxOrNull()
             val avgPrice = if (pricesList.isNotEmpty()) pricesList.average() else null
@@ -152,16 +142,16 @@ class FuelRepositoryImpl(
             val activeFuels = if (selectedFuels.isEmpty()) FuelType.values().toSet() else selectedFuels
             val minPricePerFuel = mutableMapOf<FuelType, Double>()
             for (fuel in activeFuels) {
-                val minForFuel = processedStations.mapNotNull { it.prices[fuel] }.minOrNull()
+                val minForFuel = inRadiusStations.mapNotNull { it.prices[fuel] }.minOrNull()
                 if (minForFuel != null) {
                     minPricePerFuel[fuel] = minForFuel
                 }
             }
 
-            // 3. Sort stations according to user preference (breaking price ties by distance ascending)
+            // 3. Sort stations for List mode
             val sortedStations = when (sortOption) {
                 SortOption.CHEAPEST -> {
-                    processedStations.sortedWith(
+                    inRadiusStations.sortedWith(
                         compareBy<GasStation> {
                             val p = it.bestPrice()
                             if (p != null) Math.round(p * 1000.0) else Long.MAX_VALUE
@@ -171,7 +161,7 @@ class FuelRepositoryImpl(
                     )
                 }
                 SortOption.NEAREST -> {
-                    processedStations.sortedWith(
+                    inRadiusStations.sortedWith(
                         compareBy<GasStation> { it.distanceMeters ?: Double.MAX_VALUE }
                             .thenBy {
                                 val p = it.bestPrice()
@@ -184,6 +174,7 @@ class FuelRepositoryImpl(
             Result.success(
                 NearbyStationsResult(
                     stations = sortedStations,
+                    mapStations = processedStations,
                     minPrice = minPrice,
                     maxPrice = maxPrice,
                     averagePrice = avgPrice,
@@ -206,12 +197,7 @@ class FuelRepositoryImpl(
             try {
                 val response = apiService.getAllStations()
                 val rawList = response.stations.orEmpty()
-                cachedStations = rawList.mapNotNull { it.toDomain() }.filter { station ->
-                    DistanceCalculator.calculateDistanceMeters(
-                        userLat, userLon,
-                        station.latitude, station.longitude
-                    ) <= maxCacheRadiusMeters
-                }
+                cachedStations = rawList.mapNotNull { it.toDomain() }
                 lastFetchTimestamp = System.currentTimeMillis()
                 lastFetchLat = userLat
                 lastFetchLon = userLon
