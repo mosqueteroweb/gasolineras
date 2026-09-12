@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Gasolineras España</string>
+    <string name="loading_stations">Cargando gasolineras y precios oficiales…</string>
+    <string name="error_loading">Error al cargar los datos. Comprueba tu conexión a Internet.</string>
+    <string name="retry">Reintentar</string>
+    <string name="search_hint">Buscar por marca, calle o municipio…</string>
+    <string name="filter_fuel_title">Tipo de carburante</string>
+    <string name="distance_radius">Radio: %1$d km</string>
+    <string name="sort_cheapest">Más baratas</string>
+    <string name="sort_nearest">Más cercanas</string>
+    <string name="no_stations_found">No se encontraron gasolineras con los filtros seleccionados.</string>
+    <string name="open_now">Abierta</string>
+    <string name="how_to_get_there">Cómo llegar</string>
+    <string name="view_on_map">Ver en mapa</string>
+    <string name="prices_title">Precios actualizados</string>
+    <string name="location_permission_title">Permiso de Ubicación</string>
+    <string name="location_permission_desc">Necesitamos acceso a tu ubicación para mostrarte las gasolineras más cercanas y calcular las distancias en tiempo real.</string>
+    <string name="grant_permission">Permitir ubicación</string>
+    <string name="using_default_location">Usando ubicación de referencia (Madrid). Concede permisos de GPS para mayor precisión.</string>
+</resources>

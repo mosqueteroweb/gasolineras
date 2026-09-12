@@ -1,0 +1,88 @@
+package com.gasolineras.app
+
+import com.gasolineras.app.data.api.FuelStationDto
+import com.gasolineras.app.domain.model.FuelType
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Test
+
+class FuelStationDtoTest {
+
+    @Test
+    fun testParseEuropeanNumber() {
+        assertEquals(1.749, FuelStationDto.parseEuropeanNumber("1,749")!!, 0.0001)
+        assertEquals(40.416775, FuelStationDto.parseEuropeanNumber("40,416775")!!, 0.000001)
+        assertEquals(-3.70379, FuelStationDto.parseEuropeanNumber("-3,70379")!!, 0.000001)
+        assertNull(FuelStationDto.parseEuropeanNumber(""))
+        assertNull(FuelStationDto.parseEuropeanNumber("   "))
+        assertNull(FuelStationDto.parseEuropeanNumber(null))
+        assertNull(FuelStationDto.parseEuropeanNumber("invalid_text"))
+    }
+
+    @Test
+    fun testToDomainMapping() {
+        val dto = FuelStationDto(
+            id = "1234",
+            rotulo = "REPSOL",
+            direccion = "CALLE ALCALA, 10",
+            cp = "28014",
+            municipio = "MADRID",
+            provincia = "MADRID",
+            horario = "L-D: 24H",
+            latitud = "40,416775",
+            longitud = "-3,703790",
+            precioG95 = "1,659",
+            precioDiesel = "1,529",
+            precioG98 = "1,799",
+            precioDieselPremium = "1,619",
+            precioGLP = "0,959",
+            precioGNC = null,
+            precioGNL = null,
+            precioBiodiesel = null,
+            tipoVenta = "P",
+            margen = "D"
+        )
+
+        val domain = dto.toDomain()
+        assertNotNull(domain)
+        domain?.let {
+            assertEquals("1234", it.id)
+            assertEquals("Repsol", it.cleanBrand)
+            assertEquals("CALLE ALCALA, 10", it.address)
+            assertEquals(40.416775, it.latitude, 0.00001)
+            assertEquals(-3.703790, it.longitude, 0.00001)
+            assertEquals(1.659, it.priceFor(FuelType.GASOLINA_95_E5)!!, 0.0001)
+            assertEquals(1.529, it.priceFor(FuelType.GASOLEO_A)!!, 0.0001)
+            assertEquals(true, it.isOpen24Hours)
+        }
+    }
+
+    @Test
+    fun testToDomainWithInvalidCoordinatesReturnsNull() {
+        val invalidDto = FuelStationDto(
+            id = "999",
+            rotulo = "TEST",
+            direccion = null,
+            cp = null,
+            municipio = null,
+            provincia = null,
+            horario = null,
+            latitud = "invalida",
+            longitud = "-3,70",
+            precioG95 = "1,50",
+            precioDiesel = null,
+            precioG98 = null,
+            precioDieselPremium = null,
+            precioGLP = null,
+            precioGNC = null,
+            precioGNL = null,
+            precioBiodiesel = null,
+            tipoVenta = "P",
+            margen = null
+        )
+
+        val domain = invalidDto.toDomain()
+        assertNull(domain)
+    }
+}
