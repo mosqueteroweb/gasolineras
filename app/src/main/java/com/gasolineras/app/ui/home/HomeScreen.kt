@@ -321,14 +321,14 @@ fun HomeScreen(
                             .padding(top = 8.dp)
                     )
 
-                    // Floating station count pill at bottom-start
+                    // Floating station count pill at bottom-start (raised above zoom controls)
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
                         shadowElevation = 3.dp,
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(start = 14.dp, bottom = 14.dp)
+                            .padding(start = 14.dp, bottom = 72.dp)
                     ) {
                         Text(
                             text = "${state.stations.size} gasolineras",

@@ -21,10 +21,10 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
 
 private fun zoomLevelForRadius(radiusKm: Double): Double = when {
-    radiusKm <= 3.5 -> 14.5
-    radiusKm <= 12.0 -> 12.5
-    radiusKm <= 30.0 -> 10.8
-    else -> 8.8
+    radiusKm <= 3.5 -> 15.8
+    radiusKm <= 12.0 -> 13.8
+    radiusKm <= 30.0 -> 12.0
+    else -> 9.8
 }
 
 @Composable
@@ -56,6 +56,14 @@ fun OsmMapView(
         onDispose {
             mapView.onPause()
         }
+    }
+
+    // On initial display, guarantee camera is centered and at optimal zoom for the radius
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        val center = GeoPoint(userLocation.latitude, userLocation.longitude)
+        val zoom = zoomLevelForRadius(selectedRadiusKm)
+        mapView.controller.setZoom(zoom)
+        mapView.controller.setCenter(center)
     }
 
     // Auto-center camera on GPS location once acquired
