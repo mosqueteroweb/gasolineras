@@ -1,5 +1,9 @@
 # ⛽ Gasolineras España (con soporte especial GLP)
 
+[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v1.5.1-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)
+
+> **[📥 Descarga directa de gasolineras.apk (versión 1.5.1)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)**
+
 Aplicación Android nativa desarrollada con **Kotlin + Jetpack Compose (Material 3)** para consultar gasolineras cercanas y precios de carburantes en tiempo real en España.
 
 Especialmente diseñada para familias y conductores que desean ahorrar combustible, con **atención y resalte especial para gasolineras con GLP (Autogas)**.
