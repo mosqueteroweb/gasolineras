@@ -47,16 +47,13 @@ import com.gasolineras.app.ui.theme.CheapGreenContainer
 @Composable
 fun StationCard(
     station: GasStation,
-    selectedFuel: FuelType,
+    selectedFuels: Set<FuelType>,
     isCheapestInArea: Boolean,
     onClick: () -> Unit,
     onNavigateClick: () -> Unit,
     onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val price = station.priceFor(selectedFuel)
-    val priceText = station.formattedPriceFor(selectedFuel)
-
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -147,9 +144,9 @@ fun StationCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Middle row: Distance badge & Price badge
+            // Sub-row: Distance badge & Cheapest badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -167,7 +164,7 @@ fun StationCard(
                         Icon(
                             imageVector = Icons.Default.DirectionsCar,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(15.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -180,35 +177,73 @@ fun StationCard(
                     }
                 }
 
-                // Price display
-                Column(horizontalAlignment = Alignment.End) {
-                    if (isCheapestInArea && price != null) {
-                        Surface(
-                            shape = RoundedCornerShape(4.dp),
-                            color = CheapGreenContainer,
-                            modifier = Modifier.padding(bottom = 2.dp)
-                        ) {
-                            Text(
-                                text = "¡MÁS BARATA!",
-                                color = CheapGreen,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
+                if (isCheapestInArea) {
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = CheapGreenContainer
+                    ) {
+                        Text(
+                            text = "🏆 ¡MÁS BARATA!",
+                            color = CheapGreen,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
                     }
-
-                    Text(
-                        text = priceText,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = if (isCheapestInArea) CheapGreen else MaterialTheme.colorScheme.primary
-                    )
                 }
             }
 
-            // Destacado especial si tiene GLP / Autogas
-            if (station.hasGLP) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Fuel Prices Row for selected fuels (Diésel, Gas 95, GLP)
+            val fuelOrder = listOf(FuelType.GASOLEO_A, FuelType.GASOLINA_95_E5, FuelType.GLP)
+            val fuelsToShow = fuelOrder.filter { selectedFuels.contains(it) }
+
+            if (fuelsToShow.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    fuelsToShow.forEach { fuel ->
+                        val p = station.priceFor(fuel)
+                        val pText = if (p != null) "${"%.3f".format(p).replace('.', ',')} €" else "—"
+                        val label = when (fuel) {
+                            FuelType.GASOLEO_A -> "Diésel"
+                            FuelType.GASOLINA_95_E5 -> "Gas 95"
+                            FuelType.GLP -> "GLP"
+                            else -> fuel.displayName
+                        }
+                        val isGLP = fuel == FuelType.GLP
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (isGLP) Color(0xFFE0F2F1) else MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = if (isGLP) "🟢 $label" else label,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (isGLP) Color(0xFF004D40) else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = pText,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = if (isGLP) Color(0xFF00695C) else MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Destacado especial si tiene GLP pero GLP no estaba entre los seleccionados
+            if (station.hasGLP && !selectedFuels.contains(FuelType.GLP)) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(
                     shape = RoundedCornerShape(8.dp),
@@ -220,14 +255,12 @@ fun StationCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "🟢 GLP / Autogas:",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF00695C)
-                            )
-                        }
+                        Text(
+                            text = "🟢 GLP / Autogas disponible:",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF00695C)
+                        )
                         Text(
                             text = station.formattedGlpPrice,
                             fontSize = 13.sp,

@@ -22,10 +22,9 @@ interface FuelRepository {
         userLat: Double,
         userLon: Double,
         radiusKm: Double,
-        fuelType: FuelType,
+        selectedFuels: Set<FuelType>,
         sortOption: SortOption,
         searchQuery: String = "",
-        onlyGLP: Boolean = false,
         onlyFavorites: Boolean = false,
         favoriteIds: Set<String> = emptySet(),
         forceRefresh: Boolean = false
@@ -45,10 +44,9 @@ class FuelRepositoryImpl(
         userLat: Double,
         userLon: Double,
         radiusKm: Double,
-        fuelType: FuelType,
+        selectedFuels: Set<FuelType>,
         sortOption: SortOption,
         searchQuery: String,
-        onlyGLP: Boolean,
         onlyFavorites: Boolean,
         favoriteIds: Set<String>,
         forceRefresh: Boolean
@@ -69,7 +67,7 @@ class FuelRepositoryImpl(
             val radiusMeters = radiusKm * 1000.0
             val normalizedQuery = searchQuery.trim().lowercase()
 
-            // 1. Calculate distance & filter stations
+            // 1. Calculate distance & map favorite status
             val processedStations = cachedStations
                 .map { station ->
                     val distance = DistanceCalculator.calculateDistanceMeters(
@@ -85,17 +83,18 @@ class FuelRepositoryImpl(
                     // Distance check
                     val withinRadius = (station.distanceMeters ?: Double.MAX_VALUE) <= radiusMeters
 
-                    // Fuel availability check
-                    val hasFuel = station.prices.containsKey(fuelType)
-
-                    // GLP special filter
-                    val matchesGLP = !onlyGLP || station.hasGLP
+                    // Fuel availability check: must have at least one of the selected fuels
+                    val hasSelectedFuel = if (selectedFuels.isEmpty()) {
+                        true
+                    } else {
+                        selectedFuels.any { fuel -> station.prices.containsKey(fuel) }
+                    }
 
                     // Favorites filter
                     val matchesFavorites = !onlyFavorites || favoriteIds.contains(station.id)
 
-                    // Public sale filter (exclude wholesale or restricted cooperative stations)
-                    val isPublic = station.saleType.equals("P", ignoreCase = true)
+                    // Public sale filter (P = public sale, or blank)
+                    val isPublic = station.saleType.isBlank() || station.saleType.equals("P", ignoreCase = true)
 
                     // Search text filter
                     val matchesSearch = if (normalizedQuery.isBlank()) {
@@ -107,27 +106,37 @@ class FuelRepositoryImpl(
                         station.address.lowercase().contains(normalizedQuery)
                     }
 
-                    withinRadius && hasFuel && matchesGLP && matchesFavorites && isPublic && matchesSearch
+                    withinRadius && hasSelectedFuel && matchesFavorites && isPublic && matchesSearch
                 }
 
-            // 2. Compute price stats for selected fuel in this local radius
-            val prices = processedStations.mapNotNull { it.prices[fuelType] }
-            val minPrice = prices.minOrNull()
-            val maxPrice = prices.maxOrNull()
-            val avgPrice = if (prices.isNotEmpty()) prices.average() else null
+            // Helper for best price among selected fuels
+            fun GasStation.bestPrice(): Double? {
+                val candidatePrices = if (selectedFuels.isEmpty()) {
+                    prices.values
+                } else {
+                    selectedFuels.mapNotNull { prices[it] }
+                }
+                return candidatePrices.minOrNull()
+            }
+
+            // 2. Compute price stats for selected fuels in this local radius
+            val pricesList = processedStations.mapNotNull { it.bestPrice() }
+            val minPrice = pricesList.minOrNull()
+            val maxPrice = pricesList.maxOrNull()
+            val avgPrice = if (pricesList.isNotEmpty()) pricesList.average() else null
 
             // 3. Sort stations according to user preference
             val sortedStations = when (sortOption) {
                 SortOption.CHEAPEST -> {
                     processedStations.sortedWith(
-                        compareBy<GasStation> { it.prices[fuelType] ?: Double.MAX_VALUE }
+                        compareBy<GasStation> { it.bestPrice() ?: Double.MAX_VALUE }
                             .thenBy { it.distanceMeters ?: Double.MAX_VALUE }
                     )
                 }
                 SortOption.NEAREST -> {
                     processedStations.sortedWith(
                         compareBy<GasStation> { it.distanceMeters ?: Double.MAX_VALUE }
-                            .thenBy { it.prices[fuelType] ?: Double.MAX_VALUE }
+                            .thenBy { it.bestPrice() ?: Double.MAX_VALUE }
                     )
                 }
             }

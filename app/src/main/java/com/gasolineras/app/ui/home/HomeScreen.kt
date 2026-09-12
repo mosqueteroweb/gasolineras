@@ -1,6 +1,7 @@
 package com.gasolineras.app.ui.home
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,8 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -58,6 +61,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gasolineras.app.domain.model.FuelType
+import com.gasolineras.app.domain.model.GasStation
 import com.gasolineras.app.domain.model.SortOption
 import com.gasolineras.app.ui.components.FuelTypeSelector
 import com.gasolineras.app.ui.components.NavigationHelper
@@ -65,8 +70,6 @@ import com.gasolineras.app.ui.components.RadiusFilterBar
 import com.gasolineras.app.ui.components.StationCard
 import com.gasolineras.app.ui.components.StationDetailDialog
 import com.gasolineras.app.ui.map.OsmMapView
-import com.gasolineras.app.ui.theme.CheapGreen
-import com.gasolineras.app.ui.theme.CheapGreenContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,7 +152,20 @@ fun HomeScreen(
                             }
                         }
                     } else {
-                        // Search Lupa icon button
+                        // 1. Prominent Sort button in TopBar
+                        IconButton(onClick = {
+                            viewModel.toggleSort()
+                            val nextSortName = if (state.selectedSort == SortOption.CHEAPEST) "más cercana" else "más barata"
+                            Toast.makeText(context, "Ordenando por $nextSortName", Toast.LENGTH_SHORT).show()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Sort,
+                                contentDescription = "Cambiar orden (precio / distancia)",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+                        // 2. Search Lupa icon button
                         IconButton(onClick = { isSearchExpanded = true }) {
                             Icon(
                                 imageVector = Icons.Default.Search,
@@ -158,20 +174,11 @@ fun HomeScreen(
                             )
                         }
 
-                        // Toggle map / list view button
-                        IconButton(onClick = { viewModel.onToggleMapView() }) {
-                            Icon(
-                                imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
-                                contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-
-                        // Refresh button
+                        // 3. Refresh button
                         IconButton(onClick = { viewModel.onRefresh() }) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Actualizar",
+                                contentDescription = "Actualizar precios",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -182,284 +189,349 @@ fun HomeScreen(
                 )
             )
         },
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = !state.isMapView,
+                    onClick = { viewModel.setMapView(false) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ViewList,
+                            contentDescription = "Ver lista"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Lista",
+                            fontWeight = if (!state.isMapView) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                )
+                NavigationBarItem(
+                    selected = state.isMapView,
+                    onClick = { viewModel.setMapView(true) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Map,
+                            contentDescription = "Ver mapa"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Mapa",
+                            fontWeight = if (state.isMapView) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                )
+            }
+        },
         modifier = modifier
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            // Location Permission Warning Banner (if not granted)
-            if (!state.hasLocationPermission) {
-                Surface(
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onRequestLocationPermission() }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOff,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Pulsa aquí para activar el GPS y calcular distancias reales.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-
-            // 1. Fuel selection area (hidden when onlyGLP is active to avoid confusion)
-            if (!state.onlyGLP) {
-                FuelTypeSelector(
-                    selectedFuel = state.selectedFuel,
-                    onFuelSelected = { viewModel.onFuelSelected(it) }
-                )
-            } else {
-                Surface(
-                    color = Color(0xFFE0F2F1),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "🟢 Filtro activo: Solo gasolineras con GLP (Autogas)",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF004D40)
-                        )
-                    }
-                }
-            }
-
-            // 2. Quick filters row: Solo GLP and Favoritas
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                FilterChip(
-                    selected = state.onlyGLP,
-                    onClick = { viewModel.onToggleOnlyGLP() },
-                    label = {
-                        Text(
-                            text = if (state.onlyGLP) "✓ Solo GLP" else "🟢 Solo GLP",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF00695C),
-                        selectedLabelColor = Color.White
+            if (state.isMapView) {
+                // ==================== MAP MODE: 100% FULL SCREEN ====================
+                Box(modifier = Modifier.fillMaxSize()) {
+                    OsmMapView(
+                        userLocation = state.userLocation,
+                        stations = state.stations,
+                        selectedFuels = state.selectedFuels,
+                        onSelectStation = { viewModel.onSelectStation(it) },
+                        modifier = Modifier.fillMaxSize()
                     )
-                )
 
-                FilterChip(
-                    selected = state.onlyFavorites,
-                    onClick = { viewModel.onToggleOnlyFavorites() },
-                    label = {
-                        Text(
-                            text = if (state.onlyFavorites) "✓ Favoritas" else "❤️ Favoritas",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFC62828),
-                        selectedLabelColor = Color.White
-                    )
-                )
-            }
-
-            // 3. Distance Radius Selector (fits screen cleanly)
-            RadiusFilterBar(
-                selectedRadiusKm = state.selectedRadiusKm,
-                onRadiusSelected = { viewModel.onRadiusSelected(it) }
-            )
-
-            // 4. Status bar with CLEAR sorting criteria button
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${state.stations.size} encontradas",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
-
-                // Clear sort toggle badge
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.clickable {
-                        val nextSort = if (state.selectedSort == SortOption.CHEAPEST) {
-                            SortOption.NEAREST
-                        } else {
-                            SortOption.CHEAPEST
-                        }
-                        viewModel.onSortOptionSelected(nextSort)
-                    }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                    // Floating Fuel Selector at the top of the map
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                        shadowElevation = 4.dp,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 10.dp, start = 12.dp, end = 12.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Sort,
-                            contentDescription = null,
-                            modifier = Modifier.size(15.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = if (state.selectedSort == SortOption.CHEAPEST) "Orden: 💶 Más barata" else "Orden: 📍 Más cercana",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                        FuelTypeSelector(
+                            selectedFuels = state.selectedFuels,
+                            onToggleFuel = { viewModel.onToggleFuel(it) },
+                            modifier = Modifier.padding(vertical = 2.dp)
                         )
                     }
-                }
-            }
 
-            // 5. Main content area (List or Map)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
-            ) {
-                when {
-                    state.isLoading -> {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                    // Floating Legend & count summary at bottom of map
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                        shadowElevation = 6.dp,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
-                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "Consultando precios oficiales del Ministerio...",
-                                style = MaterialTheme.typography.bodyMedium,
+                                text = "📍 Tú",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "🏆 Barata",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2E7D32)
+                            )
+                            Text(
+                                text = "⚡ Cercana",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFE65100)
+                            )
+                            Text(
+                                text = "🟢 GLP",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF00695C)
+                            )
+                            Text(
+                                text = "• ${state.stations.size} gasolineras",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                             )
                         }
                     }
-
-                    state.errorMessage != null -> {
-                        Column(
+                }
+            } else {
+                // ==================== LIST MODE ====================
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // Location Permission Warning Banner (if not granted)
+                    if (!state.hasLocationPermission) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(32.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .fillMaxWidth()
+                                .clickable { onRequestLocationPermission() }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.ErrorOutline,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(54.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = state.errorMessage ?: "",
-                                style = MaterialTheme.typography.bodyLarge,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Button(
-                                onClick = { viewModel.onRefresh() },
-                                shape = RoundedCornerShape(10.dp)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
-                                Text("Reintentar")
+                                Icon(
+                                    imageVector = Icons.Default.LocationOff,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Pulsa aquí para activar el GPS y calcular distancias reales.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    fontWeight = FontWeight.Medium
+                                )
                             }
                         }
                     }
 
-                    state.stations.isEmpty() -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(32.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                    // 1. 3 Fuel Carousel (Diésel, Gas 95, GLP) - All checked by default
+                    FuelTypeSelector(
+                        selectedFuels = state.selectedFuels,
+                        onToggleFuel = { viewModel.onToggleFuel(it) }
+                    )
+
+                    // 2. Distance Radius Filter (fits screen)
+                    RadiusFilterBar(
+                        selectedRadiusKm = state.selectedRadiusKm,
+                        onRadiusSelected = { viewModel.onRadiusSelected(it) }
+                    )
+
+                    // 3. Status Bar: Station count, Sort toggle button, Favorites filter
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${state.stations.size} encontradas",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.LocalGasStation,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                modifier = Modifier.size(64.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "No se encontraron gasolineras",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = if (state.onlyFavorites) "No tienes gasolineras guardadas como favoritas todavía." else "Prueba a ampliar el radio de distancia o seleccionar otro tipo de carburante.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            // Clear Sort button
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.clickable { viewModel.toggleSort() }
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.Sort,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = if (state.selectedSort == SortOption.CHEAPEST) "💶 Más barata" else "📍 Más cercana",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+
+                            // Favorites filter chip
+                            FilterChip(
+                                selected = state.onlyFavorites,
+                                onClick = { viewModel.onToggleOnlyFavorites() },
+                                label = {
+                                    Text(
+                                        text = if (state.onlyFavorites) "✓ Favoritas" else "❤️ Favoritas",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color(0xFFC62828),
+                                    selectedLabelColor = Color.White
+                                )
                             )
                         }
                     }
 
-                    else -> {
-                        if (state.isMapView) {
-                            OsmMapView(
-                                userLocation = state.userLocation,
-                                stations = state.stations,
-                                selectedFuel = state.selectedFuel,
-                                onSelectStation = { viewModel.onSelectStation(it) },
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            LazyColumn(
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                items(
-                                    items = state.stations,
-                                    key = { it.id.ifEmpty { "${it.latitude}-${it.longitude}-${it.brand}" } }
-                                ) { station ->
-                                    val isCheapest = state.minPrice != null &&
-                                            station.priceFor(state.selectedFuel) == state.minPrice
-
-                                    StationCard(
-                                        station = station,
-                                        selectedFuel = state.selectedFuel,
-                                        isCheapestInArea = isCheapest,
-                                        onClick = { viewModel.onSelectStation(station) },
-                                        onNavigateClick = {
-                                            NavigationHelper.navigateToStation(context, station)
-                                        },
-                                        onToggleFavorite = {
-                                            viewModel.onToggleFavorite(station.id)
-                                        }
+                    // 4. List / State content area
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        when {
+                            state.isLoading -> {
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "Consultando precios oficiales del Ministerio...",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                     )
+                                }
+                            }
+
+                            state.errorMessage != null -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(32.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ErrorOutline,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(54.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = state.errorMessage ?: "",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Button(
+                                        onClick = { viewModel.onRefresh() },
+                                        shape = RoundedCornerShape(10.dp)
+                                    ) {
+                                        Text("Reintentar")
+                                    }
+                                }
+                            }
+
+                            state.stations.isEmpty() -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(32.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.LocalGasStation,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                                        modifier = Modifier.size(64.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "No se encontraron gasolineras",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = if (state.onlyFavorites) "No tienes gasolineras guardadas como favoritas todavía." else "Prueba a ampliar el radio de distancia o verificar los tipos de combustible marcados.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+
+                            else -> {
+                                LazyColumn(
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    items(
+                                        items = state.stations,
+                                        key = { it.id.ifEmpty { "${it.latitude}-${it.longitude}-${it.brand}" } }
+                                    ) { station ->
+                                        // Station is cheapest if its bestPrice matches the minPrice of the list
+                                        val candidatePrices = if (state.selectedFuels.isEmpty()) {
+                                            station.prices.values
+                                        } else {
+                                            state.selectedFuels.mapNotNull { station.prices[it] }
+                                        }
+                                        val stationBestPrice = candidatePrices.minOrNull()
+                                        val isCheapest = state.minPrice != null &&
+                                                stationBestPrice != null &&
+                                                stationBestPrice == state.minPrice
+
+                                        StationCard(
+                                            station = station,
+                                            selectedFuels = state.selectedFuels,
+                                            isCheapestInArea = isCheapest,
+                                            onClick = { viewModel.onSelectStation(station) },
+                                            onNavigateClick = {
+                                                NavigationHelper.navigateToStation(context, station)
+                                            },
+                                            onToggleFavorite = {
+                                                viewModel.onToggleFavorite(station.id)
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -469,7 +541,7 @@ fun HomeScreen(
         }
     }
 
-    // Detail dialog popup
+    // Detail dialog popup (works for both Map and List modes)
     state.selectedStationForDetail?.let { station ->
         StationDetailDialog(
             station = station,

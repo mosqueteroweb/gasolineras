@@ -11,8 +11,12 @@ data class HomeUiState(
     val errorMessage: String? = null,
     val stations: List<GasStation> = emptyList(),
     val userLocation: UserLocation = UserLocation.DEFAULT,
-    val selectedFuel: FuelType = FuelType.default,
-    val selectedRadiusKm: Double = 10.0,
+    val selectedFuels: Set<FuelType> = setOf(
+        FuelType.GASOLEO_A,
+        FuelType.GASOLINA_95_E5,
+        FuelType.GLP
+    ),
+    val selectedRadiusKm: Double = 15.0,
     val selectedSort: SortOption = SortOption.CHEAPEST,
     val searchQuery: String = "",
     val minPrice: Double? = null,
@@ -20,7 +24,6 @@ data class HomeUiState(
     val averagePrice: Double? = null,
     val selectedStationForDetail: GasStation? = null,
     val hasLocationPermission: Boolean = false,
-    val onlyGLP: Boolean = false,
     val onlyFavorites: Boolean = false,
     val favoriteIds: Set<String> = emptySet(),
     val isMapView: Boolean = false

@@ -39,16 +39,25 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     /**
-     * Checks location permissions, gets GPS coordinates and loads nearby gas stations.
+     * Checks location permissions, immediately triggers station loading with current coordinates,
+     * and asynchronously fetches GPS location to refine distances without blocking UI.
      */
     fun checkLocationAndLoad(forceRefresh: Boolean = false) {
         val hasPermission = locationClient.hasLocationPermission()
         _uiState.update { it.copy(hasLocationPermission = hasPermission) }
 
-        viewModelScope.launch {
-            val userLocation = locationClient.getCurrentLocation()
-            _uiState.update { it.copy(userLocation = userLocation) }
-            fetchStations(forceRefresh = forceRefresh)
+        // Start loading stations immediately so the user never waits on a blank screen
+        fetchStations(forceRefresh = forceRefresh)
+
+        // If permission is already granted, refine with current GPS coordinates concurrently
+        if (hasPermission) {
+            viewModelScope.launch {
+                val userLocation = locationClient.getCurrentLocation()
+                if (userLocation != _uiState.value.userLocation) {
+                    _uiState.update { it.copy(userLocation = userLocation) }
+                    fetchStations(forceRefresh = false)
+                }
+            }
         }
     }
 
@@ -64,9 +73,18 @@ class HomeViewModel @JvmOverloads constructor(
         }
     }
 
-    fun onFuelSelected(fuelType: FuelType) {
-        if (_uiState.value.selectedFuel == fuelType) return
-        _uiState.update { it.copy(selectedFuel = fuelType) }
+    /**
+     * Toggles one of the 3 main fuels (Diésel, Gasolina 95, GLP).
+     * Ensures at least one fuel remains selected.
+     */
+    fun onToggleFuel(fuel: FuelType) {
+        val current = _uiState.value.selectedFuels
+        val next = if (current.contains(fuel)) {
+            if (current.size > 1) current - fuel else current
+        } else {
+            current + fuel
+        }
+        _uiState.update { it.copy(selectedFuels = next) }
         fetchStations(forceRefresh = false)
     }
 
@@ -82,6 +100,15 @@ class HomeViewModel @JvmOverloads constructor(
         fetchStations(forceRefresh = false)
     }
 
+    fun toggleSort() {
+        val nextSort = if (_uiState.value.selectedSort == SortOption.CHEAPEST) {
+            SortOption.NEAREST
+        } else {
+            SortOption.CHEAPEST
+        }
+        onSortOptionSelected(nextSort)
+    }
+
     fun onSearchQueryChanged(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
         searchDebounceJob?.cancel()
@@ -89,17 +116,6 @@ class HomeViewModel @JvmOverloads constructor(
             delay(300) // Debounce typing
             fetchStations(forceRefresh = false)
         }
-    }
-
-    fun onToggleOnlyGLP() {
-        val newOnlyGLP = !_uiState.value.onlyGLP
-        _uiState.update {
-            it.copy(
-                onlyGLP = newOnlyGLP,
-                selectedFuel = if (newOnlyGLP) FuelType.GLP else FuelType.default
-            )
-        }
-        fetchStations(forceRefresh = false)
     }
 
     fun onToggleOnlyFavorites() {
@@ -134,6 +150,11 @@ class HomeViewModel @JvmOverloads constructor(
         _uiState.update { it.copy(isMapView = !it.isMapView) }
     }
 
+    fun setMapView(isMap: Boolean) {
+        if (_uiState.value.isMapView == isMap) return
+        _uiState.update { it.copy(isMapView = isMap) }
+    }
+
     fun onRefresh() {
         fetchStations(forceRefresh = true)
     }
@@ -159,10 +180,9 @@ class HomeViewModel @JvmOverloads constructor(
                 userLat = currentState.userLocation.latitude,
                 userLon = currentState.userLocation.longitude,
                 radiusKm = currentState.selectedRadiusKm,
-                fuelType = currentState.selectedFuel,
+                selectedFuels = currentState.selectedFuels,
                 sortOption = currentState.selectedSort,
                 searchQuery = currentState.searchQuery,
-                onlyGLP = currentState.onlyGLP,
                 onlyFavorites = currentState.onlyFavorites,
                 favoriteIds = currentState.favoriteIds,
                 forceRefresh = forceRefresh

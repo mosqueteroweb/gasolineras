@@ -61,21 +61,8 @@ class LocationClient(private val context: Context) {
         val client = fusedLocationClient ?: return UserLocation.DEFAULT
 
         return try {
-            val cancellationTokenSource = CancellationTokenSource()
-            val location = client.getCurrentLocation(
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-                cancellationTokenSource.token
-            ).await()
-
-            if (location != null) {
-                UserLocation(
-                    latitude = location.latitude,
-                    longitude = location.longitude,
-                    isDefaultLocation = false
-                )
-            } else {
-                // Fallback to last known location
-                val lastKnown = client.lastLocation.await()
+            kotlinx.coroutines.withTimeoutOrNull(2500L) {
+                val lastKnown = try { client.lastLocation.await() } catch (e: Exception) { null }
                 if (lastKnown != null) {
                     UserLocation(
                         latitude = lastKnown.latitude,
@@ -83,9 +70,23 @@ class LocationClient(private val context: Context) {
                         isDefaultLocation = false
                     )
                 } else {
-                    UserLocation.DEFAULT
+                    val cancellationTokenSource = CancellationTokenSource()
+                    val location = client.getCurrentLocation(
+                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                        cancellationTokenSource.token
+                    ).await()
+
+                    if (location != null) {
+                        UserLocation(
+                            latitude = location.latitude,
+                            longitude = location.longitude,
+                            isDefaultLocation = false
+                        )
+                    } else {
+                        UserLocation.DEFAULT
+                    }
                 }
-            }
+            } ?: UserLocation.DEFAULT
         } catch (e: Throwable) {
             UserLocation.DEFAULT
         }
