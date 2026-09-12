@@ -118,8 +118,16 @@ class HomeViewModel @JvmOverloads constructor(
         }
     }
 
-    fun onToggleOnlyFavorites() {
-        _uiState.update { it.copy(onlyFavorites = !it.onlyFavorites) }
+    fun onToggleOnlyFavorites(onNoFavorites: () -> Unit = {}) {
+        val nextFavoritesState = !_uiState.value.onlyFavorites
+        if (nextFavoritesState) {
+            val favs = favoritesManager.getFavoriteIds()
+            if (favs.isEmpty()) {
+                onNoFavorites()
+                return
+            }
+        }
+        _uiState.update { it.copy(onlyFavorites = nextFavoritesState) }
         fetchStations(forceRefresh = false)
     }
 

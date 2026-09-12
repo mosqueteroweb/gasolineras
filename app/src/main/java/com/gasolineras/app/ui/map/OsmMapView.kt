@@ -24,7 +24,7 @@ fun OsmMapView(
     selectedFuels: Set<FuelType>,
     onSelectStation: (GasStation) -> Unit,
     modifier: Modifier = Modifier,
-    onCenterOnUser: ((() -> Unit) -> Unit)? = null
+    centerTrigger: Int = 0
 ) {
     val context = LocalContext.current
     val mapView = remember {
@@ -32,7 +32,7 @@ fun OsmMapView(
         MapView(context).apply {
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
-            controller.setZoom(14.0)
+            controller.setZoom(14.5)
             val center = GeoPoint(userLocation.latitude, userLocation.longitude)
             controller.setCenter(center)
         }
@@ -42,6 +42,19 @@ fun OsmMapView(
         mapView.onResume()
         onDispose {
             mapView.onPause()
+        }
+    }
+
+    // Auto-center when GPS location updates or when user taps recenter button
+    androidx.compose.runtime.LaunchedEffect(userLocation) {
+        if (!userLocation.isDefaultLocation) {
+            mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
+        }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(centerTrigger) {
+        if (centerTrigger > 0) {
+            mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
         }
     }
 

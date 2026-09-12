@@ -12,22 +12,24 @@ import android.graphics.drawable.Drawable
 object MapMarkerHelper {
 
     /**
-     * Creates a distinctive GPS location dot (Google Maps style: blue dot with white outline and faint halo).
+     * Creates a distinctive GPS location dot (Google Maps style: blue dot with white outline and faint halo),
+     * properly scaled to screen density.
      */
     fun createUserLocationMarker(context: Context): Drawable {
-        val size = 64
+        val density = context.resources.displayMetrics.density
+        val size = (32 * density).toInt().coerceAtLeast(64)
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
         // Outer halo
-        paint.color = Color.argb(60, 25, 118, 210) // Faint blue
+        paint.color = Color.argb(55, 33, 150, 243)
         canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
 
         // White border
         paint.color = Color.WHITE
-        canvas.drawCircle(size / 2f, size / 2f, size * 0.35f, paint)
+        canvas.drawCircle(size / 2f, size / 2f, size * 0.36f, paint)
 
         // Solid Blue core
         paint.color = Color.rgb(25, 118, 210)
@@ -37,35 +39,37 @@ object MapMarkerHelper {
     }
 
     /**
-     * Creates custom map pin markers for gas stations with specific highlight colors and badges.
+     * Creates custom map pin markers for gas stations with specific highlight colors and badges,
+     * scaled to screen density so they are large, sharp and easily readable.
      */
     fun createGasStationMarker(
         context: Context,
         pinColor: Int,
         label: String? = null
     ): Drawable {
-        val width = 72
-        val height = 90
+        val density = context.resources.displayMetrics.density
+        val width = (36 * density).toInt().coerceAtLeast(80)
+        val height = (48 * density).toInt().coerceAtLeast(106)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
         // Pin shadow
-        paint.color = Color.argb(50, 0, 0, 0)
-        canvas.drawOval(width * 0.2f, height * 0.85f, width * 0.8f, height * 0.98f, paint)
+        paint.color = Color.argb(60, 0, 0, 0)
+        canvas.drawOval(width * 0.15f, height * 0.84f, width * 0.85f, height * 0.98f, paint)
 
         // Pin body path
         val path = Path()
-        val radius = width * 0.45f
+        val radius = width * 0.44f
         val centerX = width / 2f
-        val centerY = radius
+        val centerY = radius + 2 * density
 
         path.addCircle(centerX, centerY, radius, Path.Direction.CW)
         // Triangle tip pointing downwards
-        path.moveTo(centerX - radius * 0.7f, centerY + radius * 0.6f)
-        path.lineTo(centerX, height * 0.86f)
-        path.lineTo(centerX + radius * 0.7f, centerY + radius * 0.6f)
+        path.moveTo(centerX - radius * 0.72f, centerY + radius * 0.58f)
+        path.lineTo(centerX, height * 0.88f)
+        path.lineTo(centerX + radius * 0.72f, centerY + radius * 0.58f)
         path.close()
 
         // Draw pin background
@@ -76,7 +80,7 @@ object MapMarkerHelper {
         // White outline for sharpness
         paint.color = Color.WHITE
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 3f
+        paint.strokeWidth = 2.5f * density
         canvas.drawPath(path, paint)
 
         // Inner white circle
@@ -86,7 +90,7 @@ object MapMarkerHelper {
 
         // Draw badge/text/symbol in the center
         paint.color = pinColor
-        paint.textSize = 22f
+        paint.textSize = 15f * density
         paint.textAlign = Paint.Align.CENTER
         paint.isFakeBoldText = true
 

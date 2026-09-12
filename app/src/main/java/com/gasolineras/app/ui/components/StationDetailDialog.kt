@@ -17,10 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -82,7 +82,7 @@ fun StationDetailDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = onToggleFavorite) {
                             Icon(
-                                imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                 contentDescription = if (station.isFavorite) "Quitar de favoritas" else "Añadir a favoritas",
                                 tint = if (station.isFavorite) androidx.compose.ui.graphics.Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )

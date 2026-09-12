@@ -17,10 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -133,13 +133,13 @@ fun StationCard(
                 // Heart favorite button
                 IconButton(
                     onClick = onToggleFavorite,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(38.dp)
                 ) {
                     Icon(
-                        imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = if (station.isFavorite) "Quitar de favoritos" else "Añadir a favoritos",
-                        tint = if (station.isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
-                        modifier = Modifier.size(22.dp)
+                        tint = if (station.isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
@@ -206,7 +206,7 @@ fun StationCard(
                 ) {
                     fuelsToShow.forEach { fuel ->
                         val p = station.priceFor(fuel)
-                        val pText = if (p != null) "${"%.3f".format(p).replace('.', ',')} €" else "—"
+                        val pText = if (p != null) String.format(java.util.Locale.US, "%.3f €", p) else "—"
                         val label = when (fuel) {
                             FuelType.GASOLEO_A -> "Diésel"
                             FuelType.GASOLINA_95_E5 -> "Gas 95"
