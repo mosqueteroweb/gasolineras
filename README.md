@@ -22,15 +22,16 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
   - Cálculo de distancia en tiempo real con la fórmula de Haversine.
   - Fallback de referencia en Madrid para funcionamiento continuo incluso sin GPS activo.
 - **Filtros Flexibles**:
-  - Por tipo de combustible: Gasolina 95 E5, Diésel (Gasóleo A), Gasolina 98, Diésel Premium, GLP, GNC, GNL, Biodiésel.
-  - Por radio de búsqueda: 3 km, 5 km, 10 km, 20 km y 50 km.
+  - Por tipo de combustible: Diésel (Gasóleo A), Gasolina 95 E5 y GLP destacados por defecto (con soporte para Gasolina 98, Diésel Premium, GNC, GNL y Biodiésel).
+  - Por radio de búsqueda: 3 km, 10 km, 25 km y 100 km (10 km por defecto, accesible al instante desde el icono de radio en la barra superior).
   - Por marca o localidad mediante buscador de texto reactivo.
 - **Detección de la Gasolinera Más Barata**:
-  - Detección automática del precio mínimo en la zona con el distintivo `¡MÁS BARATA!`.
+  - Detección automática del precio mínimo en la zona para cada uno de los carburantes seleccionados con el distintivo `🏆 MÁS BARATA`.
+  - En caso de empate en el precio más bajo, la lista muestra primero la estación más cercana.
 - **Navegación GPS Guiada**:
   - Botón de acción rápida **"Ir"** para iniciar navegación paso a paso en **Google Maps, Waze o Petal Maps**.
 - **Vista de Mapa sin Cuenta**:
-  - Mapa interactivo integrado basado en **OpenStreetMap** (100% libre, sin requerir cuenta ni tarjetas en Google Cloud).
+  - Mapa interactivo integrado basado en **OpenStreetMap** (100% libre, sin requerir cuenta ni tarjetas en Google Cloud), con leyendas de precios grandes y toque para ficha completa.
 
 ---
 
@@ -46,18 +47,13 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
 
 ---
 
-## 🚀 Compilación e Instalación
+## 📲 Instalación en Android
 
-### Requisitos
-- Android Studio Ladybug / Koala o superior (o JDK 17 y Android SDK 34 por línea de comandos).
-- Dispositivo Android con versión 8.0 (API 26) o superior.
-
-### Compilar el APK desde terminal:
-```bash
-./gradlew assembleDebug
-```
-El archivo `.apk` se generará en:
-`app/build/outputs/apk/debug/app-debug.apk`
+1. Descarga el archivo **`gasolineras.apk`** directamente desde el enlace oficial:
+   👉 **[Descargar gasolineras.apk (v1.5.1)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)**
+2. Ábrelo en tu dispositivo móvil Android (versión 8.0 o superior).
+3. Si el sistema te lo solicita, autoriza la instalación de aplicaciones desde tu navegador o explorador de archivos.
+4. ¡Listo para consultar los precios y encontrar las gasolineras más baratas!
 
 ---
 
