@@ -44,6 +44,26 @@ enum class FuelType(
         code = "Precio Biodiesel",
         displayName = "Biodiésel",
         shortName = "Bio"
+    ),
+    GASOLEO_B(
+        code = "Precio Gasoleo B",
+        displayName = "Gasóleo B (Agrícola)",
+        shortName = "Gasóleo B"
+    ),
+    ADBLUE(
+        code = "Precio Adblue",
+        displayName = "AdBlue",
+        shortName = "AdBlue"
+    ),
+    DIESEL_RENOVABLE(
+        code = "Precio Diésel Renovable",
+        displayName = "HVO / Diésel Renovable",
+        shortName = "HVO"
+    ),
+    HIDROGENO(
+        code = "Precio Hidrogeno",
+        displayName = "Hidrógeno (H2)",
+        shortName = "H2"
     );
 
     companion object {

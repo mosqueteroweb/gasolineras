@@ -1,8 +1,8 @@
 # ⛽ Gass (con soporte especial GLP)
 
-[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.0.1-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
+[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.1.0-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
 
-> **[📥 Descarga directa de gasolineras.apk (versión 2.0.1)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
+> **[📥 Descarga directa de gasolineras.apk (versión 2.1.0)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
 
 Aplicación Android nativa desarrollada con **Kotlin + Jetpack Compose (Material 3)** para consultar gasolineras cercanas y precios de carburantes en tiempo real en España.
 
@@ -17,12 +17,20 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
   - Distintivo visual verde `🟢 GLP` en cada estación que dispone de GLP con su precio directo.
   - Filtro rápido de 1 toque: **"Solo con GLP"**.
   - Información detallada y precios de Autogas destacados.
+- **⚙️ Menú de Ajustes y Preferencias de Usuario (v2.1.0)**:
+  - Selector de carburantes visibles en pantalla (catálogo completo MITECO: Diésel, Gasolina 95/98, GLP, GNC, GNL, Biodiésel, Gasóleo B, AdBlue, HVO y Hidrógeno) con límite ergonómico de hasta 3 en pantalla.
+  - Configuración de carburantes activos por defecto al iniciar la app.
+  - Elección de vista inicial (Lista o Mapa), radio de búsqueda inicial (3, 10, 25, 100 km) y criterio de ordenación preferente (Más barata o Más cercana).
+  - Selector de tema visual: Claro, Oscuro o Automático (según el sistema).
+  - Opción de forzar limpieza de caché local para liberar espacio.
+- **🔄 Animación de Actualización**:
+  - Efecto de giro continuo en el icono de recarga mientras se obtienen los últimos datos oficiales del MITECO.
 - **Geolocalización GPS y Cálculo de Distancias**:
   - Detección precisa de la posición del dispositivo con `FusedLocationProviderClient`.
   - Cálculo de distancia en tiempo real con la fórmula de Haversine.
   - Fallback de referencia en Madrid para funcionamiento continuo incluso sin GPS activo.
 - **Filtros Flexibles**:
-  - Por tipo de combustible: Diésel (Gasóleo A), Gasolina 95 E5 y GLP destacados por defecto (con soporte para Gasolina 98, Diésel Premium, GNC, GNL y Biodiésel).
+  - Por tipo de combustible: Selección dinámica de hasta 3 carburantes simultáneos en pantalla.
   - Por radio de búsqueda: 3 km, 10 km, 25 km y 100 km (10 km por defecto, accesible al instante desde el icono de radio en la barra superior).
   - Por marca o localidad mediante buscador de texto reactivo.
 - **Detección de la Gasolinera Más Barata**:
@@ -51,7 +59,7 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
 ## 📲 Instalación en Android
 
 1. Descarga el archivo **`gasolineras.apk`** directamente desde el enlace oficial:
-   👉 **[Descargar gasolineras.apk (v2.0.1)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)**
+   👉 **[Descargar gasolineras.apk (v2.1.0)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)**
 2. Ábrelo en tu dispositivo móvil Android (versión 8.0 o superior).
 3. Si el sistema te lo solicita, autoriza la instalación de aplicaciones desde tu navegador o explorador de archivos.
 4. ¡Listo para consultar los precios y encontrar las gasolineras más baratas!

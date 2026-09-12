@@ -11,6 +11,7 @@ import com.gasolineras.app.data.repository.FuelRepositoryImpl
 import com.gasolineras.app.domain.model.FuelType
 import com.gasolineras.app.domain.model.GasStation
 import com.gasolineras.app.domain.model.SortOption
+import com.gasolineras.app.data.local.UserPreferencesManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,9 +27,18 @@ class HomeViewModel @JvmOverloads constructor(
 ) : AndroidViewModel(application) {
 
     private val favoritesManager = FavoritesManager(application)
+    private val preferencesManager = UserPreferencesManager(application)
 
     private val _uiState = MutableStateFlow(
-        HomeUiState(favoriteIds = favoritesManager.getFavoriteIds())
+        HomeUiState(
+            favoriteIds = favoritesManager.getFavoriteIds(),
+            visibleFuels = preferencesManager.getVisibleFuels(),
+            selectedFuels = preferencesManager.getDefaultSelectedFuels(),
+            isMapView = preferencesManager.getDefaultView() == "MAP",
+            selectedRadiusKm = preferencesManager.getDefaultRadiusKm(),
+            selectedSort = preferencesManager.getDefaultSort(),
+            themeMode = preferencesManager.getThemeMode()
+        )
     )
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -82,7 +92,7 @@ class HomeViewModel @JvmOverloads constructor(
         val next = if (current.contains(fuel)) {
             if (current.size > 1) current - fuel else current
         } else {
-            current + fuel
+            if (current.size < 3) current + fuel else current
         }
         _uiState.update { it.copy(selectedFuels = next) }
         fetchStations(forceRefresh = false)
@@ -260,5 +270,37 @@ class HomeViewModel @JvmOverloads constructor(
                 }
             )
         }
+    }
+
+    fun updatePreferences(
+        visibleFuels: List<FuelType>,
+        defaultSelectedFuels: Set<FuelType>,
+        defaultView: String,
+        defaultRadiusKm: Double,
+        defaultSort: SortOption,
+        themeMode: String
+    ) {
+        preferencesManager.setVisibleFuels(visibleFuels)
+        preferencesManager.setDefaultSelectedFuels(defaultSelectedFuels)
+        preferencesManager.setDefaultView(defaultView)
+        preferencesManager.setDefaultRadiusKm(defaultRadiusKm)
+        preferencesManager.setDefaultSort(defaultSort)
+        preferencesManager.setThemeMode(themeMode)
+
+        val updatedVisible = preferencesManager.getVisibleFuels()
+        val currentSelected = _uiState.value.selectedFuels
+        val updatedSelected = currentSelected.filter { updatedVisible.contains(it) }.toSet().ifEmpty {
+            preferencesManager.getDefaultSelectedFuels()
+        }
+
+        _uiState.update {
+            it.copy(
+                visibleFuels = updatedVisible,
+                selectedFuels = updatedSelected,
+                themeMode = themeMode,
+                selectedSort = defaultSort
+            )
+        }
+        fetchStations(forceRefresh = false)
     }
 }

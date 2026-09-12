@@ -6,61 +6,73 @@ import com.google.gson.annotations.SerializedName
 
 data class FuelStationDto(
     @SerializedName("IDEESS")
-    val id: String?,
+    val id: String? = null,
 
     @SerializedName("Rótulo")
-    val rotulo: String?,
+    val rotulo: String? = null,
 
     @SerializedName("Dirección")
-    val direccion: String?,
+    val direccion: String? = null,
 
     @SerializedName("C.P.")
-    val cp: String?,
+    val cp: String? = null,
 
     @SerializedName("Municipio")
-    val municipio: String?,
+    val municipio: String? = null,
 
     @SerializedName("Provincia")
-    val provincia: String?,
+    val provincia: String? = null,
 
     @SerializedName("Horario")
-    val horario: String?,
+    val horario: String? = null,
 
     @SerializedName("Latitud")
-    val latitud: String?,
+    val latitud: String? = null,
 
     @SerializedName("Longitud (WGS84)")
-    val longitud: String?,
+    val longitud: String? = null,
 
     @SerializedName("Precio Gasolina 95 E5")
-    val precioG95: String?,
+    val precioG95: String? = null,
 
     @SerializedName("Precio Gasoleo A")
-    val precioDiesel: String?,
+    val precioDiesel: String? = null,
 
     @SerializedName("Precio Gasolina 98 E5")
-    val precioG98: String?,
+    val precioG98: String? = null,
 
     @SerializedName("Precio Gasoleo Premium")
-    val precioDieselPremium: String?,
+    val precioDieselPremium: String? = null,
 
     @SerializedName("Precio Gases licuados del petróleo")
-    val precioGLP: String?,
+    val precioGLP: String? = null,
 
     @SerializedName("Precio Gas Natural Comprimido")
-    val precioGNC: String?,
+    val precioGNC: String? = null,
 
     @SerializedName("Precio Gas Natural Licuado")
-    val precioGNL: String?,
+    val precioGNL: String? = null,
 
     @SerializedName("Precio Biodiesel")
-    val precioBiodiesel: String?,
+    val precioBiodiesel: String? = null,
+
+    @SerializedName("Precio Gasoleo B")
+    val precioGasoleoB: String? = null,
+
+    @SerializedName("Precio Adblue")
+    val precioAdblue: String? = null,
+
+    @SerializedName("Precio Diésel Renovable")
+    val precioDieselRenovable: String? = null,
+
+    @SerializedName("Precio Hidrogeno")
+    val precioHidrogeno: String? = null,
 
     @SerializedName("Tipo Venta")
-    val tipoVenta: String?,
+    val tipoVenta: String? = null,
 
     @SerializedName("Margen")
-    val margen: String?
+    val margen: String? = null
 ) {
     /**
      * Converts the DTO into a clean domain GasStation, parsing European comma decimals safely.
@@ -79,6 +91,10 @@ data class FuelStationDto(
         parseEuropeanNumber(precioGNC)?.let { priceMap[FuelType.GNC] = it }
         parseEuropeanNumber(precioGNL)?.let { priceMap[FuelType.GNL] = it }
         parseEuropeanNumber(precioBiodiesel)?.let { priceMap[FuelType.BIODIESEL] = it }
+        parseEuropeanNumber(precioGasoleoB)?.let { priceMap[FuelType.GASOLEO_B] = it }
+        parseEuropeanNumber(precioAdblue)?.let { priceMap[FuelType.ADBLUE] = it }
+        parseEuropeanNumber(precioDieselRenovable)?.let { priceMap[FuelType.DIESEL_RENOVABLE] = it }
+        parseEuropeanNumber(precioHidrogeno)?.let { priceMap[FuelType.HIDROGENO] = it }
 
         return GasStation(
             id = id.orEmpty(),

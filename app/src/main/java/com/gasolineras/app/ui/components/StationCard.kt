@@ -49,6 +49,7 @@ import com.gasolineras.app.ui.theme.CheapGreenContainer
 fun StationCard(
     station: GasStation,
     selectedFuels: Set<FuelType>,
+    visibleFuels: List<FuelType> = emptyList(),
     isCheapestInArea: Boolean = false,
     cheapestForFuels: List<FuelType> = emptyList(),
     onClick: () -> Unit,
@@ -217,9 +218,12 @@ fun StationCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Fuel Prices Row for selected fuels (Diésel, Gas 95, GLP)
-            val fuelOrder = listOf(FuelType.GASOLEO_A, FuelType.GASOLINA_95_E5, FuelType.GLP)
-            val fuelsToShow = fuelOrder.filter { selectedFuels.contains(it) }
+            // Fuel Prices Row for selected fuels (up to 3)
+            val fuelsToShow = if (visibleFuels.isNotEmpty()) {
+                visibleFuels.filter { selectedFuels.contains(it) }.take(3)
+            } else {
+                FuelType.entries.filter { selectedFuels.contains(it) }.take(3)
+            }
 
             if (fuelsToShow.isNotEmpty()) {
                 Row(
@@ -233,7 +237,15 @@ fun StationCard(
                             FuelType.GASOLEO_A -> "Diésel"
                             FuelType.GASOLINA_95_E5 -> "Gas 95"
                             FuelType.GLP -> "GLP"
-                            else -> fuel.displayName
+                            FuelType.GASOLINA_98_E5 -> "Gas 98"
+                            FuelType.GASOLEO_PREMIUM -> "Diésel+"
+                            FuelType.GASOLEO_B -> "Gasóleo B"
+                            FuelType.ADBLUE -> "AdBlue"
+                            FuelType.GNC -> "GNC"
+                            FuelType.GNL -> "GNL"
+                            FuelType.BIODIESEL -> "Bio"
+                            FuelType.DIESEL_RENOVABLE -> "HVO"
+                            FuelType.HIDROGENO -> "H2"
                         }
                         val isGLP = fuel == FuelType.GLP
                         val isCheapestThisFuel = cheapestForFuels.contains(fuel)

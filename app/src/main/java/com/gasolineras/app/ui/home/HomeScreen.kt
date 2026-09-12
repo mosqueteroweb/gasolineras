@@ -33,16 +33,24 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.draw.rotate
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import com.gasolineras.app.ui.components.SettingsBottomSheet
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -92,6 +100,17 @@ fun HomeScreen(
     var isSearchExpanded by remember { mutableStateOf(false) }
     var mapCenterTrigger by remember { mutableIntStateOf(0) }
     var mapVisibleCount by remember { mutableIntStateOf(0) }
+    var showSettingsSheet by remember { mutableStateOf(false) }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "refresh_spin")
+    val refreshRotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing)
+        ),
+        label = "refresh_angle"
+    )
 
     Scaffold(
         topBar = {
@@ -167,10 +186,10 @@ fun HomeScreen(
                     } else {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier.padding(end = 2.dp)
                         ) {
-                            // 0. Toggle Lista / Mapa (36dp)
+                            // 0. Toggle Lista / Mapa (32dp)
                             Surface(
                                 onClick = {
                                     val willBeMap = !state.isMapView
@@ -180,19 +199,19 @@ fun HomeScreen(
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(36.dp)
+                                modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
                                         contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(19.dp)
+                                        modifier = Modifier.size(17.dp)
                                     )
                                 }
                             }
 
-                            // 1. Favorites Heart Button in TopBar (36dp)
+                            // 1. Favorites Heart Button in TopBar (32dp)
                             Surface(
                                 onClick = {
                                     viewModel.onToggleOnlyFavorites {
@@ -209,14 +228,14 @@ fun HomeScreen(
                                     1.dp,
                                     if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)
                                 ),
-                                modifier = Modifier.size(36.dp)
+                                modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = if (state.onlyFavorites) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                         contentDescription = if (state.onlyFavorites) "Ver todas" else "Ver favoritas",
                                         tint = if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(19.dp)
+                                        modifier = Modifier.size(17.dp)
                                     )
                                 }
                             }
@@ -231,17 +250,17 @@ fun HomeScreen(
                                     shape = RoundedCornerShape(16.dp),
                                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 32.dp)
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 6.dp)
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 5.dp)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.NearMe,
                                             contentDescription = "Cambiar radio de distancia",
                                             tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(14.dp)
+                                            modifier = Modifier.size(13.dp)
                                         )
                                         Spacer(modifier = Modifier.width(3.dp))
                                         Text(
@@ -256,38 +275,58 @@ fun HomeScreen(
                                 }
                             }
 
-                            // 3. Search Lupa icon button (36dp)
+                            // 3. Search Lupa icon button (32dp)
                             Surface(
                                 onClick = { isSearchExpanded = true },
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(36.dp)
+                                modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
                                         contentDescription = "Buscar gasolinera",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(19.dp)
+                                        modifier = Modifier.size(17.dp)
                                     )
                                 }
                             }
 
-                            // 4. Refresh button (36dp)
+                            // 4. Refresh button with dynamic spin animation (32dp)
                             Surface(
                                 onClick = { viewModel.onRefresh() },
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(36.dp)
+                                modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.Refresh,
                                         contentDescription = "Actualizar precios",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(19.dp)
+                                        modifier = Modifier
+                                            .size(17.dp)
+                                            .rotate(if (state.isRefreshing) refreshRotation else 0f)
+                                    )
+                                }
+                            }
+
+                            // 5. Settings button (32dp)
+                            Surface(
+                                onClick = { showSettingsSheet = true },
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Ajustes y preferencias",
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(17.dp)
                                     )
                                 }
                             }
@@ -463,9 +502,10 @@ fun HomeScreen(
                         }
                     }
 
-                    // 1. 3 Fuel Carousel (Diésel, Gas 95, GLP) - All checked by default
+                    // 1. 3 Fuel Carousel
                     FuelTypeSelector(
                         selectedFuels = state.selectedFuels,
+                        visibleFuels = state.visibleFuels,
                         onToggleFuel = { viewModel.onToggleFuel(it) }
                     )
 
@@ -634,6 +674,7 @@ fun HomeScreen(
                                         StationCard(
                                             station = station,
                                             selectedFuels = state.selectedFuels,
+                                            visibleFuels = state.visibleFuels,
                                             isCheapestInArea = isCheapest,
                                             cheapestForFuels = cheapestFuels,
                                             onClick = { viewModel.onSelectStation(station) },
@@ -666,6 +707,25 @@ fun HomeScreen(
             onToggleFavorite = {
                 viewModel.onToggleFavorite(station.id)
             }
+        )
+    }
+
+    // Settings & Preferences BottomSheet
+    if (showSettingsSheet) {
+        SettingsBottomSheet(
+            visibleFuels = state.visibleFuels,
+            defaultSelectedFuels = state.selectedFuels,
+            defaultView = if (state.isMapView) "MAP" else "LIST",
+            defaultRadiusKm = state.selectedRadiusKm,
+            defaultSort = state.selectedSort,
+            themeMode = state.themeMode,
+            onSavePreferences = { vis, sel, view, rad, sort, theme ->
+                viewModel.updatePreferences(vis, sel, view, rad, sort, theme)
+            },
+            onClearCache = {
+                viewModel.onRefresh()
+            },
+            onDismissRequest = { showSettingsSheet = false }
         )
     }
 }

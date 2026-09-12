@@ -60,6 +60,28 @@ class FuelStationDtoTest {
     }
 
     @Test
+    fun testNewFuelsMapping() {
+        val dto = FuelStationDto(
+            id = "5678",
+            rotulo = "CEPSA",
+            latitud = "40,400000",
+            longitud = "-3,700000",
+            precioGasoleoB = "1,199",
+            precioAdblue = "0,750",
+            precioDieselRenovable = "1,699",
+            precioHidrogeno = "12,500"
+        )
+        val domain = dto.toDomain()
+        assertNotNull(domain)
+        domain?.let {
+            assertEquals(1.199, it.priceFor(FuelType.GASOLEO_B)!!, 0.0001)
+            assertEquals(0.750, it.priceFor(FuelType.ADBLUE)!!, 0.0001)
+            assertEquals(1.699, it.priceFor(FuelType.DIESEL_RENOVABLE)!!, 0.0001)
+            assertEquals(12.500, it.priceFor(FuelType.HIDROGENO)!!, 0.0001)
+        }
+    }
+
+    @Test
     fun testBrandCleaningAndLengthLimit() {
         val dto1 = FuelStationDto(
             id = "1", rotulo = "ESTACION DE SERVICIO MONTALBAN", direccion = "Dir", cp = "28001",
