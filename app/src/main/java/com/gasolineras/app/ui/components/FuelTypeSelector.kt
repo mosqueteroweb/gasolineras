@@ -1,17 +1,66 @@
 package com.gasolineras.app.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.gasolineras.app.domain.model.FuelType
+
+private data class FuelButtonConfig(
+    val fuelType: FuelType,
+    val label: String,
+    val selectedBg: Color,
+    val selectedContentColor: Color,
+    val selectedIconTint: Color,
+    val unselectedIconTint: Color
+)
+
+private val fuelConfigs = listOf(
+    FuelButtonConfig(
+        fuelType = FuelType.GASOLEO_A,
+        label = "Diésel",
+        selectedBg = Color(0xFF1565C0),        // Solid Vibrant Blue
+        selectedContentColor = Color.White,
+        selectedIconTint = Color(0xFF90CAF9),   // Light Blue
+        unselectedIconTint = Color(0xFF1976D2)  // Blue
+    ),
+    FuelButtonConfig(
+        fuelType = FuelType.GASOLINA_95_E5,
+        label = "95",
+        selectedBg = Color(0xFFC62828),        // Solid Vibrant Red
+        selectedContentColor = Color.White,
+        selectedIconTint = Color(0xFFFFCDD2),   // Light Red
+        unselectedIconTint = Color(0xFFD32F2F)  // Red
+    ),
+    FuelButtonConfig(
+        fuelType = FuelType.GLP,
+        label = "GLP",
+        selectedBg = Color(0xFF00695C),        // Solid Dark Teal Green
+        selectedContentColor = Color.White,
+        selectedIconTint = Color(0xFF80CBC4),   // Light Teal
+        unselectedIconTint = Color(0xFF00897B)  // Green
+    )
+)
 
 @Composable
 fun FuelTypeSelector(
@@ -19,45 +68,53 @@ fun FuelTypeSelector(
     onToggleFuel: (FuelType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val mainFuels = listOf(
-        FuelType.GASOLEO_A to "⛽ Diésel",
-        FuelType.GASOLINA_95_E5 to "⛽ Gas 95",
-        FuelType.GLP to "🟢 GLP"
-    )
-
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        mainFuels.forEach { (fuel, label) ->
-            val isSelected = selectedFuels.contains(fuel)
-            val isGLP = fuel == FuelType.GLP
+        fuelConfigs.forEach { config ->
+            val isSelected = selectedFuels.contains(config.fuelType)
+            val backgroundColor = if (isSelected) config.selectedBg else MaterialTheme.colorScheme.surface
+            val contentColor = if (isSelected) config.selectedContentColor else MaterialTheme.colorScheme.onSurface
+            val iconTint = if (isSelected) config.selectedIconTint else config.unselectedIconTint
+            val borderColor = if (isSelected) config.selectedBg else MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
 
-            FilterChip(
-                selected = isSelected,
-                onClick = { onToggleFuel(fuel) },
-                label = {
+            Surface(
+                onClick = { onToggleFuel(config.fuelType) },
+                shape = RoundedCornerShape(10.dp),
+                color = backgroundColor,
+                contentColor = contentColor,
+                border = BorderStroke(1.dp, borderColor),
+                shadowElevation = if (isSelected) 3.dp else 2.dp,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(38.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocalGasStation,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier = Modifier.size(17.dp)
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal
+                        text = config.label,
+                        fontSize = 13.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        maxLines = 1,
+                        softWrap = false
                     )
-                },
-                colors = if (isGLP) {
-                    FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = androidx.compose.ui.graphics.Color(0xFF00695C),
-                        selectedLabelColor = androidx.compose.ui.graphics.Color.White
-                    )
-                } else {
-                    FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
-                modifier = Modifier.weight(1f)
-            )
+                }
+            }
         }
     }
 }

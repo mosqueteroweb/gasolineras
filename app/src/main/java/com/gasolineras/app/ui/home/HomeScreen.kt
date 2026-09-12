@@ -38,8 +38,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -260,45 +258,14 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // Lightweight floating fuel chips at top center
-                    Row(
+                    // Floating solid fuel selector at top center
+                    FuelTypeSelector(
+                        selectedFuels = state.selectedFuels,
+                        onToggleFuel = { viewModel.onToggleFuel(it) },
                         modifier = Modifier
                             .align(Alignment.TopCenter)
-                            .padding(top = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        val fuels = listOf(
-                            FuelType.GASOLEO_A to "⛽ Diésel",
-                            FuelType.GASOLINA_95_E5 to "⛽ Gas 95",
-                            FuelType.GLP to "🟢 GLP"
-                        )
-                        fuels.forEach { (fuel, label) ->
-                            val isSelected = state.selectedFuels.contains(fuel)
-                            val isGLP = fuel == FuelType.GLP
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = { viewModel.onToggleFuel(fuel) },
-                                label = {
-                                    Text(
-                                        text = label,
-                                        fontSize = 12.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                    )
-                                },
-                                colors = if (isGLP) {
-                                    FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Color(0xFF00695C),
-                                        selectedLabelColor = Color.White
-                                    )
-                                } else {
-                                    FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                }
-                            )
-                        }
-                    }
+                            .padding(top = 8.dp)
+                    )
 
                     // Floating station count pill at bottom-start
                     Surface(
