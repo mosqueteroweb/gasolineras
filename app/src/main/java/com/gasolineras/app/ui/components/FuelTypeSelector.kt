@@ -1,10 +1,9 @@
 package com.gasolineras.app.ui.components
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,15 +19,19 @@ fun FuelTypeSelector(
     onFuelSelected: (FuelType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
+    val mainFuels = listOf(
+        FuelType.GASOLEO_A,
+        FuelType.GASOLINA_95_E5,
+        FuelType.GLP
+    )
 
     Row(
         modifier = modifier
-            .horizontalScroll(scrollState)
+            .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        FuelType.values().forEach { fuel ->
+        mainFuels.forEach { fuel ->
             val isSelected = fuel == selectedFuel
             FilterChip(
                 selected = isSelected,
@@ -36,7 +39,8 @@ fun FuelTypeSelector(
                 label = {
                     Text(
                         text = fuel.displayName,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal
                     )
                 },
                 colors = FilterChipDefaults.filterChipColors(

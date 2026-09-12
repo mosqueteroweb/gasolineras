@@ -19,40 +19,40 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.ui.graphics.Color
-import com.gasolineras.app.ui.map.OsmMapView
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +64,7 @@ import com.gasolineras.app.ui.components.NavigationHelper
 import com.gasolineras.app.ui.components.RadiusFilterBar
 import com.gasolineras.app.ui.components.StationCard
 import com.gasolineras.app.ui.components.StationDetailDialog
+import com.gasolineras.app.ui.map.OsmMapView
 import com.gasolineras.app.ui.theme.CheapGreen
 import com.gasolineras.app.ui.theme.CheapGreenContainer
 
@@ -76,61 +77,104 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    var isSearchExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.LocalGasStation,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(26.dp)
+                    if (isSearchExpanded) {
+                        TextField(
+                            value = state.searchQuery,
+                            onValueChange = { viewModel.onSearchQueryChanged(it) },
+                            placeholder = {
+                                Text(
+                                    "Buscar marca o localidad...",
+                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+                                    fontSize = 15.sp
+                                )
+                            },
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                cursorColor = MaterialTheme.colorScheme.onPrimary,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Gasolineras",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.LocalGasStation,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(26.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = "Gasolineras",
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+                },
+                navigationIcon = {
+                    if (isSearchExpanded) {
+                        IconButton(onClick = {
+                            isSearchExpanded = false
+                            viewModel.onSearchQueryChanged("")
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Cerrar búsqueda",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
                 },
                 actions = {
-                    // Toggle sort button
-                    IconButton(
-                        onClick = {
-                            val nextSort = if (state.selectedSort == SortOption.CHEAPEST) {
-                                SortOption.NEAREST
-                            } else {
-                                SortOption.CHEAPEST
+                    if (isSearchExpanded) {
+                        if (state.searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Limpiar texto",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
                             }
-                            viewModel.onSortOptionSelected(nextSort)
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Sort,
-                            contentDescription = "Ordenar: ${state.selectedSort.title}",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                    } else {
+                        // Search Lupa icon button
+                        IconButton(onClick = { isSearchExpanded = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Buscar gasolinera",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
 
-                    // Toggle map / list view button
-                    IconButton(onClick = { viewModel.onToggleMapView() }) {
-                        Icon(
-                            imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
-                            contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                        // Toggle map / list view button
+                        IconButton(onClick = { viewModel.onToggleMapView() }) {
+                            Icon(
+                                imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
+                                contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
 
-                    // Refresh button
-                    IconButton(onClick = { viewModel.onRefresh() }) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Actualizar",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
+                        // Refresh button
+                        IconButton(onClick = { viewModel.onRefresh() }) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Actualizar",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -175,55 +219,40 @@ fun HomeScreen(
                 }
             }
 
-            // Search bar
-            OutlinedTextField(
-                value = state.searchQuery,
-                onValueChange = { viewModel.onSearchQueryChanged(it) },
-                placeholder = {
-                    Text(
-                        "Buscar gasolinera o localidad...",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Buscar",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingIcon = {
-                    if (state.searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Limpiar búsqueda"
-                            )
-                        }
+            // 1. Fuel selection area (hidden when onlyGLP is active to avoid confusion)
+            if (!state.onlyGLP) {
+                FuelTypeSelector(
+                    selectedFuel = state.selectedFuel,
+                    onFuelSelected = { viewModel.onFuelSelected(it) }
+                )
+            } else {
+                Surface(
+                    color = Color(0xFFE0F2F1),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "🟢 Filtro activo: Solo gasolineras con GLP (Autogas)",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF004D40)
+                        )
                     }
-                },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
+                }
+            }
 
-            // Fuel type horizontal selector
-            FuelTypeSelector(
-                selectedFuel = state.selectedFuel,
-                onFuelSelected = { viewModel.onFuelSelected(it) }
-            )
-
-            // Radius and quick toggle filters row (GLP, Favoritas, Radio)
+            // 2. Quick filters row: Solo GLP and Favoritas
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 FilterChip(
@@ -242,8 +271,6 @@ fun HomeScreen(
                     )
                 )
 
-                Spacer(modifier = Modifier.width(6.dp))
-
                 FilterChip(
                     selected = state.onlyFavorites,
                     onClick = { viewModel.onToggleOnlyFavorites() },
@@ -259,17 +286,15 @@ fun HomeScreen(
                         selectedLabelColor = Color.White
                     )
                 )
-
-                Spacer(modifier = Modifier.width(6.dp))
-
-                RadiusFilterBar(
-                    selectedRadiusKm = state.selectedRadiusKm,
-                    onRadiusSelected = { viewModel.onRadiusSelected(it) },
-                    modifier = Modifier.weight(1f)
-                )
             }
 
-            // Status & stats bar
+            // 3. Distance Radius Selector (fits screen cleanly)
+            RadiusFilterBar(
+                selectedRadiusKm = state.selectedRadiusKm,
+                onRadiusSelected = { viewModel.onRadiusSelected(it) }
+            )
+
+            // 4. Status bar with CLEAR sorting criteria button
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -278,29 +303,47 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${state.stations.size} encontradas (${state.selectedSort.title.lowercase()})",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    fontWeight = FontWeight.Medium
+                    text = "${state.stations.size} encontradas",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
 
-                if (state.minPrice != null) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = CheapGreenContainer
+                // Clear sort toggle badge
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.clickable {
+                        val nextSort = if (state.selectedSort == SortOption.CHEAPEST) {
+                            SortOption.NEAREST
+                        } else {
+                            SortOption.CHEAPEST
+                        }
+                        viewModel.onSortOptionSelected(nextSort)
+                    }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = null,
+                            modifier = Modifier.size(15.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
-                            text = String.format(java.util.Locale.US, "Mín: %.3f €/L", state.minPrice),
-                            color = CheapGreen,
-                            fontSize = 11.sp,
+                            text = if (state.selectedSort == SortOption.CHEAPEST) "Orden: 💶 Más barata" else "Orden: 📍 Más cercana",
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
             }
 
-            // Main content area
+            // 5. Main content area (List or Map)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -375,7 +418,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = "Prueba a ampliar el radio de distancia o seleccionar otro tipo de carburante.",
+                                text = if (state.onlyFavorites) "No tienes gasolineras guardadas como favoritas todavía." else "Prueba a ampliar el radio de distancia o seleccionar otro tipo de carburante.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)

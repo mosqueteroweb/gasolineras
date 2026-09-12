@@ -92,7 +92,13 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     fun onToggleOnlyGLP() {
-        _uiState.update { it.copy(onlyGLP = !it.onlyGLP) }
+        val newOnlyGLP = !_uiState.value.onlyGLP
+        _uiState.update {
+            it.copy(
+                onlyGLP = newOnlyGLP,
+                selectedFuel = if (newOnlyGLP) FuelType.GLP else FuelType.default
+            )
+        }
         fetchStations(forceRefresh = false)
     }
 
