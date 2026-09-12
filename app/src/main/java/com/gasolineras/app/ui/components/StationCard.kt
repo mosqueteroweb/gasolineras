@@ -48,7 +48,8 @@ import com.gasolineras.app.ui.theme.CheapGreenContainer
 fun StationCard(
     station: GasStation,
     selectedFuels: Set<FuelType>,
-    isCheapestInArea: Boolean,
+    isCheapestInArea: Boolean = false,
+    cheapestForFuels: List<FuelType> = emptyList(),
     onClick: () -> Unit,
     onNavigateClick: () -> Unit,
     onToggleFavorite: () -> Unit,
@@ -177,13 +178,27 @@ fun StationCard(
                     }
                 }
 
-                if (isCheapestInArea) {
+                val showCheapest = isCheapestInArea || cheapestForFuels.isNotEmpty()
+                if (showCheapest) {
+                    val fuelsLabel = if (cheapestForFuels.isNotEmpty()) {
+                        "🏆 " + cheapestForFuels.joinToString(", ") { fuel ->
+                            when (fuel) {
+                                FuelType.GASOLEO_A -> "Diésel"
+                                FuelType.GASOLINA_95_E5 -> "Gas 95"
+                                FuelType.GLP -> "GLP"
+                                else -> fuel.displayName
+                            }
+                        }
+                    } else {
+                        "🏆 ¡MÁS BARATA!"
+                    }
+
                     Surface(
                         shape = RoundedCornerShape(6.dp),
                         color = CheapGreenContainer
                     ) {
                         Text(
-                            text = "🏆 ¡MÁS BARATA!",
+                            text = fuelsLabel,
                             color = CheapGreen,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -214,10 +229,15 @@ fun StationCard(
                             else -> fuel.displayName
                         }
                         val isGLP = fuel == FuelType.GLP
+                        val isCheapestThisFuel = cheapestForFuels.contains(fuel)
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (isGLP) Color(0xFFE0F2F1) else MaterialTheme.colorScheme.surfaceVariant,
+                            color = when {
+                                isCheapestThisFuel -> Color(0xFFC8E6C9)
+                                isGLP -> Color(0xFFE0F2F1)
+                                else -> MaterialTheme.colorScheme.surfaceVariant
+                            },
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(
@@ -225,16 +245,28 @@ fun StationCard(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = if (isGLP) "🟢 $label" else label,
+                                    text = when {
+                                        isCheapestThisFuel -> "🏆 $label"
+                                        isGLP -> "🟢 $label"
+                                        else -> label
+                                    },
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (isGLP) Color(0xFF004D40) else MaterialTheme.colorScheme.onSurfaceVariant
+                                    fontWeight = FontWeight.Bold,
+                                    color = when {
+                                        isCheapestThisFuel -> Color(0xFF1B5E20)
+                                        isGLP -> Color(0xFF004D40)
+                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
                                 )
                                 Text(
                                     text = pText,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = if (isGLP) Color(0xFF00695C) else MaterialTheme.colorScheme.primary
+                                    color = when {
+                                        isCheapestThisFuel -> Color(0xFF2E7D32)
+                                        isGLP -> Color(0xFF00695C)
+                                        else -> MaterialTheme.colorScheme.primary
+                                    }
                                 )
                             }
                         }

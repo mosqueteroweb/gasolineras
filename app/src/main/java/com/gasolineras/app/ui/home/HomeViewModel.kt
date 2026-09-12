@@ -94,6 +94,19 @@ class HomeViewModel @JvmOverloads constructor(
         fetchStations(forceRefresh = false)
     }
 
+    /**
+     * Cycles through the available radius options: 3km -> 10km -> 25km -> 100km -> 3km
+     * Returns the newly selected radius in km.
+     */
+    fun cycleRadius(): Double {
+        val options = listOf(3.0, 10.0, 25.0, 100.0)
+        val current = _uiState.value.selectedRadiusKm
+        val currentIndex = options.indexOf(current).takeIf { it >= 0 } ?: 1
+        val nextRadius = options[(currentIndex + 1) % options.size]
+        onRadiusSelected(nextRadius)
+        return nextRadius
+    }
+
     fun onSortOptionSelected(sortOption: SortOption) {
         if (_uiState.value.selectedSort == sortOption) return
         _uiState.update { it.copy(selectedSort = sortOption) }
@@ -206,6 +219,7 @@ class HomeViewModel @JvmOverloads constructor(
                             minPrice = data.minPrice,
                             maxPrice = data.maxPrice,
                             averagePrice = data.averagePrice,
+                            minPricePerFuel = data.minPricePerFuel,
                             errorMessage = null
                         )
                     }

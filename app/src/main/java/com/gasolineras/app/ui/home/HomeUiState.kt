@@ -16,15 +16,29 @@ data class HomeUiState(
         FuelType.GASOLINA_95_E5,
         FuelType.GLP
     ),
-    val selectedRadiusKm: Double = 15.0,
+    val selectedRadiusKm: Double = 10.0,
     val selectedSort: SortOption = SortOption.CHEAPEST,
     val searchQuery: String = "",
     val minPrice: Double? = null,
     val maxPrice: Double? = null,
     val averagePrice: Double? = null,
+    val minPricePerFuel: Map<FuelType, Double> = emptyMap(),
     val selectedStationForDetail: GasStation? = null,
     val hasLocationPermission: Boolean = false,
     val onlyFavorites: Boolean = false,
     val favoriteIds: Set<String> = emptySet(),
     val isMapView: Boolean = false
-)
+) {
+    /**
+     * Returns the list of selected fuels for which this station has the lowest price in the area.
+     */
+    fun cheapestFuelsFor(station: GasStation): List<FuelType> {
+        if (minPricePerFuel.isEmpty()) return emptyList()
+        val active = if (selectedFuels.isEmpty()) minPricePerFuel.keys else selectedFuels
+        return active.filter { fuel ->
+            val p = station.prices[fuel]
+            val minP = minPricePerFuel[fuel]
+            p != null && minP != null && p <= minP
+        }
+    }
+}

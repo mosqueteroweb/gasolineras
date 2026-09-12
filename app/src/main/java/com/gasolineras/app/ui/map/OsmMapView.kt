@@ -14,14 +14,18 @@ import com.gasolineras.app.domain.model.GasStation
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
+import android.view.View
+import android.view.ViewGroup
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
 
 @Composable
 fun OsmMapView(
     userLocation: UserLocation,
     stations: List<GasStation>,
     selectedFuels: Set<FuelType>,
+    minPricePerFuel: Map<FuelType, Double> = emptyMap(),
     onSelectStation: (GasStation) -> Unit,
     modifier: Modifier = Modifier,
     centerTrigger: Int = 0
@@ -45,7 +49,7 @@ fun OsmMapView(
         }
     }
 
-    // Auto-center when GPS location updates or when user taps recenter button
+    // Auto-center camera on GPS location once acquired or when centerTrigger changes
     androidx.compose.runtime.LaunchedEffect(userLocation) {
         if (!userLocation.isDefaultLocation) {
             mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
@@ -56,16 +60,6 @@ fun OsmMapView(
         if (centerTrigger > 0) {
             mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
         }
-    }
-
-    // Helper to calculate best price among selected fuels
-    fun bestPriceFor(station: GasStation): Double? {
-        val candidates = if (selectedFuels.isEmpty()) {
-            station.prices.values
-        } else {
-            selectedFuels.mapNotNull { station.prices[it] }
-        }
-        return candidates.minOrNull()
     }
 
     // Helper for marker price string
@@ -104,9 +98,30 @@ fun OsmMapView(
             }
             view.overlays.add(userMarker)
 
-            // Calculate cheapest and nearest in the current list
-            val cheapestStation = stations.minByOrNull { bestPriceFor(it) ?: Double.MAX_VALUE }
+            // Determine cheapest prices per fuel across the displayed stations
+            val activeFuels = if (selectedFuels.isEmpty()) FuelType.values().toSet() else selectedFuels
+            val effectiveMinPrices = if (minPricePerFuel.isNotEmpty()) {
+                minPricePerFuel
+            } else {
+                activeFuels.associateWith { fuel -> stations.mapNotNull { it.prices[fuel] }.minOrNull() }
+                    .filterValues { it != null } as Map<FuelType, Double>
+            }
+
+            // Find nearest station
             val nearestStation = stations.minByOrNull { it.distanceMeters ?: Double.MAX_VALUE }
+
+            // Configure the shared InfoWindow so that tapping the legend (bubble) opens the full detail card
+            val sampleMarker = Marker(view)
+            sampleMarker.infoWindow?.view?.let { infoView ->
+                bindInfoWindowClicks(infoView) {
+                    val activeMarker = (sampleMarker.infoWindow as? MarkerInfoWindow)?.markerReference
+                    val currentStation = activeMarker?.relatedObject as? GasStation
+                    if (currentStation != null) {
+                        sampleMarker.infoWindow?.close()
+                        onSelectStation(currentStation)
+                    }
+                }
+            }
 
             // 2. Gas Stations Markers with highlights
             stations.forEach { station ->
@@ -114,21 +129,36 @@ fun OsmMapView(
                 val priceDesc = priceStringFor(station)
                 val glpInfo = if (station.hasGLP && !selectedFuels.contains(FuelType.GLP)) " • 🟢 GLP: ${station.formattedGlpPrice}" else ""
 
-                val isCheapest = cheapestStation != null && station.id == cheapestStation.id
+                // Check which fuels this station is cheapest for
+                val cheapestFuels = activeFuels.filter { fuel ->
+                    val p = station.prices[fuel]
+                    val minP = effectiveMinPrices[fuel]
+                    p != null && minP != null && p <= minP
+                }
+                val isCheapest = cheapestFuels.isNotEmpty()
                 val isNearest = nearestStation != null && station.id == nearestStation.id && !isCheapest
 
                 val marker = Marker(view).apply {
                     position = stationPoint
+                    relatedObject = station
 
                     when {
                         isCheapest -> {
+                            val fuelsLabel = cheapestFuels.joinToString(", ") { fuel ->
+                                when (fuel) {
+                                    FuelType.GASOLEO_A -> "Diésel"
+                                    FuelType.GASOLINA_95_E5 -> "Gas 95"
+                                    FuelType.GLP -> "GLP"
+                                    else -> fuel.displayName
+                                }
+                            }
                             icon = MapMarkerHelper.createGasStationMarker(
                                 context = context,
                                 pinColor = Color.rgb(46, 125, 50), // Green
                                 label = "🏆"
                             )
-                            title = "🏆 MÁS BARATA: ${station.cleanBrand}"
-                            snippet = "$priceDesc • A ${station.formattedDistance}$glpInfo"
+                            title = "🏆 ${station.cleanBrand}"
+                            snippet = "Más barata en: $fuelsLabel\n$priceDesc • A ${station.formattedDistance}$glpInfo\n👉 Toca la leyenda para ver detalles"
                         }
                         isNearest -> {
                             icon = MapMarkerHelper.createGasStationMarker(
@@ -136,8 +166,8 @@ fun OsmMapView(
                                 pinColor = Color.rgb(245, 124, 0), // Orange
                                 label = "⚡"
                             )
-                            title = "⚡ MÁS CERCANA: ${station.cleanBrand}"
-                            snippet = "$priceDesc • A ${station.formattedDistance}$glpInfo"
+                            title = "⚡ ${station.cleanBrand}"
+                            snippet = "Más cercana • $priceDesc • A ${station.formattedDistance}$glpInfo\n👉 Toca la leyenda para ver detalles"
                         }
                         station.hasGLP -> {
                             icon = MapMarkerHelper.createGasStationMarker(
@@ -146,7 +176,7 @@ fun OsmMapView(
                                 label = "G"
                             )
                             title = "${station.cleanBrand}"
-                            snippet = "$priceDesc • A ${station.formattedDistance}$glpInfo"
+                            snippet = "$priceDesc • A ${station.formattedDistance}$glpInfo\n👉 Toca la leyenda para ver detalles"
                         }
                         else -> {
                             icon = MapMarkerHelper.createGasStationMarker(
@@ -155,14 +185,14 @@ fun OsmMapView(
                                 label = "⛽"
                             )
                             title = "${station.cleanBrand}"
-                            snippet = "$priceDesc • A ${station.formattedDistance}"
+                            snippet = "$priceDesc • A ${station.formattedDistance}\n👉 Toca la leyenda para ver detalles"
                         }
                     }
 
                     setAnchor(Marker.ANCHOR_CENTER, 0.86f)
+                    // On marker click: ONLY show the info window (leyenda), do NOT open full card yet
                     setOnMarkerClickListener { clickedMarker, _ ->
                         clickedMarker.showInfoWindow()
-                        onSelectStation(station)
                         true
                     }
                 }
@@ -172,4 +202,21 @@ fun OsmMapView(
             view.invalidate()
         }
     )
+}
+
+private fun bindInfoWindowClicks(view: View, onClick: () -> Unit) {
+    view.setOnClickListener { onClick() }
+    view.setOnTouchListener { _, event ->
+        if (event.action == android.view.MotionEvent.ACTION_UP) {
+            onClick()
+            true
+        } else {
+            false
+        }
+    }
+    if (view is ViewGroup) {
+        for (i in 0 until view.childCount) {
+            bindInfoWindowClicks(view.getChildAt(i), onClick)
+        }
+    }
 }

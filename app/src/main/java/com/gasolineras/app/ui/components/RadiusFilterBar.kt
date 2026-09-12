@@ -21,7 +21,7 @@ fun RadiusFilterBar(
     onRadiusSelected: (Double) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val options = listOf(3.0, 5.0, 10.0, 25.0, 50.0)
+    val options = listOf(3.0, 10.0, 25.0, 100.0)
 
     Row(
         modifier = modifier

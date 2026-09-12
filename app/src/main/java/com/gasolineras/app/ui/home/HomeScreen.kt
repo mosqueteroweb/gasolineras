@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -177,17 +178,33 @@ fun HomeScreen(
                             )
                         }
 
-                        // 2. Sort button in TopBar
-                        IconButton(onClick = {
-                            viewModel.toggleSort()
-                            val nextSortName = if (state.selectedSort == SortOption.CHEAPEST) "más cercana" else "más barata"
-                            Toast.makeText(context, "Ordenando por $nextSortName", Toast.LENGTH_SHORT).show()
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Sort,
-                                contentDescription = "Cambiar orden (precio / distancia)",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
+                        // 2. Radius Cycler button in TopBar (3km, 10km, 25km, 100km)
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                            modifier = Modifier.clickable {
+                                val nextRadius = viewModel.cycleRadius()
+                                Toast.makeText(context, "Radio: ${nextRadius.toInt()} km", Toast.LENGTH_SHORT).show()
+                            }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.NearMe,
+                                    contentDescription = "Cambiar radio de distancia",
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${state.selectedRadiusKm.toInt()}km",
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
 
                         // 3. Search Lupa icon button
@@ -265,6 +282,7 @@ fun HomeScreen(
                         userLocation = state.userLocation,
                         stations = state.stations,
                         selectedFuels = state.selectedFuels,
+                        minPricePerFuel = state.minPricePerFuel,
                         onSelectStation = { viewModel.onSelectStation(it) },
                         centerTrigger = mapCenterTrigger,
                         modifier = Modifier.fillMaxSize()
@@ -566,20 +584,14 @@ fun HomeScreen(
                                         items = state.stations,
                                         key = { index, station -> "${station.id}_$index" }
                                     ) { _, station ->
-                                        val candidatePrices = if (state.selectedFuels.isEmpty()) {
-                                            station.prices.values
-                                        } else {
-                                            state.selectedFuels.mapNotNull { station.prices[it] }
-                                        }
-                                        val stationBestPrice = candidatePrices.minOrNull()
-                                        val isCheapest = state.minPrice != null &&
-                                                stationBestPrice != null &&
-                                                stationBestPrice == state.minPrice
+                                        val cheapestFuels = state.cheapestFuelsFor(station)
+                                        val isCheapest = cheapestFuels.isNotEmpty()
 
                                         StationCard(
                                             station = station,
                                             selectedFuels = state.selectedFuels,
                                             isCheapestInArea = isCheapest,
+                                            cheapestForFuels = cheapestFuels,
                                             onClick = { viewModel.onSelectStation(station) },
                                             onNavigateClick = {
                                                 NavigationHelper.navigateToStation(context, station)
