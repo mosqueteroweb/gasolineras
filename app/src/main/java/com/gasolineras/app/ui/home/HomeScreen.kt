@@ -40,16 +40,22 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.draw.rotate
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import com.gasolineras.app.ui.components.SettingsBottomSheet
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -101,6 +107,7 @@ fun HomeScreen(
     var mapCenterTrigger by remember { mutableIntStateOf(0) }
     var mapVisibleCount by remember { mutableIntStateOf(0) }
     var showSettingsSheet by remember { mutableStateOf(false) }
+    var showOverflowMenu by remember { mutableStateOf(false) }
 
     val infiniteTransition = rememberInfiniteTransition(label = "refresh_spin")
     val refreshRotation by infiniteTransition.animateFloat(
@@ -114,229 +121,217 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    if (isSearchExpanded) {
-                        TextField(
-                            value = state.searchQuery,
-                            onValueChange = { viewModel.onSearchQueryChanged(it) },
-                            placeholder = {
-                                Text(
-                                    "Buscar marca o localidad...",
-                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-                                    fontSize = 15.sp
-                                )
-                            },
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                                unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                                cursorColor = MaterialTheme.colorScheme.onPrimary,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.LocalGasStation,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(24.dp)
+            Column {
+                TopAppBar(
+                    title = {
+                        if (isSearchExpanded) {
+                            TextField(
+                                value = state.searchQuery,
+                                onValueChange = { viewModel.onSearchQueryChanged(it) },
+                                placeholder = {
+                                    Text(
+                                        "Buscar marca o localidad...",
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+                                        fontSize = 15.sp
+                                    )
+                                },
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                ),
+                                modifier = Modifier.fillMaxWidth()
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Gass",
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                        }
-                    }
-                },
-                navigationIcon = {
-                    if (isSearchExpanded) {
-                        IconButton(onClick = {
-                            isSearchExpanded = false
-                            viewModel.onSearchQueryChanged("")
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Cerrar búsqueda",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    if (isSearchExpanded) {
-                        if (state.searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Limpiar texto",
+                                    imageVector = Icons.Default.LocalGasStation,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Gass",
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    maxLines = 1,
+                                    softWrap = false
+                                )
+                            }
+                        }
+                    },
+                    navigationIcon = {
+                        if (isSearchExpanded) {
+                            IconButton(onClick = {
+                                isSearchExpanded = false
+                                viewModel.onSearchQueryChanged("")
+                            }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Cerrar búsqueda",
                                     tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                         }
-                    } else {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.padding(end = 2.dp)
-                        ) {
-                            // 0. Toggle Lista / Mapa (32dp)
-                            Surface(
-                                onClick = {
-                                    val willBeMap = !state.isMapView
-                                    if (willBeMap) mapCenterTrigger++
-                                    viewModel.setMapView(willBeMap)
-                                },
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(32.dp)
+                    },
+                    actions = {
+                        if (isSearchExpanded) {
+                            if (state.searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.onSearchQueryChanged("") }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Limpiar texto",
+                                        tint = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            }
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
+                                // 1. Toggle Lista / Mapa (Accesible 48dp touch target, 24dp icon)
+                                IconButton(
+                                    onClick = {
+                                        val willBeMap = !state.isMapView
+                                        if (willBeMap) mapCenterTrigger++
+                                        viewModel.setMapView(willBeMap)
+                                    }
+                                ) {
                                     Icon(
                                         imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
                                         contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(17.dp)
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
-                            }
 
-                            // 1. Favorites Heart Button in TopBar (32dp)
-                            Surface(
-                                onClick = {
-                                    viewModel.onToggleOnlyFavorites {
-                                        Toast.makeText(
-                                            context,
-                                            "Aún no tienes gasolineras favoritas. Toca el corazón ❤️ en cualquier gasolinera para añadirla.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                },
-                                shape = CircleShape,
-                                color = if (state.onlyFavorites) Color(0xFFFF5252).copy(alpha = 0.35f) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)
-                                ),
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = if (state.onlyFavorites) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                        contentDescription = if (state.onlyFavorites) "Ver todas" else "Ver favoritas",
-                                        tint = if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(17.dp)
-                                    )
-                                }
-                            }
-
-                            // 2. Radius Cycler button in TopBar (only in List Mode - unnecessary in Map mode)
-                            if (!state.isMapView) {
-                                Surface(
+                                // 2. Selector de Radio (Accesible 48dp touch target, 24dp icon + Badge)
+                                IconButton(
                                     onClick = {
                                         val nextRadius = viewModel.cycleRadius()
                                         Toast.makeText(context, "Radio: ${nextRadius.toInt()} km", Toast.LENGTH_SHORT).show()
-                                    },
-                                    shape = RoundedCornerShape(16.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                    modifier = Modifier.defaultMinSize(minHeight = 32.dp)
+                                    }
                                 ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 5.dp)
+                                    BadgedBox(
+                                        badge = {
+                                            Badge(
+                                                containerColor = MaterialTheme.colorScheme.surface,
+                                                contentColor = MaterialTheme.colorScheme.primary
+                                            ) {
+                                                Text(
+                                                    text = "${state.selectedRadiusKm.toInt()}k",
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.NearMe,
-                                            contentDescription = "Cambiar radio de distancia",
+                                            contentDescription = "Cambiar radio (actual: ${state.selectedRadiusKm.toInt()} km)",
                                             tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(13.dp)
+                                            modifier = Modifier.size(24.dp)
                                         )
-                                        Spacer(modifier = Modifier.width(3.dp))
-                                        Text(
-                                            text = "${state.selectedRadiusKm.toInt()}km",
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            maxLines = 1,
-                                            softWrap = false
+                                    }
+                                }
+
+                                // 3. Favoritos (Accesible 48dp touch target, 24dp icon)
+                                IconButton(
+                                    onClick = {
+                                        viewModel.onToggleOnlyFavorites {
+                                            Toast.makeText(
+                                                context,
+                                                "Aún no tienes gasolineras favoritas. Toca el corazón ❤️ en cualquier gasolinera para añadirla.",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (state.onlyFavorites) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                        contentDescription = if (state.onlyFavorites) "Ver todas" else "Ver solo favoritas",
+                                        tint = if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+
+                                // 4. Menú de 3 puntos (Overflow Menu) (Accesible 48dp touch target, 24dp icon)
+                                Box {
+                                    IconButton(onClick = { showOverflowMenu = true }) {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = "Más opciones",
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = showOverflowMenu,
+                                        onDismissRequest = { showOverflowMenu = false }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("Actualizar precios") },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Refresh,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.rotate(if (state.isRefreshing) refreshRotation else 0f)
+                                                )
+                                            },
+                                            onClick = {
+                                                showOverflowMenu = false
+                                                viewModel.onRefresh()
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("Buscar gasolinera") },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Search,
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            onClick = {
+                                                showOverflowMenu = false
+                                                isSearchExpanded = true
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("Ajustes y preferencias") },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Settings,
+                                                    contentDescription = null
+                                                )
+                                            },
+                                            onClick = {
+                                                showOverflowMenu = false
+                                                showSettingsSheet = true
+                                            }
                                         )
                                     }
                                 }
                             }
-
-                            // 3. Search Lupa icon button (32dp)
-                            Surface(
-                                onClick = { isSearchExpanded = true },
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = "Buscar gasolinera",
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(17.dp)
-                                    )
-                                }
-                            }
-
-                            // 4. Refresh button with dynamic spin animation (32dp)
-                            Surface(
-                                onClick = { viewModel.onRefresh() },
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = "Actualizar precios",
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier
-                                            .size(17.dp)
-                                            .rotate(if (state.isRefreshing) refreshRotation else 0f)
-                                    )
-                                }
-                            }
-
-                            // 5. Settings button (32dp)
-                            Surface(
-                                onClick = { showSettingsSheet = true },
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Ajustes y preferencias",
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(17.dp)
-                                    )
-                                }
-                            }
                         }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
                 )
-            )
+                if (state.isRefreshing) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                }
+            }
         },
         modifier = modifier
     ) { innerPadding ->
