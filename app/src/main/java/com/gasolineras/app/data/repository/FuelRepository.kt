@@ -30,6 +30,13 @@ interface FuelRepository {
         favoriteIds: Set<String> = emptySet(),
         forceRefresh: Boolean = false
     ): Result<NearbyStationsResult>
+
+    suspend fun findOptimalRadius(
+        userLat: Double,
+        userLon: Double,
+        selectedFuels: Set<FuelType>,
+        candidateRadii: List<Double> = listOf(3.0, 10.0, 25.0, 100.0)
+    ): Double
 }
 
 class FuelRepositoryImpl(
@@ -187,5 +194,52 @@ class FuelRepositoryImpl(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun findOptimalRadius(
+        userLat: Double,
+        userLon: Double,
+        selectedFuels: Set<FuelType>,
+        candidateRadii: List<Double>
+    ): Double = withContext(Dispatchers.IO) {
+        if (cachedStations.isEmpty()) {
+            try {
+                val response = apiService.getAllStations()
+                val rawList = response.stations.orEmpty()
+                cachedStations = rawList.mapNotNull { it.toDomain() }.filter { station ->
+                    DistanceCalculator.calculateDistanceMeters(
+                        userLat, userLon,
+                        station.latitude, station.longitude
+                    ) <= maxCacheRadiusMeters
+                }
+                lastFetchTimestamp = System.currentTimeMillis()
+                lastFetchLat = userLat
+                lastFetchLon = userLon
+            } catch (e: Exception) {
+                return@withContext candidateRadii.firstOrNull() ?: 10.0
+            }
+        }
+
+        val stationsWithDistance = cachedStations.map { station ->
+            val dist = DistanceCalculator.calculateDistanceMeters(
+                userLat, userLon,
+                station.latitude, station.longitude
+            )
+            station.copy(distanceMeters = dist)
+        }.filter { station ->
+            val isPublic = station.saleType.isBlank() || station.saleType.equals("P", ignoreCase = true)
+            val hasFuel = if (selectedFuels.isEmpty()) true else selectedFuels.any { station.prices.containsKey(it) }
+            isPublic && hasFuel
+        }
+
+        for (radius in candidateRadii) {
+            val radiusMeters = radius * 1000.0
+            val count = stationsWithDistance.count { (it.distanceMeters ?: Double.MAX_VALUE) <= radiusMeters }
+            if (count > 0) {
+                return@withContext radius
+            }
+        }
+
+        candidateRadii.lastOrNull() ?: 100.0
     }
 }

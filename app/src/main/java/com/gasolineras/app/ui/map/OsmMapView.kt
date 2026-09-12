@@ -20,12 +20,20 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
 
+private fun zoomLevelForRadius(radiusKm: Double): Double = when {
+    radiusKm <= 3.5 -> 14.5
+    radiusKm <= 12.0 -> 12.5
+    radiusKm <= 30.0 -> 10.8
+    else -> 8.8
+}
+
 @Composable
 fun OsmMapView(
     userLocation: UserLocation,
     stations: List<GasStation>,
     selectedFuels: Set<FuelType>,
     minPricePerFuel: Map<FuelType, Double> = emptyMap(),
+    selectedRadiusKm: Double = 10.0,
     onSelectStation: (GasStation) -> Unit,
     modifier: Modifier = Modifier,
     centerTrigger: Int = 0
@@ -36,7 +44,8 @@ fun OsmMapView(
         MapView(context).apply {
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
-            controller.setZoom(14.5)
+            val initialZoom = zoomLevelForRadius(selectedRadiusKm)
+            controller.setZoom(initialZoom)
             val center = GeoPoint(userLocation.latitude, userLocation.longitude)
             controller.setCenter(center)
         }
@@ -49,17 +58,29 @@ fun OsmMapView(
         }
     }
 
-    // Auto-center camera on GPS location once acquired or when centerTrigger changes
+    // Auto-center camera on GPS location once acquired
     androidx.compose.runtime.LaunchedEffect(userLocation) {
         if (!userLocation.isDefaultLocation) {
-            mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
+            val center = GeoPoint(userLocation.latitude, userLocation.longitude)
+            mapView.controller.setZoom(zoomLevelForRadius(selectedRadiusKm))
+            mapView.controller.animateTo(center)
         }
     }
 
+    // Re-center and adjust zoom on centerTrigger
     androidx.compose.runtime.LaunchedEffect(centerTrigger) {
         if (centerTrigger > 0) {
-            mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
+            val center = GeoPoint(userLocation.latitude, userLocation.longitude)
+            mapView.controller.setZoom(zoomLevelForRadius(selectedRadiusKm))
+            mapView.controller.animateTo(center)
         }
+    }
+
+    // Adjust zoom and center when radius changes
+    androidx.compose.runtime.LaunchedEffect(selectedRadiusKm) {
+        val center = GeoPoint(userLocation.latitude, userLocation.longitude)
+        mapView.controller.setZoom(zoomLevelForRadius(selectedRadiusKm))
+        mapView.controller.animateTo(center)
     }
 
     // Helper for marker price string with large, clean numbers and no clutter

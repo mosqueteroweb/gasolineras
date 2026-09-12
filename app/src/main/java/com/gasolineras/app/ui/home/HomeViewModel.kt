@@ -168,12 +168,26 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     fun onToggleMapView() {
-        _uiState.update { it.copy(isMapView = !it.isMapView) }
+        setMapView(!_uiState.value.isMapView)
     }
 
     fun setMapView(isMap: Boolean) {
         if (_uiState.value.isMapView == isMap) return
-        _uiState.update { it.copy(isMapView = isMap) }
+        if (isMap) {
+            viewModelScope.launch {
+                val state = _uiState.value
+                val optimalRadius = repository.findOptimalRadius(
+                    userLat = state.userLocation.latitude,
+                    userLon = state.userLocation.longitude,
+                    selectedFuels = state.selectedFuels,
+                    candidateRadii = listOf(3.0, 10.0, 25.0, 100.0)
+                )
+                _uiState.update { it.copy(isMapView = true, selectedRadiusKm = optimalRadius) }
+                fetchStations(forceRefresh = false)
+            }
+        } else {
+            _uiState.update { it.copy(isMapView = false) }
+        }
     }
 
     fun onRefresh() {

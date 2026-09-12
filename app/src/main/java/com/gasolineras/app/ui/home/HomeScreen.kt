@@ -160,130 +160,126 @@ fun HomeScreen(
                             }
                         }
                     } else {
-                        // Outer bordered container grouping all action buttons
-                        Surface(
-                            shape = RoundedCornerShape(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.12f),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.35f)),
-                            modifier = Modifier.padding(end = 6.dp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(end = 4.dp)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 3.dp)
+                            // 0. Toggle Lista / Mapa
+                            Surface(
+                                onClick = {
+                                    val willBeMap = !state.isMapView
+                                    if (willBeMap) mapCenterTrigger++
+                                    viewModel.setMapView(willBeMap)
+                                },
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
+                                modifier = Modifier.size(34.dp)
                             ) {
-                                // 0. Toggle Lista / Mapa
-                                Surface(
-                                    onClick = { viewModel.setMapView(!state.isMapView) },
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                    modifier = Modifier.size(34.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
-                                            contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
-                                            tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
+                                        contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
+                            }
 
-                                // 1. Favorites Heart Button in TopBar
-                                Surface(
-                                    onClick = {
-                                        viewModel.onToggleOnlyFavorites {
-                                            Toast.makeText(
-                                                context,
-                                                "Aún no tienes gasolineras favoritas. Toca el corazón ❤️ en cualquier gasolinera para añadirla.",
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
-                                    },
-                                    shape = CircleShape,
-                                    color = if (state.onlyFavorites) Color(0xFFFF5252).copy(alpha = 0.3f) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                    border = BorderStroke(
-                                        1.dp,
-                                        if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)
-                                    ),
-                                    modifier = Modifier.size(34.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = if (state.onlyFavorites) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                            contentDescription = if (state.onlyFavorites) "Ver todas" else "Ver favoritas",
-                                            tint = if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(18.dp)
-                                        )
+                            // 1. Favorites Heart Button in TopBar
+                            Surface(
+                                onClick = {
+                                    viewModel.onToggleOnlyFavorites {
+                                        Toast.makeText(
+                                            context,
+                                            "Aún no tienes gasolineras favoritas. Toca el corazón ❤️ en cualquier gasolinera para añadirla.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
+                                },
+                                shape = CircleShape,
+                                color = if (state.onlyFavorites) Color(0xFFFF5252).copy(alpha = 0.3f) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)
+                                ),
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = if (state.onlyFavorites) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                        contentDescription = if (state.onlyFavorites) "Ver todas" else "Ver favoritas",
+                                        tint = if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
+                            }
 
-                                // 2. Radius Cycler button in TopBar (3km, 10km, 25km, 100km)
-                                Surface(
-                                    onClick = {
-                                        val nextRadius = viewModel.cycleRadius()
-                                        Toast.makeText(context, "Radio: ${nextRadius.toInt()} km", Toast.LENGTH_SHORT).show()
-                                    },
-                                    shape = RoundedCornerShape(16.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                    modifier = Modifier.height(34.dp)
+                            // 2. Radius Cycler button in TopBar (3km, 10km, 25km, 100km)
+                            Surface(
+                                onClick = {
+                                    val nextRadius = viewModel.cycleRadius()
+                                    Toast.makeText(context, "Radio: ${nextRadius.toInt()} km", Toast.LENGTH_SHORT).show()
+                                },
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
+                                modifier = Modifier.height(34.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(horizontal = 8.dp)
                                 ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 8.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.NearMe,
-                                            contentDescription = "Cambiar radio de distancia",
-                                            tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(3.dp))
-                                        Text(
-                                            text = "${state.selectedRadiusKm.toInt()}km",
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.NearMe,
+                                        contentDescription = "Cambiar radio de distancia",
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = "${state.selectedRadiusKm.toInt()}km",
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
+                            }
 
-                                // 3. Search Lupa icon button
-                                Surface(
-                                    onClick = { isSearchExpanded = true },
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                    modifier = Modifier.size(34.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.Search,
-                                            contentDescription = "Buscar gasolinera",
-                                            tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
+                            // 3. Search Lupa icon button
+                            Surface(
+                                onClick = { isSearchExpanded = true },
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Buscar gasolinera",
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
+                            }
 
-                                // 4. Refresh button
-                                Surface(
-                                    onClick = { viewModel.onRefresh() },
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                    modifier = Modifier.size(34.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.Refresh,
-                                            contentDescription = "Actualizar precios",
-                                            tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
+                            // 4. Refresh button
+                            Surface(
+                                onClick = { viewModel.onRefresh() },
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
+                                modifier = Modifier.size(34.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = "Actualizar precios",
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
                                 }
                             }
                         }
@@ -310,6 +306,7 @@ fun HomeScreen(
                         stations = state.stations,
                         selectedFuels = state.selectedFuels,
                         minPricePerFuel = state.minPricePerFuel,
+                        selectedRadiusKm = state.selectedRadiusKm,
                         onSelectStation = { viewModel.onSelectStation(it) },
                         centerTrigger = mapCenterTrigger,
                         modifier = Modifier.fillMaxSize()

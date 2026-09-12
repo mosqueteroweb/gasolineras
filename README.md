@@ -1,8 +1,8 @@
 # ⛽ Gass (con soporte especial GLP)
 
-[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v1.6.2-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)
+[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v1.6.3-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)
 
-> **[📥 Descarga directa de gasolineras.apk (versión 1.6.2)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)**
+> **[📥 Descarga directa de gasolineras.apk (versión 1.6.3)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)**
 
 Aplicación Android nativa desarrollada con **Kotlin + Jetpack Compose (Material 3)** para consultar gasolineras cercanas y precios de carburantes en tiempo real en España.
 
@@ -51,7 +51,7 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
 ## 📲 Instalación en Android
 
 1. Descarga el archivo **`gasolineras.apk`** directamente desde el enlace oficial:
-   👉 **[Descargar gasolineras.apk (v1.6.2)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)**
+   👉 **[Descargar gasolineras.apk (v1.6.3)](https://github.com/mosqueteroweb/gasolineras/raw/apk/gasolineras.apk)**
 2. Ábrelo en tu dispositivo móvil Android (versión 8.0 o superior).
 3. Si el sistema te lo solicita, autoriza la instalación de aplicaciones desde tu navegador o explorador de archivos.
 4. ¡Listo para consultar los precios y encontrar las gasolineras más baratas!
