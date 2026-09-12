@@ -49,27 +49,36 @@ data class GasStation(
     val cleanBrand: String
         get() {
             val trimmed = brand.trim()
+            val normalized = trimmed
+                .replace(Regex("^(E\\.S\\.?|ESTACION DE SERVICIO|GASOLINERA|EESS|COOP\\.?|COOPERATIVA)\\s+", RegexOption.IGNORE_CASE), "")
+                .trim()
             return when {
-                trimmed.startsWith("REPSOL", ignoreCase = true) -> "Repsol"
-                trimmed.startsWith("CEPSA", ignoreCase = true) -> "Cepsa"
-                trimmed.startsWith("BP", ignoreCase = true) -> "BP"
-                trimmed.startsWith("GALP", ignoreCase = true) -> "Galp"
-                trimmed.startsWith("SHELL", ignoreCase = true) -> "Shell"
-                trimmed.startsWith("PLENOIL", ignoreCase = true) -> "Plenoil"
-                trimmed.startsWith("BALLENOIL", ignoreCase = true) -> "Ballenoil"
-                trimmed.startsWith("PETROPRIX", ignoreCase = true) -> "Petroprix"
-                trimmed.startsWith("AVIA", ignoreCase = true) -> "Avia"
-                trimmed.startsWith("DISA", ignoreCase = true) -> "Disa"
-                trimmed.startsWith("CAMPSA", ignoreCase = true) -> "Campsa"
-                trimmed.startsWith("ALCAMPO", ignoreCase = true) -> "Alcampo"
-                trimmed.startsWith("CARREFOUR", ignoreCase = true) -> "Carrefour"
-                trimmed.startsWith("EROSKI", ignoreCase = true) -> "Eroski"
-                trimmed.startsWith("ESCLAT", ignoreCase = true) -> "EsclatOil"
-                trimmed.startsWith("BONAREA", ignoreCase = true) -> "BonÁrea"
-                trimmed.isBlank() -> "Gasolinera"
-                else -> trimmed.lowercase().split(" ").joinToString(" ") { word ->
+                normalized.startsWith("REPSOL", ignoreCase = true) -> "Repsol"
+                normalized.startsWith("CEPSA", ignoreCase = true) -> "Cepsa"
+                normalized.startsWith("BP", ignoreCase = true) -> "BP"
+                normalized.startsWith("GALP", ignoreCase = true) -> "Galp"
+                normalized.startsWith("SHELL", ignoreCase = true) -> "Shell"
+                normalized.startsWith("PLENOIL", ignoreCase = true) -> "Plenoil"
+                normalized.startsWith("BALLENOIL", ignoreCase = true) -> "Ballenoil"
+                normalized.startsWith("PETROPRIX", ignoreCase = true) -> "Petroprix"
+                normalized.startsWith("AVIA", ignoreCase = true) -> "Avia"
+                normalized.startsWith("DISA", ignoreCase = true) -> "Disa"
+                normalized.startsWith("CAMPSA", ignoreCase = true) -> "Campsa"
+                normalized.startsWith("ALCAMPO", ignoreCase = true) -> "Alcampo"
+                normalized.startsWith("CARREFOUR", ignoreCase = true) -> "Carrefour"
+                normalized.startsWith("EROSKI", ignoreCase = true) -> "Eroski"
+                normalized.startsWith("ESCLAT", ignoreCase = true) -> "EsclatOil"
+                normalized.startsWith("BONAREA", ignoreCase = true) -> "BonÁrea"
+                normalized.isBlank() -> "Gasolinera"
+                else -> normalized.lowercase().split(" ").joinToString(" ") { word ->
                     word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
                 }
             }
         }
+
+    /**
+     * Short brand name capped to at most 10 characters for list view.
+     */
+    val shortBrand: String
+        get() = if (cleanBrand.length > 10) cleanBrand.take(10).trim() else cleanBrand
 }

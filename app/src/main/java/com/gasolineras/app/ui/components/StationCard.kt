@@ -2,6 +2,7 @@ package com.gasolineras.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -99,7 +100,7 @@ fun StationCard(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            text = station.cleanBrand,
+                            text = station.shortBrand,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -107,15 +108,16 @@ fun StationCard(
                         )
 
                         if (station.isOpen24Hours) {
+                            val isDark = isSystemInDarkTheme()
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer
+                                color = if (isDark) Color(0xFF1E3A5F) else Color(0xFFE3F2FD)
                             ) {
                                 Text(
                                     text = "24H",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = if (isDark) Color.White else Color(0xFF0D47A1),
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }

@@ -55,7 +55,44 @@ class FuelStationDtoTest {
             assertEquals(1.659, it.priceFor(FuelType.GASOLINA_95_E5)!!, 0.0001)
             assertEquals(1.529, it.priceFor(FuelType.GASOLEO_A)!!, 0.0001)
             assertEquals(true, it.isOpen24Hours)
+            assertEquals("Repsol", it.shortBrand)
         }
+    }
+
+    @Test
+    fun testBrandCleaningAndLengthLimit() {
+        val dto1 = FuelStationDto(
+            id = "1", rotulo = "ESTACION DE SERVICIO MONTALBAN", direccion = "Dir", cp = "28001",
+            municipio = "Madrid", provincia = "Madrid", horario = "24H", latitud = "40.0", longitud = "-3.0",
+            precioG95 = "1.5", precioDiesel = null, precioG98 = null, precioDieselPremium = null,
+            precioGLP = null, precioGNC = null, precioGNL = null, precioBiodiesel = null,
+            tipoVenta = "P", margen = "D"
+        )
+        val s1 = dto1.toDomain()!!
+        assertEquals("Montalban", s1.cleanBrand)
+        assertEquals("Montalban", s1.shortBrand)
+        assert(s1.shortBrand.length <= 10)
+
+        val dto2 = FuelStationDto(
+            id = "2", rotulo = "COOPERATIVA AGRICOLA SAN ISIDRO", direccion = "Dir", cp = "28001",
+            municipio = "Madrid", provincia = "Madrid", horario = "24H", latitud = "40.0", longitud = "-3.0",
+            precioG95 = "1.5", precioDiesel = null, precioG98 = null, precioDieselPremium = null,
+            precioGLP = null, precioGNC = null, precioGNL = null, precioBiodiesel = null,
+            tipoVenta = "P", margen = "D"
+        )
+        val s2 = dto2.toDomain()!!
+        assert(s2.shortBrand.length <= 10)
+
+        val dto3 = FuelStationDto(
+            id = "3", rotulo = "E.S. REPSOL", direccion = "Dir", cp = "28001",
+            municipio = "Madrid", provincia = "Madrid", horario = "24H", latitud = "40.0", longitud = "-3.0",
+            precioG95 = "1.5", precioDiesel = null, precioG98 = null, precioDieselPremium = null,
+            precioGLP = null, precioGNC = null, precioGNL = null, precioBiodiesel = null,
+            tipoVenta = "P", margen = "D"
+        )
+        val s3 = dto3.toDomain()!!
+        assertEquals("Repsol", s3.cleanBrand)
+        assertEquals("Repsol", s3.shortBrand)
     }
 
     @Test

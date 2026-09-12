@@ -484,10 +484,16 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
 
-                        // Clear Sort button (Accessible min-height 42dp)
+                        // Clear Sort button (Accessible min-height 42dp, High contrast)
+                        val isDark = isSystemInDarkTheme()
+                        val sortBg = if (isDark) Color(0xFF1E3A5F) else Color(0xFFE3F2FD)
+                        val sortBorder = if (isDark) Color(0xFF3B82F6) else Color(0xFF90CAF9)
+                        val sortContent = if (isDark) Color.White else Color(0xFF0D47A1)
+
                         Surface(
                             shape = RoundedCornerShape(10.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
+                            color = sortBg,
+                            border = BorderStroke(1.dp, sortBorder),
                             modifier = Modifier
                                 .defaultMinSize(minHeight = 42.dp)
                                 .clickable { viewModel.toggleSort() }
@@ -500,14 +506,14 @@ fun HomeScreen(
                                     imageVector = Icons.AutoMirrored.Filled.Sort,
                                     contentDescription = null,
                                     modifier = Modifier.size(17.dp),
-                                    tint = MaterialTheme.colorScheme.primary
+                                    tint = sortContent
                                 )
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = if (state.selectedSort == SortOption.CHEAPEST) "💶 Más barata" else "📍 Más cercana",
                                     fontSize = 12.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = sortContent
                                 )
                             }
                         }
