@@ -298,9 +298,12 @@ class HomeViewModel @JvmOverloads constructor(
                 visibleFuels = updatedVisible,
                 selectedFuels = updatedSelected,
                 themeMode = themeMode,
-                selectedSort = defaultSort
+                selectedSort = defaultSort,
+                selectedRadiusKm = defaultRadiusKm
             )
         }
         fetchStations(forceRefresh = false)
     }
+
+    fun getDefaultRadiusPreference(): Double = preferencesManager.getDefaultRadiusKm()
 }

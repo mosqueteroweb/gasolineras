@@ -211,32 +211,37 @@ fun HomeScreen(
                                     )
                                 }
 
-                                // 2. Selector de Radio (Accesible 48dp touch target, 24dp icon + Badge)
-                                IconButton(
+                                // 2. Selector de Radio (Botón cápsula con icono y texto claro "10km")
+                                Surface(
                                     onClick = {
                                         val nextRadius = viewModel.cycleRadius()
                                         Toast.makeText(context, "Radio: ${nextRadius.toInt()} km", Toast.LENGTH_SHORT).show()
-                                    }
+                                    },
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)),
+                                    modifier = Modifier
+                                        .padding(horizontal = 2.dp)
+                                        .defaultMinSize(minHeight = 36.dp)
                                 ) {
-                                    BadgedBox(
-                                        badge = {
-                                            Badge(
-                                                containerColor = MaterialTheme.colorScheme.surface,
-                                                contentColor = MaterialTheme.colorScheme.primary
-                                            ) {
-                                                Text(
-                                                    text = "${state.selectedRadiusKm.toInt()}k",
-                                                    fontSize = 10.sp,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                            }
-                                        }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.NearMe,
-                                            contentDescription = "Cambiar radio (actual: ${state.selectedRadiusKm.toInt()} km)",
+                                            contentDescription = "Cambiar radio de distancia (actual: ${state.selectedRadiusKm.toInt()} km)",
                                             tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(24.dp)
+                                            modifier = Modifier.size(15.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "${state.selectedRadiusKm.toInt()}km",
+                                            color = MaterialTheme.colorScheme.onPrimary,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1,
+                                            softWrap = false
                                         )
                                     }
                                 }
@@ -711,7 +716,7 @@ fun HomeScreen(
             visibleFuels = state.visibleFuels,
             defaultSelectedFuels = state.selectedFuels,
             defaultView = if (state.isMapView) "MAP" else "LIST",
-            defaultRadiusKm = state.selectedRadiusKm,
+            defaultRadiusKm = viewModel.getDefaultRadiusPreference(),
             defaultSort = state.selectedSort,
             themeMode = state.themeMode,
             onSavePreferences = { vis, sel, view, rad, sort, theme ->
