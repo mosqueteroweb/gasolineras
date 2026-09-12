@@ -40,7 +40,11 @@ fun OsmMapView(
 ) {
     val context = LocalContext.current
     val mapView = remember {
-        Configuration.getInstance().userAgentValue = context.packageName
+        Configuration.getInstance().apply {
+            userAgentValue = context.packageName
+            osmdroidBasePath = context.filesDir
+            osmdroidTileCache = java.io.File(context.cacheDir, "osmdroid")
+        }
         MapView(context).apply {
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
