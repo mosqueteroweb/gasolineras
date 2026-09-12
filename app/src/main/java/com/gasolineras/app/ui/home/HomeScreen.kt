@@ -5,12 +5,14 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -123,13 +125,15 @@ fun HomeScreen(
                                 imageVector = Icons.Default.LocalGasStation,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(24.dp)
                             )
-                            Spacer(modifier = Modifier.width(10.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "Gass",
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
@@ -162,10 +166,10 @@ fun HomeScreen(
                     } else {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(end = 4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            modifier = Modifier.padding(end = 2.dp)
                         ) {
-                            // 0. Toggle Lista / Mapa
+                            // 0. Toggle Lista / Mapa (36dp)
                             Surface(
                                 onClick = {
                                     val willBeMap = !state.isMapView
@@ -175,19 +179,19 @@ fun HomeScreen(
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(34.dp)
+                                modifier = Modifier.size(36.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = if (state.isMapView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.Map,
                                         contentDescription = if (state.isMapView) "Ver lista" else "Ver mapa",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(19.dp)
                                     )
                                 }
                             }
 
-                            // 1. Favorites Heart Button in TopBar
+                            // 1. Favorites Heart Button in TopBar (36dp)
                             Surface(
                                 onClick = {
                                     viewModel.onToggleOnlyFavorites {
@@ -199,19 +203,19 @@ fun HomeScreen(
                                     }
                                 },
                                 shape = CircleShape,
-                                color = if (state.onlyFavorites) Color(0xFFFF5252).copy(alpha = 0.3f) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
+                                color = if (state.onlyFavorites) Color(0xFFFF5252).copy(alpha = 0.35f) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                                 border = BorderStroke(
                                     1.dp,
                                     if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)
                                 ),
-                                modifier = Modifier.size(34.dp)
+                                modifier = Modifier.size(36.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = if (state.onlyFavorites) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                         contentDescription = if (state.onlyFavorites) "Ver todas" else "Ver favoritas",
                                         tint = if (state.onlyFavorites) Color(0xFFFF5252) else MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(19.dp)
                                     )
                                 }
                             }
@@ -225,60 +229,62 @@ fun HomeScreen(
                                 shape = RoundedCornerShape(16.dp),
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.height(34.dp)
+                                modifier = Modifier.defaultMinSize(minHeight = 36.dp)
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 8.dp)
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 6.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.NearMe,
                                         contentDescription = "Cambiar radio de distancia",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(15.dp)
+                                        modifier = Modifier.size(14.dp)
                                     )
                                     Spacer(modifier = Modifier.width(3.dp))
                                     Text(
                                         text = "${state.selectedRadiusKm.toInt()}km",
                                         color = MaterialTheme.colorScheme.onPrimary,
                                         fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        softWrap = false
                                     )
                                 }
                             }
 
-                            // 3. Search Lupa icon button
+                            // 3. Search Lupa icon button (36dp)
                             Surface(
                                 onClick = { isSearchExpanded = true },
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(34.dp)
+                                modifier = Modifier.size(36.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
                                         contentDescription = "Buscar gasolinera",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(19.dp)
                                     )
                                 }
                             }
 
-                            // 4. Refresh button
+                            // 4. Refresh button (36dp)
                             Surface(
                                 onClick = { viewModel.onRefresh() },
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.45f)),
-                                modifier = Modifier.size(34.dp)
+                                modifier = Modifier.size(36.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.Refresh,
                                         contentDescription = "Actualizar precios",
                                         tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(19.dp)
                                     )
                                 }
                             }
@@ -339,7 +345,7 @@ fun HomeScreen(
                         )
                     }
 
-                    // Floating GPS recenter button at bottom-end
+                    // Floating GPS recenter button at bottom-end (ergonomic 52dp)
                     FloatingActionButton(
                         onClick = { mapCenterTrigger++ },
                         containerColor = MaterialTheme.colorScheme.surface,
@@ -348,14 +354,54 @@ fun HomeScreen(
                         elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(end = 14.dp, bottom = 14.dp)
-                            .size(46.dp)
+                            .padding(end = 16.dp, bottom = 16.dp)
+                            .size(52.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.MyLocation,
                             contentDescription = "Centrar en mi posición",
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(24.dp)
                         )
+                    }
+
+                    // Floating empty state banner in map mode
+                    if (state.stations.isEmpty() && !state.isLoading) {
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+                            shadowElevation = 6.dp,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(horizontal = 24.dp)
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.padding(20.dp)
+                            ) {
+                                Text(
+                                    text = if (state.onlyFavorites) "No tienes gasolineras favoritas" else "No hay gasolineras a ${state.selectedRadiusKm.toInt()} km",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Button(
+                                    onClick = {
+                                        if (state.onlyFavorites) {
+                                            viewModel.onToggleOnlyFavorites()
+                                        } else {
+                                            viewModel.onRadiusSelected(25.0)
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(10.dp)
+                                ) {
+                                    Text(
+                                        text = if (state.onlyFavorites) "Ver todas las gasolineras" else "Ampliar radio a 25 km",
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             } else {
@@ -390,25 +436,30 @@ fun HomeScreen(
                         }
                     }
 
-                    // Active Favorites Filter Banner
+                    // Active Favorites Filter Banner (Dark theme adapted)
                     if (state.onlyFavorites) {
+                        val isDark = isSystemInDarkTheme()
                         Surface(
-                            color = Color(0xFFFFEBEE),
+                            color = if (isDark) Color(0xFF3E1515) else Color(0xFFFFEBEE),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
                             ) {
                                 Text(
                                     text = "❤️ Mostrando solo tus ${state.stations.size} favoritas",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFC62828)
+                                    color = if (isDark) Color(0xFFFF8A80) else Color(0xFFC62828)
                                 )
                                 TextButton(onClick = { viewModel.onToggleOnlyFavorites() }) {
-                                    Text("Ver todas", fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = "Ver todas",
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isDark) Color(0xFFFF8A80) else MaterialTheme.colorScheme.primary
+                                    )
                                 }
                             }
                         }
@@ -435,26 +486,28 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
 
-                        // Clear Sort button
+                        // Clear Sort button (Accessible min-height 42dp)
                         Surface(
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(10.dp),
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.clickable { viewModel.toggleSort() }
+                            modifier = Modifier
+                                .defaultMinSize(minHeight = 42.dp)
+                                .clickable { viewModel.toggleSort() }
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Sort,
                                     contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
+                                    modifier = Modifier.size(17.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
                                     text = if (state.selectedSort == SortOption.CHEAPEST) "💶 Más barata" else "📍 Más cercana",
-                                    fontSize = 12.sp,
+                                    fontSize = 12.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
                                 )

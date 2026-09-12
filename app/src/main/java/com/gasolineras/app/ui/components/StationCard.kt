@@ -134,7 +134,7 @@ fun StationCard(
                 // Heart favorite button
                 IconButton(
                     onClick = onToggleFavorite,
-                    modifier = Modifier.size(38.dp)
+                    modifier = Modifier.size(44.dp)
                 ) {
                     Icon(
                         imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
@@ -178,6 +178,8 @@ fun StationCard(
                     }
                 }
 
+                Spacer(modifier = Modifier.width(8.dp))
+
                 val showCheapest = isCheapestInArea || cheapestForFuels.isNotEmpty()
                 if (showCheapest) {
                     val fuelsLabel = if (cheapestForFuels.isNotEmpty()) {
@@ -195,13 +197,16 @@ fun StationCard(
 
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = CheapGreenContainer
+                        color = CheapGreenContainer,
+                        modifier = Modifier.weight(1f, fill = false)
                     ) {
                         Text(
                             text = fuelsLabel,
                             color = CheapGreen,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.ExtraBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
@@ -241,7 +246,7 @@ fun StationCard(
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 5.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
@@ -250,8 +255,10 @@ fun StationCard(
                                         isGLP -> "🟢 $label"
                                         else -> label
                                     },
-                                    fontSize = 11.sp,
+                                    fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = when {
                                         isCheapestThisFuel -> Color(0xFF1B5E20)
                                         isGLP -> Color(0xFF004D40)
@@ -260,8 +267,11 @@ fun StationCard(
                                 )
                                 Text(
                                     text = pText,
-                                    fontSize = 15.sp,
+                                    fontSize = 14.sp,
                                     fontWeight = FontWeight.ExtraBold,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = when {
                                         isCheapestThisFuel -> Color(0xFF2E7D32)
                                         isGLP -> Color(0xFF00695C)
@@ -339,7 +349,8 @@ fun StationCard(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
-                    contentPadding = ButtonDefaults.TextButtonContentPadding
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                    modifier = Modifier.height(40.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Navigation,
