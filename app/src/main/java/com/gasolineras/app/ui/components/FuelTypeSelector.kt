@@ -40,7 +40,7 @@ fun FuelTypeSelector(
                 onClick = { onToggleFuel(fuel) },
                 label = {
                     Text(
-                        text = if (isSelected) "✓ $label" else label,
+                        text = label,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal
                     )

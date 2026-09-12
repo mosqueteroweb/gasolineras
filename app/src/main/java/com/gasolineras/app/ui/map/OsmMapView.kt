@@ -62,7 +62,7 @@ fun OsmMapView(
         }
     }
 
-    // Helper for marker price string
+    // Helper for marker price string with large, clean numbers and no clutter
     fun priceStringFor(station: GasStation): String {
         val parts = mutableListOf<String>()
         if (selectedFuels.contains(FuelType.GASOLEO_A) && station.priceFor(FuelType.GASOLEO_A) != null) {
@@ -75,9 +75,9 @@ fun OsmMapView(
             parts.add("GLP: ${station.formattedPriceFor(FuelType.GLP)}")
         }
         return if (parts.isNotEmpty()) {
-            parts.joinToString(" | ")
+            parts.joinToString("   ")
         } else {
-            station.prices.values.minOrNull()?.let { String.format(java.util.Locale.US, "%.3f €/L", it) } ?: "--"
+            station.prices.values.minOrNull()?.let { String.format(java.util.Locale.US, "%.3f €", it) } ?: "--"
         }
     }
 
@@ -91,8 +91,8 @@ fun OsmMapView(
             val userPoint = GeoPoint(userLocation.latitude, userLocation.longitude)
             val userMarker = Marker(view).apply {
                 position = userPoint
-                title = "📍 Tu posición actual"
-                snippet = if (userLocation.isDefaultLocation) "Ubicación de referencia (Madrid)" else "Ubicación GPS en tiempo real"
+                title = "📍 Tu posición"
+                snippet = if (userLocation.isDefaultLocation) "Madrid (referencia)" else "GPS en tiempo real"
                 icon = MapMarkerHelper.createUserLocationMarker(context)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
             }
@@ -111,8 +111,19 @@ fun OsmMapView(
             val nearestStation = stations.minByOrNull { it.distanceMeters ?: Double.MAX_VALUE }
 
             // Configure the shared InfoWindow so that tapping the legend (bubble) opens the full detail card
+            // and style it for larger, bolder price visibility
             val sampleMarker = Marker(view)
             sampleMarker.infoWindow?.view?.let { infoView ->
+                val titleView = infoView.findViewById<android.widget.TextView>(org.osmdroid.library.R.id.bubble_title)
+                val descView = infoView.findViewById<android.widget.TextView>(org.osmdroid.library.R.id.bubble_description)
+
+                titleView?.textSize = 15f
+                titleView?.setTypeface(null, android.graphics.Typeface.BOLD)
+
+                descView?.textSize = 17f
+                descView?.setTypeface(null, android.graphics.Typeface.BOLD)
+                descView?.setTextColor(android.graphics.Color.parseColor("#1B5E20"))
+
                 bindInfoWindowClicks(infoView) {
                     val activeMarker = (sampleMarker.infoWindow as? MarkerInfoWindow)?.markerReference
                     val currentStation = activeMarker?.relatedObject as? GasStation
@@ -127,7 +138,6 @@ fun OsmMapView(
             stations.forEach { station ->
                 val stationPoint = GeoPoint(station.latitude, station.longitude)
                 val priceDesc = priceStringFor(station)
-                val glpInfo = if (station.hasGLP && !selectedFuels.contains(FuelType.GLP)) " • 🟢 GLP: ${station.formattedGlpPrice}" else ""
 
                 // Check which fuels this station is cheapest for
                 val cheapestFuels = activeFuels.filter { fuel ->
@@ -144,21 +154,13 @@ fun OsmMapView(
 
                     when {
                         isCheapest -> {
-                            val fuelsLabel = cheapestFuels.joinToString(", ") { fuel ->
-                                when (fuel) {
-                                    FuelType.GASOLEO_A -> "Diésel"
-                                    FuelType.GASOLINA_95_E5 -> "Gas 95"
-                                    FuelType.GLP -> "GLP"
-                                    else -> fuel.displayName
-                                }
-                            }
                             icon = MapMarkerHelper.createGasStationMarker(
                                 context = context,
                                 pinColor = Color.rgb(46, 125, 50), // Green
                                 label = "🏆"
                             )
-                            title = "🏆 ${station.cleanBrand}"
-                            snippet = "Más barata en: $fuelsLabel\n$priceDesc • A ${station.formattedDistance}$glpInfo\n👉 Toca la leyenda para ver detalles"
+                            title = "🏆 ${station.cleanBrand} (${station.formattedDistance})"
+                            snippet = priceDesc
                         }
                         isNearest -> {
                             icon = MapMarkerHelper.createGasStationMarker(
@@ -166,8 +168,8 @@ fun OsmMapView(
                                 pinColor = Color.rgb(245, 124, 0), // Orange
                                 label = "⚡"
                             )
-                            title = "⚡ ${station.cleanBrand}"
-                            snippet = "Más cercana • $priceDesc • A ${station.formattedDistance}$glpInfo\n👉 Toca la leyenda para ver detalles"
+                            title = "⚡ ${station.cleanBrand} (${station.formattedDistance})"
+                            snippet = priceDesc
                         }
                         station.hasGLP -> {
                             icon = MapMarkerHelper.createGasStationMarker(
@@ -175,8 +177,8 @@ fun OsmMapView(
                                 pinColor = Color.rgb(0, 105, 92), // Teal
                                 label = "G"
                             )
-                            title = "${station.cleanBrand}"
-                            snippet = "$priceDesc • A ${station.formattedDistance}$glpInfo\n👉 Toca la leyenda para ver detalles"
+                            title = "🟢 ${station.cleanBrand} (${station.formattedDistance})"
+                            snippet = priceDesc
                         }
                         else -> {
                             icon = MapMarkerHelper.createGasStationMarker(
@@ -184,8 +186,8 @@ fun OsmMapView(
                                 pinColor = Color.rgb(25, 118, 210), // Primary Blue
                                 label = "⛽"
                             )
-                            title = "${station.cleanBrand}"
-                            snippet = "$priceDesc • A ${station.formattedDistance}\n👉 Toca la leyenda para ver detalles"
+                            title = "${station.cleanBrand} (${station.formattedDistance})"
+                            snippet = priceDesc
                         }
                     }
 

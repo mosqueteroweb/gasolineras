@@ -151,18 +151,25 @@ class FuelRepositoryImpl(
                 }
             }
 
-            // 3. Sort stations according to user preference
+            // 3. Sort stations according to user preference (breaking price ties by distance ascending)
             val sortedStations = when (sortOption) {
                 SortOption.CHEAPEST -> {
                     processedStations.sortedWith(
-                        compareBy<GasStation> { it.bestPrice() ?: Double.MAX_VALUE }
-                            .thenBy { it.distanceMeters ?: Double.MAX_VALUE }
+                        compareBy<GasStation> {
+                            val p = it.bestPrice()
+                            if (p != null) Math.round(p * 1000.0) else Long.MAX_VALUE
+                        }.thenBy {
+                            it.distanceMeters ?: Double.MAX_VALUE
+                        }
                     )
                 }
                 SortOption.NEAREST -> {
                     processedStations.sortedWith(
                         compareBy<GasStation> { it.distanceMeters ?: Double.MAX_VALUE }
-                            .thenBy { it.bestPrice() ?: Double.MAX_VALUE }
+                            .thenBy {
+                                val p = it.bestPrice()
+                                if (p != null) Math.round(p * 1000.0) else Long.MAX_VALUE
+                            }
                     )
                 }
             }

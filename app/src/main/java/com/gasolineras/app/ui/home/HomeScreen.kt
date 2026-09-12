@@ -308,7 +308,7 @@ fun HomeScreen(
                                 onClick = { viewModel.onToggleFuel(fuel) },
                                 label = {
                                     Text(
-                                        text = if (isSelected) "✓ $label" else label,
+                                        text = label,
                                         fontSize = 12.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                     )
@@ -427,13 +427,7 @@ fun HomeScreen(
                         onToggleFuel = { viewModel.onToggleFuel(it) }
                     )
 
-                    // 2. Distance Radius Filter (fits screen)
-                    RadiusFilterBar(
-                        selectedRadiusKm = state.selectedRadiusKm,
-                        onRadiusSelected = { viewModel.onRadiusSelected(it) }
-                    )
-
-                    // 3. Status Bar: Station count & Sort toggle button
+                    // 2. Status Bar: Station count & Sort toggle button
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
