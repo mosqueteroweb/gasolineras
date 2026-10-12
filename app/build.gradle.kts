@@ -12,8 +12,8 @@ android {
         applicationId = "com.gasolineras.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 19
-        versionName = "2.2.0"
+        versionCode = 20
+        versionName = "2.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -21,13 +21,26 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore/release.keystore")
+            storePassword = "gasolineras2026"
+            keyAlias = "gasolineras"
+            keyPassword = "gasolineras2026"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
