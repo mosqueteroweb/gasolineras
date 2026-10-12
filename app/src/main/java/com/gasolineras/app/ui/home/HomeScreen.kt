@@ -87,7 +87,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gasolineras.app.domain.model.FuelType
 import com.gasolineras.app.domain.model.SortOption
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.filled.Info
 import com.gasolineras.app.ui.components.FuelTypeSelector
+import com.gasolineras.app.ui.components.MapLegendCard
 import com.gasolineras.app.ui.components.NavigationHelper
 import com.gasolineras.app.ui.components.RadiusFilterBar
 import com.gasolineras.app.ui.components.StationCard
@@ -108,6 +111,7 @@ fun HomeScreen(
     var mapVisibleCount by remember { mutableIntStateOf(0) }
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showOverflowMenu by remember { mutableStateOf(false) }
+    var showMapLegend by remember { mutableStateOf(false) }
 
     val infiniteTransition = rememberInfiniteTransition(label = "refresh_spin")
     val refreshRotation by infiniteTransition.animateFloat(
@@ -320,6 +324,21 @@ fun HomeScreen(
                                                 showSettingsSheet = true
                                             }
                                         )
+                                        if (state.isMapView) {
+                                            DropdownMenuItem(
+                                                text = { Text("Leyenda del mapa") },
+                                                leadingIcon = {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Info,
+                                                        contentDescription = null
+                                                    )
+                                                },
+                                                onClick = {
+                                                    showOverflowMenu = false
+                                                    showMapLegend = true
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -351,7 +370,7 @@ fun HomeScreen(
                 Box(modifier = Modifier.fillMaxSize()) {
                     OsmMapView(
                         userLocation = state.userLocation,
-                        stations = state.mapStations,
+                        stations = state.stations,
                         selectedFuels = state.selectedFuels,
                         minPricePerFuel = state.minPricePerFuel,
                         selectedRadiusKm = state.selectedRadiusKm,
@@ -370,6 +389,39 @@ fun HomeScreen(
                             .padding(top = 8.dp)
                     )
 
+                    // Floating Legend toggle pill at bottom-start
+                    if (!showMapLegend) {
+                        Surface(
+                            onClick = { showMapLegend = true },
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
+                            shadowElevation = 3.dp,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 14.dp, bottom = 114.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = "Ver leyenda de iconos",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = "Leyenda",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+
                     // Floating station count pill at bottom-start (raised above zoom controls)
                     Surface(
                         shape = RoundedCornerShape(16.dp),
@@ -385,6 +437,18 @@ fun HomeScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        )
+                    }
+
+                    // Floating Legend Card when expanded
+                    if (showMapLegend) {
+                        MapLegendCard(
+                            radiusKm = state.selectedRadiusKm,
+                            onDismiss = { showMapLegend = false },
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 14.dp, end = 14.dp, bottom = 72.dp)
+                                .widthIn(max = 340.dp)
                         )
                     }
 
@@ -408,7 +472,7 @@ fun HomeScreen(
                     }
 
                     // Floating empty state banner in map mode (when current map viewport has no stations)
-                    if (mapVisibleCount == 0 && state.mapStations.isNotEmpty() && !state.isLoading) {
+                    if (mapVisibleCount == 0 && !state.isLoading) {
                         Surface(
                             shape = RoundedCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
@@ -422,10 +486,15 @@ fun HomeScreen(
                                 modifier = Modifier.padding(20.dp)
                             ) {
                                 Text(
-                                    text = if (state.onlyFavorites) "No tienes gasolineras favoritas en esta zona" else "No hay gasolineras en este encuadre",
+                                    text = when {
+                                        state.onlyFavorites -> "No tienes gasolineras favoritas en esta zona"
+                                        state.stations.isEmpty() -> "No hay gasolineras en un radio de ${state.selectedRadiusKm.toInt()} km"
+                                        else -> "No hay gasolineras en este encuadre"
+                                    },
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Button(

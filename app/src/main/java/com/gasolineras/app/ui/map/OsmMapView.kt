@@ -31,13 +31,40 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
 
 private fun zoomLevelForRadius(radiusKm: Double): Double = when {
-    radiusKm <= 3.5 -> 15.8
-    radiusKm <= 12.0 -> 13.8
-    radiusKm <= 30.0 -> 12.0
-    else -> 9.8
+    radiusKm <= 3.5 -> 14.4
+    radiusKm <= 12.0 -> 12.5
+    radiusKm <= 30.0 -> 10.9
+    else -> 8.9
+}
+
+private fun createGeodesicCircle(
+    center: GeoPoint,
+    radiusMeters: Double,
+    pointsCount: Int = 64
+): ArrayList<GeoPoint> {
+    val circlePoints = ArrayList<GeoPoint>(pointsCount)
+    val earthRadius = 6378137.0 // WGS84 major axis in meters
+    val dR = radiusMeters / earthRadius
+    val centerLatRad = Math.toRadians(center.latitude)
+    val centerLonRad = Math.toRadians(center.longitude)
+
+    for (i in 0 until pointsCount) {
+        val bearing = 2.0 * Math.PI * i / pointsCount
+        val latRad = Math.asin(
+            Math.sin(centerLatRad) * Math.cos(dR) +
+            Math.cos(centerLatRad) * Math.sin(dR) * Math.cos(bearing)
+        )
+        val lonRad = centerLonRad + Math.atan2(
+            Math.sin(bearing) * Math.sin(dR) * Math.cos(centerLatRad),
+            Math.cos(dR) - Math.sin(centerLatRad) * Math.sin(latRad)
+        )
+        circlePoints.add(GeoPoint(Math.toDegrees(latRad), Math.toDegrees(lonRad)))
+    }
+    return circlePoints
 }
 
 @Composable
@@ -114,8 +141,19 @@ fun OsmMapView(
     LaunchedEffect(userLocation) {
         if (!userLocation.isDefaultLocation) {
             val center = GeoPoint(userLocation.latitude, userLocation.longitude)
+            val zoom = zoomLevelForRadius(selectedRadiusKm)
+            mapView.controller.setZoom(zoom)
             mapView.controller.animateTo(center)
         }
+    }
+
+    // Re-center and adjust zoom when distance radius changes
+    LaunchedEffect(selectedRadiusKm) {
+        val center = GeoPoint(userLocation.latitude, userLocation.longitude)
+        val zoom = zoomLevelForRadius(selectedRadiusKm)
+        mapView.controller.setZoom(zoom)
+        mapView.controller.animateTo(center)
+        mapMoveTrigger++
     }
 
     // Re-center and adjust zoom ONLY when explicitly requested (centerTrigger / GPS recenter FAB)
@@ -158,8 +196,20 @@ fun OsmMapView(
 
             view.overlays.clear()
 
-            // 1. User Position Marker
             val userPoint = GeoPoint(userLocation.latitude, userLocation.longitude)
+
+            // 1. Radius Circle Overlay (Visual delimitator for selected distance mode)
+            val circleOverlay = Polygon(view).apply {
+                points = createGeodesicCircle(userPoint, selectedRadiusKm * 1000.0)
+                fillPaint.color = Color.argb(22, 33, 150, 243) // Translucent soft blue (~8.5%)
+                outlinePaint.color = Color.argb(160, 25, 118, 210) // Subtle blue border
+                outlinePaint.strokeWidth = 2.0f * context.resources.displayMetrics.density
+                infoWindow = null
+                setOnClickListener { _, _, _ -> false }
+            }
+            view.overlays.add(circleOverlay)
+
+            // 2. User Position Marker
             val userMarker = Marker(view).apply {
                 position = userPoint
                 title = "📍 Tu posición"
@@ -169,7 +219,7 @@ fun OsmMapView(
             }
             view.overlays.add(userMarker)
 
-            // 2. Filter stations within current visible BoundingBox (with 8% margin for seamless edge panning)
+            // 3. Filter stations within current visible BoundingBox (with 8% margin for seamless edge panning)
             val box = view.boundingBox
             val visibleStations = if (box != null && box.latNorth != box.latSouth) {
                 val latMargin = (box.latNorth - box.latSouth) * 0.08
@@ -191,9 +241,9 @@ fun OsmMapView(
 
             val activeFuels = if (selectedFuels.isEmpty()) FuelType.values().toSet() else selectedFuels
 
-            // Calculate cheapest prices per fuel among VISIBLE stations
+            // Calculate cheapest prices per fuel (respecting minPricePerFuel from area or visible stations)
             val effectiveMinPrices = activeFuels.mapNotNull { fuel ->
-                val minP = visibleStations.mapNotNull { it.prices[fuel] }.minOrNull()
+                val minP = minPricePerFuel[fuel] ?: visibleStations.mapNotNull { it.prices[fuel] }.minOrNull()
                 if (minP != null) fuel to minP else null
             }.toMap()
 
