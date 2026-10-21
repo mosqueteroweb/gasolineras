@@ -1,17 +1,33 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+fun getSecret(key: String, default: String? = null): String? {
+    return System.getenv(key)
+        ?: localProperties.getProperty(key)
+        ?: (project.findProperty(key) as? String)
+        ?: default
+}
+
 android {
     namespace = "com.gasolineras.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.gasolineras.app"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 20
         versionName = "2.2.1"
 
@@ -21,26 +37,44 @@ android {
         }
     }
 
+    val keystorePath = getSecret("KEYSTORE_PATH", "keystore/release.keystore")
+    val keystoreFile = keystorePath?.let { file(it) }
+    val storePasswordVal = getSecret("KEYSTORE_PASSWORD")
+    val keyAliasVal = getSecret("KEY_ALIAS")
+    val keyPasswordVal = getSecret("KEY_PASSWORD")
+
+    val hasSigningKeys = keystoreFile != null && keystoreFile.exists() &&
+            !storePasswordVal.isNullOrBlank() &&
+            !keyAliasVal.isNullOrBlank() &&
+            !keyPasswordVal.isNullOrBlank()
+
     signingConfigs {
-        create("release") {
-            storeFile = file("keystore/release.keystore")
-            storePassword = "gasolineras2026"
-            keyAlias = "gasolineras"
-            keyPassword = "gasolineras2026"
+        if (hasSigningKeys) {
+            create("release") {
+                storeFile = keystoreFile
+                storePassword = storePasswordVal
+                keyAlias = keyAliasVal
+                keyPassword = keyPasswordVal
+            }
         }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            if (hasSigningKeys) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
         debug {
-            signingConfig = signingConfigs.getByName("release")
+            if (hasSigningKeys) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
