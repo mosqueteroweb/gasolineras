@@ -542,35 +542,6 @@ fun HomeScreen(
                         }
                     }
 
-                    // Active Favorites Filter Banner (Dark theme adapted)
-                    if (state.onlyFavorites) {
-                        val isDark = isSystemInDarkTheme()
-                        Surface(
-                            color = if (isDark) Color(0xFF3E1515) else Color(0xFFFFEBEE),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-                            ) {
-                                Text(
-                                    text = "❤️ Mostrando solo tus ${state.stations.size} favoritas",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isDark) Color(0xFFFF8A80) else Color(0xFFC62828)
-                                )
-                                TextButton(onClick = { viewModel.onToggleOnlyFavorites() }) {
-                                    Text(
-                                        text = "Ver todas",
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isDark) Color(0xFFFF8A80) else MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-                    }
-
                     // 1. 3 Fuel Carousel
                     FuelTypeSelector(
                         selectedFuels = state.selectedFuels,
