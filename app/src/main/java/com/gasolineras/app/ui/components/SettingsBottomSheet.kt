@@ -1,8 +1,12 @@
 package com.gasolineras.app.ui.components
 
 import android.widget.Toast
+import com.gasolineras.app.BuildConfig
+import com.gasolineras.app.R
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,8 +53,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -457,13 +463,28 @@ fun SettingsBottomSheet(
                 Text("Vaciar caché y forzar recarga oficial")
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Gass v2.1.0 • Código Libre (GPLv3) • Datos oficiales del Ministerio MITECO",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                modifier = Modifier.padding(horizontal = 4.dp)
-            )
+            Spacer(modifier = Modifier.height(14.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_mosqueteroweb),
+                    contentDescription = "Mosqueteroweb",
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Gass v${BuildConfig.VERSION_NAME} • Por Mosqueteroweb • Código Libre (GPLv3) • Datos oficiales del Ministerio MITECO",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
