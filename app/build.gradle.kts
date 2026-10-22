@@ -28,8 +28,8 @@ android {
         applicationId = "com.gasolineras.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 25
-        versionName = "2.2.5"
+        versionCode = 26
+        versionName = "2.2.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

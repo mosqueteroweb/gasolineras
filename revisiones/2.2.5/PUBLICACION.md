@@ -27,7 +27,7 @@ No se incluyen claves, tokens ni configuración privada. Se conserva el historia
 
 La release **Gass v2.2.5 está publicada**, sin marcarse como borrador ni prerelease. GitHub Actions terminó con éxito todas las etapas: pruebas unitarias/lint, compilación, verificación de firma, generación de checksum y publicación de los dos adjuntos.
 
-- Commit de código y etiqueta: [`87a79e8611a6355a8bb19243f208b659b483633e`](https://github.com/mosqueteroweb/gasolineras/commit/87a79e8611a6355a8bb19243f208b659b483633e).
+- Commit de código y etiqueta: [`c89129f01c40ed898d8b011c1edc40df8d107a57`](https://github.com/mosqueteroweb/gasolineras/commit/c89129f01c40ed898d8b011c1edc40df8d107a57).
 - Ejecución comprobada: [Build & Release APK #39860744304](https://github.com/mosqueteroweb/gasolineras/actions/runs/39860744304).
 - APK publicado: **2.025.031 bytes**, versión **2.2.5**, código **25**, sin indicador de depuración.
 - SHA-256 publicado y verificado tras descargar el APK: `008010d8dac2116735bcbae196dd74166c401081a57176b7121bd8bb70a3a23b`.
@@ -37,4 +37,4 @@ La release **Gass v2.2.5 está publicada**, sin marcarse como borrador ni prerel
 
 Se ha copiado el APK publicado a `gasolineras.apk` en la raíz y a `gasolineras.apk` de esta carpeta, junto a sus checksums. Esas copias son idénticas al adjunto de GitHub. Los APK siguen excluidos del seguimiento de Git. La compilación local previa se conserva como `gass-2.2.5.apk` de esta carpeta, con su huella independiente en `APK_LOCAL.sha256` y `entrega-local.json`; no debe confundirse con el binario generado en GitHub Actions.
 
-El registro estructurado está en [publicacion-verificada.json](publicacion-verificada.json). Este cierre documental, se guarda en un commit posterior de documentación; la etiqueta `v2.2.5` conserva el commit de código indicado arriba y no se mueve.
+El registro estructurado está en [publicacion-verificada.json](publicacion-verificada.json). Este cierre documental se guarda en un commit posterior de documentación; la etiqueta `v2.2.5` identifica el código de esa entrega. La corrección posterior de autoría conserva el código y el APK publicado.

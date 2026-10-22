@@ -1,0 +1,10 @@
+{
+  "version": "2.2.6",
+  "version_code": 26,
+  "autor": "Mosqueteroweb",
+  "pruebas_unitarias": 23,
+  "pruebas_android": 9,
+  "fallos": 0,
+  "lint_errores": 0,
+  "apk_local_sha256": "c560b7a15d6e90c820dc1e22391945d9f966a37a66b0ee8d4810cc196c373833"
+}

@@ -1,5 +1,16 @@
 # Historial de cambios
 
+## 2.2.6 — 23 de octubre de 2026
+
+**Autor: Mosqueteroweb.**
+
+- El mapa deja de mostrar el bloque fijo de última ubicación y precios del Ministerio.
+- Nuevo icono de información inferior, junto al centrado de ubicación, que abre el mismo contenido y conserva los avisos y sus acciones.
+- Cierre con X, pulsación del icono, Atrás o a los 5 segundos desde la apertura. Las actualizaciones no prolongan el temporizador.
+- Leyenda e información se muestran por separado; al salir del mapa se cierra el panel.
+- Documentación y autoría pública corregidas a Mosqueteroweb.
+- Versión Android 2.2.6 / código 26.
+
 ## 2.2.5 — 22 de octubre de 2026
 
 **Autor: Mosqueteroweb.**

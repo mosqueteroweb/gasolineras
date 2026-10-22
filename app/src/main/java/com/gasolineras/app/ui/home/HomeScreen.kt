@@ -1,6 +1,7 @@
 package com.gasolineras.app.ui.home
 
 import androidx.activity.compose.BackHandler
+import com.gasolineras.app.ui.components.MapInformationControl
 import com.gasolineras.app.ui.components.HomeStatus
 import android.content.Context
 import android.widget.Toast
@@ -114,10 +115,12 @@ fun HomeScreen(
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showOverflowMenu by remember { mutableStateOf(false) }
     var showMapLegend by remember { mutableStateOf(false) }
+    var showMapInfo by remember { mutableStateOf(false) }
 
     BackHandler(enabled = !showSettingsSheet && state.selectedStationForDetail == null &&
-        (showMapLegend || isSearchExpanded || showOverflowMenu)) {
+        (showMapInfo || showMapLegend || isSearchExpanded || showOverflowMenu)) {
         when {
+            showMapInfo -> showMapInfo = false
             showOverflowMenu -> showOverflowMenu = false
             showMapLegend -> showMapLegend = false
             isSearchExpanded -> {
@@ -216,6 +219,7 @@ fun HomeScreen(
                                 // 1. Toggle Lista / Mapa (Accesible 48dp touch target, 24dp icon)
                                 IconButton(
                                     onClick = {
+                                        showMapInfo = false
                                         val willBeMap = !state.isMapView
                                         if (willBeMap) mapCenterTrigger++
                                         viewModel.setMapView(willBeMap)
@@ -349,6 +353,7 @@ fun HomeScreen(
                                                 },
                                                 onClick = {
                                                     showOverflowMenu = false
+                                                    showMapInfo = false
                                                     showMapLegend = true
                                                 }
                                             )
@@ -362,11 +367,13 @@ fun HomeScreen(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 )
-                HomeStatus(
-                    state = state,
-                    onLocationAction = onRequestLocationPermission,
-                    onRetry = { viewModel.onRefresh() }
-                )
+                if (!state.isMapView) {
+                    HomeStatus(
+                        state = state,
+                        onLocationAction = onRequestLocationPermission,
+                        onRetry = { viewModel.onRefresh() }
+                    )
+                }
                 if (state.isLoading || state.isRefreshing || state.isLocating) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
@@ -412,7 +419,7 @@ fun HomeScreen(
                     // Floating Legend toggle pill at bottom-start
                     if (!showMapLegend) {
                         Surface(
-                            onClick = { showMapLegend = true },
+                            onClick = { showMapInfo = false; showMapLegend = true },
                             shape = RoundedCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
                             shadowElevation = 3.dp,
@@ -545,6 +552,17 @@ fun HomeScreen(
                             }
                         }
                     }
+                    MapInformationControl(
+                        state = state,
+                        expanded = showMapInfo,
+                        onExpandedChange = { expanded ->
+                            showMapInfo = expanded
+                            if (expanded) showMapLegend = false
+                        },
+                        onLocationAction = onRequestLocationPermission,
+                        onRetry = { viewModel.onRefresh() },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             } else {
                 // ==================== LIST MODE ====================

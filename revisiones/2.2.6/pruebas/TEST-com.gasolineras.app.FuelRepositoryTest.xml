@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gasolineras.app.FuelRepositoryTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-22T22:15:05" hostname="MacStudio-de-Pedro.local" time="0.175">
+  <properties/>
+  <testcase name="favoriteRemovalRecalculatesMinimumPrice" classname="com.gasolineras.app.FuelRepositoryTest" time="0.029"/>
+  <testcase name="expiredDiskCacheRemainsUsableOfflineAndRetriesWhenRequested" classname="com.gasolineras.app.FuelRepositoryTest" time="0.017"/>
+  <testcase name="concurrentQueriesShareOneDownload" classname="com.gasolineras.app.FuelRepositoryTest" time="0.108"/>
+  <testcase name="movingCitiesRecalculatesCachedDistancesAndBothViews" classname="com.gasolineras.app.FuelRepositoryTest" time="0.002"/>
+  <testcase name="corruptedCacheAllowsOnlineRecovery" classname="com.gasolineras.app.FuelRepositoryTest" time="0.003"/>
+  <testcase name="malformedResponseDoesNotOverwriteValidCache" classname="com.gasolineras.app.FuelRepositoryTest" time="0.001"/>
+  <testcase name="noCacheAndNoNetworkReturnsFailure" classname="com.gasolineras.app.FuelRepositoryTest" time="0.001"/>
+  <testcase name="failedForcedRefreshKeepsPersistentResponseAndWarns" classname="com.gasolineras.app.FuelRepositoryTest" time="0.002"/>
+  <testcase name="emptyResponseDoesNotOverwriteValidCache" classname="com.gasolineras.app.FuelRepositoryTest" time="0.002"/>
+  <testcase name="cancellationIsNotReportedAsAnOfflineSuccess" classname="com.gasolineras.app.FuelRepositoryTest" time="0.007"/>
+  <testcase name="restartWithoutNetworkRestoresStationsAndDate" classname="com.gasolineras.app.FuelRepositoryTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

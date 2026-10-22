@@ -2,7 +2,7 @@
   "version": "2.2.5",
   "versionCode": 25,
   "autor_cambios": "Mosqueteroweb",
-  "commit_codigo": "87a79e8611a6355a8bb19243f208b659b483633e",
+  "commit_codigo": "c89129f01c40ed898d8b011c1edc40df8d107a57",
   "tag": "v2.2.5",
   "release_url": "https://github.com/mosqueteroweb/gasolineras/releases/tag/v2.2.5",
   "workflow_run": "https://github.com/mosqueteroweb/gasolineras/actions/runs/39860744304",

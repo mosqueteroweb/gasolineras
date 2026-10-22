@@ -19,3 +19,6 @@ app/keystore/
 
 # Kotlin compiler local state
 .kotlin/
+
+# Private local documentation
+/documentacion-local/

@@ -49,4 +49,15 @@ Las claves y la configuración local privada no forman parte del commit ni de la
 
 ## Cierre de la publicación
 
-Se comprobó la publicación de v2.2.5, la finalización correcta de GitHub Actions, los dos adjuntos, la huella del APK descargado y la continuidad del certificado de firma con 2.2.4. Se conservan el registro y la huella en [PUBLICACION.md](revisiones/2.2.5/PUBLICACION.md). El APK de la raíz corresponde ahora al binario publicado en GitHub. El cierre se registra como documentación posterior, sin modificar el código ni la etiqueta de la release.
+Se comprobó la publicación de v2.2.5, la finalización correcta de GitHub Actions, los dos adjuntos, la huella del APK descargado y la continuidad del certificado de firma con 2.2.4. Se conservan el registro y la huella en [PUBLICACION.md](revisiones/2.2.5/PUBLICACION.md). El APK de la raíz corresponde ahora al binario publicado en GitHub. El cierre se registra como documentación posterior, sin modificar el código del APK publicado.
+
+## Gass 2.2.6
+
+Autor: Mosqueteroweb.
+
+- `HomeScreen.kt`: información de estado fija solo en la lista, acceso inferior en mapa, cierre con Atrás y exclusión mutua con la leyenda.
+- `MapInformationControl.kt`: panel con cierre manual y temporizador de 5 segundos, sin reiniciarse ante cambios de datos.
+- `MapInformationControlTest.kt`: cobertura de apertura, cierre, temporizador, reapertura y datos actualizados.
+- `app/build.gradle.kts`: versión 2.2.6, código 26.
+- README, historial, notas e informes: documentación pública y autoría unificadas.
+- Publicación: corrección de notas de 2.2.5 sin recompilar ni sustituir su APK.

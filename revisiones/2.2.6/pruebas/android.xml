@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.gasolineras.app.HomeViewModelRegressionTest" tests="9" failures="0" errors="0" skipped="0" time="58.307" timestamp="2026-10-22T22:16:31" hostname="localhost">
+  <properties>
+    <property name="device" value="test_pixel(AVD) - 15" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="continuousLocationChangesCityWithoutManualRefresh" classname="com.gasolineras.app.HomeViewModelRegressionTest" time="0.186" />
+  <testcase name="failedOrDisabledGpsPreservesLastValidPositionAndDoesNotSignalSuccess" classname="com.gasolineras.app.HomeViewModelRegressionTest" time="0.032" />
+  <testcase name="mapKeepsRadiusAndHiddenFuelsCannotBeActivated" classname="com.gasolineras.app.HomeViewModelRegressionTest" time="0.0" />
+  <testcase name="lateResponseCannotOverwriteLatestFilter" classname="com.gasolineras.app.HomeViewModelRegressionTest" time="0.03" />
+  <testcase name="returningFromBackgroundAcquiresNewPosition" classname="com.gasolineras.app.HomeViewModelRegressionTest" time="0.028" />
+  <testcase name="noGpsOnFirstLaunchKeepsExplicitReference" classname="com.gasolineras.app.HomeViewModelRegressionTest" time="0.001" />
+  <testcase name="closesAfterFiveSecondsDespiteDataUpdatesAndReopeningGetsNewTimeout" classname="com.gasolineras.app.MapInformationControlTest" time="20.877" />
+  <testcase name="hiddenUntilOpenedAndCanBeClosedManually" classname="com.gasolineras.app.MapInformationControlTest" time="16.863" />
+  <testcase name="infoIconAlsoClosesThePanelAndWarningsRetainRetryAction" classname="com.gasolineras.app.MapInformationControlTest" time="13.749" />
+</testsuite>
