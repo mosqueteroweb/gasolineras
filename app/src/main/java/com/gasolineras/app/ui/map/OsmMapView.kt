@@ -167,17 +167,13 @@ fun OsmMapView(
         }
     }
 
-    // Helper for marker price string with large, clean numbers and no clutter
+    // Helper for marker price string dynamically formatting selected fuels
     fun priceStringFor(station: GasStation): String {
-        val parts = mutableListOf<String>()
-        if (selectedFuels.contains(FuelType.GASOLEO_A) && station.priceFor(FuelType.GASOLEO_A) != null) {
-            parts.add("D: ${station.formattedPriceFor(FuelType.GASOLEO_A)}")
-        }
-        if (selectedFuels.contains(FuelType.GASOLINA_95_E5) && station.priceFor(FuelType.GASOLINA_95_E5) != null) {
-            parts.add("95: ${station.formattedPriceFor(FuelType.GASOLINA_95_E5)}")
-        }
-        if (selectedFuels.contains(FuelType.GLP) && station.priceFor(FuelType.GLP) != null) {
-            parts.add("GLP: ${station.formattedPriceFor(FuelType.GLP)}")
+        val parts = selectedFuels.mapNotNull { fuel ->
+            val price = station.priceFor(fuel)
+            if (price != null && price > 0.0) {
+                "${fuel.shortName}: ${station.formattedPriceFor(fuel)}"
+            } else null
         }
         return if (parts.isNotEmpty()) {
             parts.joinToString("   ")
@@ -327,7 +323,7 @@ fun OsmMapView(
                             title = "⚡ ${station.cleanBrand} (${station.formattedDistance})"
                             snippet = priceDesc
                         }
-                        station.hasGLP -> {
+                        station.hasGLP && selectedFuels.contains(FuelType.GLP) -> {
                             icon = MapMarkerHelper.createGasStationMarker(
                                 context = context,
                                 pinColor = Color.rgb(0, 105, 92), // Teal

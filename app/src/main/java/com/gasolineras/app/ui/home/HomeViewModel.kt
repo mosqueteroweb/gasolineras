@@ -209,8 +209,35 @@ class HomeViewModel @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Forces real-time GPS acquisition and updates user location,
+     * recalculating all distances and stations from the new spot.
+     */
+    fun recenterLocation(onSuccess: (UserLocation) -> Unit = {}) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            val freshLocation = locationClient.getCurrentLocation(forceFresh = true)
+            _uiState.update {
+                it.copy(
+                    userLocation = freshLocation,
+                    hasLocationPermission = locationClient.hasLocationPermission()
+                )
+            }
+            fetchStations(forceRefresh = false)
+            onSuccess(freshLocation)
+        }
+    }
+
     fun onRefresh() {
-        fetchStations(forceRefresh = true)
+        viewModelScope.launch {
+            if (locationClient.hasLocationPermission()) {
+                val freshLocation = locationClient.getCurrentLocation(forceFresh = true)
+                if (freshLocation != _uiState.value.userLocation && !freshLocation.isDefaultLocation) {
+                    _uiState.update { it.copy(userLocation = freshLocation) }
+                }
+            }
+            fetchStations(forceRefresh = true)
+        }
     }
 
     fun onSelectStation(station: GasStation?) {

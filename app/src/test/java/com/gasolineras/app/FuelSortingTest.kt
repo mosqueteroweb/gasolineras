@@ -101,4 +101,88 @@ class FuelSortingTest {
         assertEquals(1, glpOnly.size)
         assertEquals("1", glpOnly[0].id)
     }
+
+    @Test
+    fun testMultiFuelConjunctionFiltering() {
+        val s1 = GasStation(
+            id = "1",
+            brand = "Repsol",
+            address = "Calle 1",
+            postalCode = "28001",
+            municipality = "Madrid",
+            province = "Madrid",
+            schedule = "24H",
+            latitude = 40.0,
+            longitude = -3.0,
+            prices = mapOf(
+                FuelType.GASOLEO_A to 1.35,
+                FuelType.GASOLINA_95_E5 to 1.55,
+                FuelType.GLP to 0.95
+            )
+        )
+        val s2 = GasStation(
+            id = "2",
+            brand = "Cepsa",
+            address = "Calle 2",
+            postalCode = "28002",
+            municipality = "Madrid",
+            province = "Madrid",
+            schedule = "24H",
+            latitude = 40.0,
+            longitude = -3.0,
+            prices = mapOf(
+                FuelType.GASOLEO_A to 1.37,
+                FuelType.GASOLINA_95_E5 to 1.58
+                // No GLP
+            )
+        )
+        val s3 = GasStation(
+            id = "3",
+            brand = "Plenoil",
+            address = "Calle 3",
+            postalCode = "28003",
+            municipality = "Madrid",
+            province = "Madrid",
+            schedule = "24H",
+            latitude = 40.0,
+            longitude = -3.0,
+            prices = mapOf(
+                FuelType.GASOLEO_A to 1.25
+                // Only Diésel
+            )
+        )
+
+        val allStations = listOf(s1, s2, s3)
+
+        // Case 1: 1 fuel (Diésel) -> All 3 have Diésel
+        val dieselFilter: Set<FuelType> = setOf(FuelType.GASOLEO_A)
+        val dieselResult = allStations.filter { station ->
+            dieselFilter.all { (station.prices[it] ?: 0.0) > 0.0 }
+        }
+        assertEquals(3, dieselResult.size)
+
+        // Case 2: 2 fuels (Diésel AND Gasolina 95) -> Only s1 and s2 have both
+        val dieselAndG95: Set<FuelType> = setOf(FuelType.GASOLEO_A, FuelType.GASOLINA_95_E5)
+        val dieselG95Result = allStations.filter { station ->
+            dieselAndG95.all { (station.prices[it] ?: 0.0) > 0.0 }
+        }
+        assertEquals(2, dieselG95Result.size)
+        assertEquals(setOf("1", "2"), dieselG95Result.map { it.id }.toSet())
+
+        // Case 3: 2 fuels (Diésel AND GLP) -> Only s1 has both
+        val dieselAndGLP: Set<FuelType> = setOf(FuelType.GASOLEO_A, FuelType.GLP)
+        val dieselGLPResult = allStations.filter { station ->
+            dieselAndGLP.all { (station.prices[it] ?: 0.0) > 0.0 }
+        }
+        assertEquals(1, dieselGLPResult.size)
+        assertEquals("1", dieselGLPResult[0].id)
+
+        // Case 4: 3 fuels (Diésel AND Gasolina 95 AND GLP) -> Only s1 has all three
+        val allThree: Set<FuelType> = setOf(FuelType.GASOLEO_A, FuelType.GASOLINA_95_E5, FuelType.GLP)
+        val allThreeResult = allStations.filter { station ->
+            allThree.all { (station.prices[it] ?: 0.0) > 0.0 }
+        }
+        assertEquals(1, allThreeResult.size)
+        assertEquals("1", allThreeResult[0].id)
+    }
 }

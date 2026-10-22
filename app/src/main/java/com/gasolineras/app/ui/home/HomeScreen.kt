@@ -454,7 +454,12 @@ fun HomeScreen(
 
                     // Floating GPS recenter button at bottom-end (ergonomic 52dp)
                     FloatingActionButton(
-                        onClick = { mapCenterTrigger++ },
+                        onClick = {
+                            viewModel.recenterLocation {
+                                mapCenterTrigger++
+                                Toast.makeText(context, "Ubicación actualizada", Toast.LENGTH_SHORT).show()
+                            }
+                        },
                         containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.primary,
                         shape = CircleShape,
@@ -498,7 +503,12 @@ fun HomeScreen(
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Button(
-                                    onClick = { mapCenterTrigger++ },
+                                    onClick = {
+                                        viewModel.recenterLocation {
+                                            mapCenterTrigger++
+                                            Toast.makeText(context, "Ubicación actualizada", Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
                                     shape = RoundedCornerShape(10.dp)
                                 ) {
                                     Text(

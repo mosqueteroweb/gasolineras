@@ -51,9 +51,10 @@ class LocationClient(private val context: Context) {
 
     /**
      * Attempts to obtain real device GPS/network location.
-     * Returns UserLocation or fallback if location cannot be retrieved or permissions are missing.
+     * When forceFresh is true, it skips any stale cached lastLocation and directly queries
+     * the FusedLocationProviderClient with PRIORITY_HIGH_ACCURACY.
      */
-    suspend fun getCurrentLocation(): UserLocation {
+    suspend fun getCurrentLocation(forceFresh: Boolean = false): UserLocation {
         if (!hasLocationPermission()) {
             return UserLocation.DEFAULT
         }
@@ -61,25 +62,36 @@ class LocationClient(private val context: Context) {
         val client = fusedLocationClient ?: return UserLocation.DEFAULT
 
         return try {
-            kotlinx.coroutines.withTimeoutOrNull(2500L) {
-                val lastKnown = try { client.lastLocation.await() } catch (e: Exception) { null }
-                if (lastKnown != null) {
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                if (!forceFresh) {
+                    val lastKnown = try { client.lastLocation.await() } catch (e: Exception) { null }
+                    if (lastKnown != null) {
+                        return@withTimeoutOrNull UserLocation(
+                            latitude = lastKnown.latitude,
+                            longitude = lastKnown.longitude,
+                            isDefaultLocation = false
+                        )
+                    }
+                }
+
+                val cancellationTokenSource = CancellationTokenSource()
+                val location = client.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    cancellationTokenSource.token
+                ).await()
+
+                if (location != null) {
                     UserLocation(
-                        latitude = lastKnown.latitude,
-                        longitude = lastKnown.longitude,
+                        latitude = location.latitude,
+                        longitude = location.longitude,
                         isDefaultLocation = false
                     )
                 } else {
-                    val cancellationTokenSource = CancellationTokenSource()
-                    val location = client.getCurrentLocation(
-                        Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-                        cancellationTokenSource.token
-                    ).await()
-
-                    if (location != null) {
+                    val lastFallback = try { client.lastLocation.await() } catch (e: Exception) { null }
+                    if (lastFallback != null) {
                         UserLocation(
-                            latitude = location.latitude,
-                            longitude = location.longitude,
+                            latitude = lastFallback.latitude,
+                            longitude = lastFallback.longitude,
                             isDefaultLocation = false
                         )
                     } else {

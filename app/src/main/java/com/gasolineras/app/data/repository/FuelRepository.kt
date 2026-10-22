@@ -93,11 +93,11 @@ class FuelRepositoryImpl(
                     )
                 }
                 .filter { station ->
-                    // Fuel availability check: must have at least one of the selected fuels
+                    // Fuel availability check: must have ALL of the selected fuels (conjunction AND)
                     val hasSelectedFuel = if (selectedFuels.isEmpty()) {
                         true
                     } else {
-                        selectedFuels.any { fuel -> station.prices.containsKey(fuel) }
+                        selectedFuels.all { fuel -> (station.prices[fuel] ?: 0.0) > 0.0 }
                     }
 
                     // Favorites filter
@@ -214,7 +214,7 @@ class FuelRepositoryImpl(
             station.copy(distanceMeters = dist)
         }.filter { station ->
             val isPublic = station.saleType.isBlank() || station.saleType.equals("P", ignoreCase = true)
-            val hasFuel = if (selectedFuels.isEmpty()) true else selectedFuels.any { station.prices.containsKey(it) }
+            val hasFuel = if (selectedFuels.isEmpty()) true else selectedFuels.all { (station.prices[it] ?: 0.0) > 0.0 }
             isPublic && hasFuel
         }
 
