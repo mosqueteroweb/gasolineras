@@ -1,3 +1,7 @@
+> Contexto histórico: las correcciones posteriores están documentadas en [CAMBIOS.md](CAMBIOS.md).
+
+> Documento histórico sobre la versión 2.2.1. Sus afirmaciones no describen necesariamente las versiones posteriores. La revisión funcional de 2.2.4 y la validación de 2.2.5-local están en `revisiones/`; en particular, el soporte offline persistente se implementa en 2.2.5-local.
+
 # ⛽ Auditoría Integral de Software: Gass (Gasolineras España & GLP)
 
 - **Proyecto**: `gasolineras` (Gass)

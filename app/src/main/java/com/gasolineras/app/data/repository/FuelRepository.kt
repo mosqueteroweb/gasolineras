@@ -1,11 +1,15 @@
 package com.gasolineras.app.data.repository
 
 import com.gasolineras.app.data.api.ApiClient
+import com.gasolineras.app.data.local.StationCache
 import com.gasolineras.app.data.api.FuelApiService
 import com.gasolineras.app.domain.model.FuelType
 import com.gasolineras.app.domain.model.GasStation
 import com.gasolineras.app.domain.model.SortOption
 import com.gasolineras.app.domain.util.DistanceCalculator
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -16,7 +20,11 @@ data class NearbyStationsResult(
     val maxPrice: Double?,
     val averagePrice: Double?,
     val minPricePerFuel: Map<FuelType, Double> = emptyMap(),
-    val totalCountInRadius: Int
+    val totalCountInRadius: Int,
+    val savedAtMillis: Long = 0L,
+    val officialDate: String? = null,
+    val warningMessage: String? = null,
+    val refreshRequired: Boolean = false
 )
 
 interface FuelRepository {
@@ -31,25 +39,74 @@ interface FuelRepository {
         favoriteIds: Set<String> = emptySet(),
         forceRefresh: Boolean = false
     ): Result<NearbyStationsResult>
-
-    suspend fun findOptimalRadius(
-        userLat: Double,
-        userLon: Double,
-        selectedFuels: Set<FuelType>,
-        candidateRadii: List<Double> = listOf(3.0, 10.0, 25.0, 100.0)
-    ): Double
 }
 
 class FuelRepositoryImpl(
-    private val apiService: FuelApiService = ApiClient.fuelApiService
+    private val apiService: FuelApiService = ApiClient.fuelApiService,
+    private val diskCache: StationCache? = null,
+    private val now: () -> Long = System::currentTimeMillis
 ) : FuelRepository {
 
-    // In-memory cache of all stations
+    private val cacheMutex = Mutex()
     private var cachedStations: List<GasStation> = emptyList()
-    private var lastFetchTimestamp: Long = 0
-    private var lastFetchLat: Double? = null
-    private var lastFetchLon: Double? = null
-    private val cacheDurationMillis = 30 * 60 * 1000L // 30 minutes
+    private var lastFetchTimestamp = 0L
+    private var officialDate: String? = null
+    private var cacheRead = false
+    private var lastAttempt: Long? = null
+    private var warningMessage: String? = null
+    private val cacheDurationMillis = 30 * 60 * 1000L
+
+    private data class LoadedStations(
+        val stations: List<GasStation>, val savedAt: Long,
+        val officialDate: String?, val warning: String?, val refreshRequired: Boolean = false
+    )
+
+    private suspend fun loadStations(forceRefresh: Boolean): LoadedStations = cacheMutex.withLock {
+        val currentTime = now()
+        var restoredFromDisk = false
+        if (!cacheRead) {
+            diskCache?.read()?.takeIf { it.savedAt <= currentTime + 60_000L }?.let { snapshot ->
+                val stations = snapshot.response.stations.orEmpty().mapNotNull { it.toDomain() }
+                if (stations.isNotEmpty()) {
+                    cachedStations = stations
+                    lastFetchTimestamp = snapshot.savedAt
+                    officialDate = snapshot.response.date
+                    restoredFromDisk = true
+                }
+            }
+            cacheRead = true
+        }
+        val stale = currentTime - lastFetchTimestamp >= cacheDurationMillis
+        if (restoredFromDisk && stale && !forceRefresh) {
+            // Render saved prices immediately, even if the next network request times out.
+            return@withLock LoadedStations(cachedStations, lastFetchTimestamp, officialDate,
+                "Se muestran datos guardados mientras se intenta actualizar los precios.", refreshRequired = true)
+        }
+        val retryAllowed = lastAttempt?.let { currentTime - it >= 30_000L } ?: true
+        if (forceRefresh || cachedStations.isEmpty() || (stale && retryAllowed)) {
+            lastAttempt = currentTime
+            try {
+                val response = apiService.getAllStations()
+                val stations = response.stations.orEmpty().mapNotNull { it.toDomain() }
+                require(stations.isNotEmpty()) { "La respuesta del Ministerio no contiene estaciones válidas." }
+                // Persist only a successful, usable response. Never erase valid data before a refresh.
+                val persisted = runCatching {
+                    diskCache?.write(StationCache.Snapshot(currentTime, response))
+                }.isSuccess
+                cachedStations = stations
+                lastFetchTimestamp = currentTime
+                officialDate = response.date
+                warningMessage = if (persisted) null else
+                    "Precios actualizados, pero no se han podido guardar para usarlos sin conexión."
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (cachedStations.isEmpty()) throw e
+                warningMessage = "No se han podido actualizar los precios. Se muestran datos guardados."
+            }
+        }
+        LoadedStations(cachedStations, lastFetchTimestamp, officialDate, warningMessage)
+    }
 
     override suspend fun getNearbyStations(
         userLat: Double,
@@ -63,25 +120,13 @@ class FuelRepositoryImpl(
         forceRefresh: Boolean
     ): Result<NearbyStationsResult> = withContext(Dispatchers.IO) {
         try {
-            val currentTime = System.currentTimeMillis()
-            val needRefresh = forceRefresh ||
-                    cachedStations.isEmpty() ||
-                    (currentTime - lastFetchTimestamp > cacheDurationMillis)
-
-            if (needRefresh) {
-                val response = apiService.getAllStations()
-                val rawList = response.stations.orEmpty()
-                cachedStations = rawList.mapNotNull { it.toDomain() }
-                lastFetchTimestamp = currentTime
-                lastFetchLat = userLat
-                lastFetchLon = userLon
-            }
+            val loaded = loadStations(forceRefresh)
 
             val radiusMeters = radiusKm * 1000.0
             val normalizedQuery = searchQuery.trim().lowercase()
 
             // 1. Calculate distance from user GPS & map favorite status
-            val processedStations = cachedStations
+            val processedStations = loaded.stations
                 .map { station ->
                     val distance = DistanceCalculator.calculateDistanceMeters(
                         userLat, userLon,
@@ -174,58 +219,23 @@ class FuelRepositoryImpl(
             Result.success(
                 NearbyStationsResult(
                     stations = sortedStations,
-                    mapStations = processedStations,
+                    mapStations = sortedStations,
                     minPrice = minPrice,
                     maxPrice = maxPrice,
                     averagePrice = avgPrice,
                     minPricePerFuel = minPricePerFuel,
-                    totalCountInRadius = sortedStations.size
+                    totalCountInRadius = sortedStations.size,
+                    savedAtMillis = loaded.savedAt,
+                    officialDate = loaded.officialDate,
+                    warningMessage = loaded.warning,
+                    refreshRequired = loaded.refreshRequired
                 )
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun findOptimalRadius(
-        userLat: Double,
-        userLon: Double,
-        selectedFuels: Set<FuelType>,
-        candidateRadii: List<Double>
-    ): Double = withContext(Dispatchers.IO) {
-        if (cachedStations.isEmpty()) {
-            try {
-                val response = apiService.getAllStations()
-                val rawList = response.stations.orEmpty()
-                cachedStations = rawList.mapNotNull { it.toDomain() }
-                lastFetchTimestamp = System.currentTimeMillis()
-                lastFetchLat = userLat
-                lastFetchLon = userLon
-            } catch (e: Exception) {
-                return@withContext candidateRadii.firstOrNull() ?: 10.0
-            }
-        }
-
-        val stationsWithDistance = cachedStations.map { station ->
-            val dist = DistanceCalculator.calculateDistanceMeters(
-                userLat, userLon,
-                station.latitude, station.longitude
-            )
-            station.copy(distanceMeters = dist)
-        }.filter { station ->
-            val isPublic = station.saleType.isBlank() || station.saleType.equals("P", ignoreCase = true)
-            val hasFuel = if (selectedFuels.isEmpty()) true else selectedFuels.all { (station.prices[it] ?: 0.0) > 0.0 }
-            isPublic && hasFuel
-        }
-
-        for (radius in candidateRadii) {
-            val radiusMeters = radius * 1000.0
-            val count = stationsWithDistance.count { (it.distanceMeters ?: Double.MAX_VALUE) <= radiusMeters }
-            if (count > 0) {
-                return@withContext radius
-            }
-        }
-
-        candidateRadii.lastOrNull() ?: 100.0
-    }
 }

@@ -29,7 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Button
@@ -80,7 +80,7 @@ fun SettingsBottomSheet(
         defaultSort: SortOption,
         themeMode: String
     ) -> Unit,
-    onClearCache: () -> Unit,
+    onRefreshPrices: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
@@ -453,16 +453,21 @@ fun SettingsBottomSheet(
 
             OutlinedButton(
                 onClick = {
-                    onClearCache()
-                    Toast.makeText(context, "Caché vaciada y datos recargados del Ministerio", Toast.LENGTH_SHORT).show()
+                    onRefreshPrices()
+                    onDismissRequest()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.DeleteSweep, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Vaciar caché y forzar recarga oficial")
+                Text("Actualizar precios del Ministerio")
             }
 
+            Text(
+                text = "Se conserva la última consulta válida para usarla sin conexión. La recarga solo la sustituye si termina correctamente.",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
             Spacer(modifier = Modifier.height(14.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,

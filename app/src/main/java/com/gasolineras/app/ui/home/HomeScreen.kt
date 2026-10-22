@@ -1,5 +1,7 @@
 package com.gasolineras.app.ui.home
 
+import androidx.activity.compose.BackHandler
+import com.gasolineras.app.ui.components.HomeStatus
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -112,6 +114,18 @@ fun HomeScreen(
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showOverflowMenu by remember { mutableStateOf(false) }
     var showMapLegend by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = !showSettingsSheet && state.selectedStationForDetail == null &&
+        (showMapLegend || isSearchExpanded || showOverflowMenu)) {
+        when {
+            showOverflowMenu -> showOverflowMenu = false
+            showMapLegend -> showMapLegend = false
+            isSearchExpanded -> {
+                isSearchExpanded = false
+                viewModel.onSearchQueryChanged("")
+            }
+        }
+    }
 
     val infiniteTransition = rememberInfiniteTransition(label = "refresh_spin")
     val refreshRotation by infiniteTransition.animateFloat(
@@ -348,7 +362,12 @@ fun HomeScreen(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 )
-                if (state.isRefreshing) {
+                HomeStatus(
+                    state = state,
+                    onLocationAction = onRequestLocationPermission,
+                    onRetry = { viewModel.onRefresh() }
+                )
+                if (state.isLoading || state.isRefreshing || state.isLocating) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.secondary,
@@ -383,6 +402,7 @@ fun HomeScreen(
                     // Floating solid fuel selector at top center
                     FuelTypeSelector(
                         selectedFuels = state.selectedFuels,
+                        visibleFuels = state.visibleFuels,
                         onToggleFuel = { viewModel.onToggleFuel(it) },
                         modifier = Modifier
                             .align(Alignment.TopCenter)
@@ -455,10 +475,9 @@ fun HomeScreen(
                     // Floating GPS recenter button at bottom-end (ergonomic 52dp)
                     FloatingActionButton(
                         onClick = {
-                            viewModel.recenterLocation {
-                                mapCenterTrigger++
-                                Toast.makeText(context, "Ubicación actualizada", Toast.LENGTH_SHORT).show()
-                            }
+                            if (!state.hasLocationPermission || !state.isLocationEnabled) {
+                                onRequestLocationPermission()
+                            } else viewModel.recenterLocation { mapCenterTrigger++ }
                         },
                         containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.primary,
@@ -492,7 +511,8 @@ fun HomeScreen(
                             ) {
                                 Text(
                                     text = when {
-                                        state.onlyFavorites -> "No tienes gasolineras favoritas en esta zona"
+                                        state.errorMessage != null -> state.errorMessage.orEmpty()
+                                        state.onlyFavorites -> "No hay favoritas que coincidan con los filtros en esta zona"
                                         state.stations.isEmpty() -> "No hay gasolineras en un radio de ${state.selectedRadiusKm.toInt()} km"
                                         else -> "No hay gasolineras en este encuadre"
                                     },
@@ -504,15 +524,21 @@ fun HomeScreen(
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Button(
                                     onClick = {
-                                        viewModel.recenterLocation {
-                                            mapCenterTrigger++
-                                            Toast.makeText(context, "Ubicación actualizada", Toast.LENGTH_SHORT).show()
+                                        when {
+                                            state.errorMessage != null -> viewModel.onRefresh()
+                                            state.stations.isEmpty() -> viewModel.cycleRadius()
+                                            !state.hasLocationPermission || !state.isLocationEnabled -> onRequestLocationPermission()
+                                            else -> viewModel.recenterLocation { mapCenterTrigger++ }
                                         }
                                     },
                                     shape = RoundedCornerShape(10.dp)
                                 ) {
                                     Text(
-                                        text = "Centrar en mi ubicación",
+                                        text = when {
+                                            state.errorMessage != null -> "Reintentar"
+                                            state.stations.isEmpty() -> "Cambiar radio de búsqueda"
+                                            else -> "Centrar en mi ubicación"
+                                        },
                                         fontSize = 13.sp
                                     )
                                 }
@@ -523,35 +549,6 @@ fun HomeScreen(
             } else {
                 // ==================== LIST MODE ====================
                 Column(modifier = Modifier.fillMaxSize()) {
-                    // Location Permission Warning Banner (if not granted)
-                    if (!state.hasLocationPermission) {
-                        Surface(
-                            color = MaterialTheme.colorScheme.errorContainer,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onRequestLocationPermission() }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOff,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Pulsa aquí para activar el GPS y calcular distancias reales.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
-                    }
-
                     // 1. 3 Fuel Carousel
                     FuelTypeSelector(
                         selectedFuels = state.selectedFuels,
@@ -575,7 +572,7 @@ fun HomeScreen(
                         )
 
                         // Clear Sort button (Accessible min-height 42dp, High contrast)
-                        val isDark = isSystemInDarkTheme()
+                        val isDark = when (state.themeMode) { "DARK" -> true; "LIGHT" -> false; else -> isSystemInDarkTheme() }
                         val sortBg = if (isDark) Color(0xFF1E3A5F) else Color(0xFFE3F2FD)
                         val sortBorder = if (isDark) Color(0xFF3B82F6) else Color(0xFF90CAF9)
                         val sortContent = if (isDark) Color.White else Color(0xFF0D47A1)
@@ -678,13 +675,21 @@ fun HomeScreen(
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
-                                        text = if (state.onlyFavorites) "No tienes favoritas guardadas" else "No se encontraron gasolineras",
+                                        text = when {
+                                            state.onlyFavorites && state.favoriteIds.isEmpty() -> "No tienes favoritas guardadas"
+                                            state.onlyFavorites -> "No hay favoritas que coincidan con estos filtros"
+                                            else -> "No se encontraron gasolineras"
+                                        },
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
-                                        text = if (state.onlyFavorites) "Pulsa el corazón ❤️ en cualquier gasolinera para añadirla aquí." else "Prueba a ampliar el radio de distancia o verificar los carburantes marcados.",
+                                        text = when {
+                                            state.onlyFavorites && state.favoriteIds.isEmpty() -> "Pulsa el corazón en una gasolinera para guardarla."
+                                            state.onlyFavorites -> "Tus favoritas siguen guardadas. Prueba a ampliar el radio de ${state.selectedRadiusKm.toInt()} km o cambiar los filtros."
+                                            else -> "Prueba a ampliar el radio de distancia o verificar los carburantes marcados."
+                                        },
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Center,
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -699,10 +704,10 @@ fun HomeScreen(
                                         }
                                     } else {
                                         Button(
-                                            onClick = { viewModel.onRadiusSelected(25.0) },
+                                            onClick = { viewModel.cycleRadius() },
                                             shape = RoundedCornerShape(10.dp)
                                         ) {
-                                            Text("Ampliar radio a 25 km")
+                                            Text("Cambiar radio de búsqueda")
                                         }
                                     }
                                 }
@@ -764,15 +769,15 @@ fun HomeScreen(
     if (showSettingsSheet) {
         SettingsBottomSheet(
             visibleFuels = state.visibleFuels,
-            defaultSelectedFuels = state.selectedFuels,
-            defaultView = if (state.isMapView) "MAP" else "LIST",
+            defaultSelectedFuels = viewModel.getDefaultSelectedFuelsPreference(),
+            defaultView = viewModel.getDefaultViewPreference(),
             defaultRadiusKm = viewModel.getDefaultRadiusPreference(),
-            defaultSort = state.selectedSort,
+            defaultSort = viewModel.getDefaultSortPreference(),
             themeMode = state.themeMode,
             onSavePreferences = { vis, sel, view, rad, sort, theme ->
                 viewModel.updatePreferences(vis, sel, view, rad, sort, theme)
             },
-            onClearCache = {
+            onRefreshPrices = {
                 viewModel.onRefresh()
             },
             onDismissRequest = { showSettingsSheet = false }

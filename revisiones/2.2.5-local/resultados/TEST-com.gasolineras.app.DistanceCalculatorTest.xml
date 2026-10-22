@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gasolineras.app.DistanceCalculatorTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-22T21:19:26" hostname="MacStudio-de-Pedro.local" time="0.004">
+  <properties/>
+  <testcase name="testMadridPuertaDelSolToAtocha" classname="com.gasolineras.app.DistanceCalculatorTest" time="0.002"/>
+  <testcase name="testFormatDistance" classname="com.gasolineras.app.DistanceCalculatorTest" time="0.001"/>
+  <testcase name="testSameLocationDistanceIsZero" classname="com.gasolineras.app.DistanceCalculatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -2,6 +2,15 @@ package com.gasolineras.app
 
 import android.Manifest
 import android.os.Bundle
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -25,6 +34,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.onForeground()
+                try { awaitCancellation() } finally { viewModel.onBackground() }
+            }
+        }
+        val permissionHistory = getSharedPreferences("permission_history", MODE_PRIVATE)
+
         setContent {
             val state by viewModel.uiState.collectAsState()
             GasolinerasTheme(themeMode = state.themeMode) {
@@ -39,13 +56,29 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                LaunchedEffect(Unit) {
-                    permissionLauncher.launch(
-                        arrayOf(
+                val requestPermission = {
+                    val requested = permissionHistory.getBoolean("location_requested", false)
+                    val canExplain = ActivityCompat.shouldShowRequestPermissionRationale(
+                        this, Manifest.permission.ACCESS_FINE_LOCATION
+                    ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                        this, Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                    if (requested && !canExplain) {
+                        startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.parse("package:$packageName")))
+                    } else {
+                        permissionHistory.edit().putBoolean("location_requested", true).apply()
+                        permissionLauncher.launch(arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION
-                        )
-                    )
+                        ))
+                    }
+                }
+                LaunchedEffect(Unit) {
+                    if (!state.hasLocationPermission &&
+                        !permissionHistory.getBoolean("location_requested", false)) {
+                        requestPermission()
+                    }
                 }
 
                 Surface(
@@ -55,12 +88,11 @@ class MainActivity : ComponentActivity() {
                     HomeScreen(
                         viewModel = viewModel,
                         onRequestLocationPermission = {
-                            permissionLauncher.launch(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION
-                                )
-                            )
+                            when {
+                                !state.hasLocationPermission -> requestPermission()
+                                !state.isLocationEnabled -> startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                                else -> viewModel.recenterLocation()
+                            }
                         }
                     )
                 }

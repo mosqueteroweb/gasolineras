@@ -1,0 +1,13 @@
+{
+  "version": "2.2.5",
+  "versionCode": 25,
+  "sha256": "2fe7446208f0c94ed4b1e6bdfa8704922f822ca4dd1c6b3d264fe2ac6de5b2d8",
+  "bytes": 2025023,
+  "autor_cambios": "Mosqueteroweb",
+  "solicitante": "Pedro Mosqueteroweb",
+  "pruebas_unitarias": 23,
+  "pruebas_android_candidata": 6,
+  "lint": "sin errores",
+  "tag": "v2.2.5",
+  "release_url": "https://github.com/mosqueteroweb/gasolineras/releases/tag/v2.2.5"
+}

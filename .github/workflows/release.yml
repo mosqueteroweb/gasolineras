@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   build-and-release:
+    if: github.event_name != 'push' || github.event.created == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -35,6 +36,9 @@ jobs:
             echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > app/keystore/release.keystore
           fi
 
+      - name: Run unit tests and Android lint
+        run: ./gradlew testDebugUnitTest lintDebug --no-daemon
+
       - name: Build Release APK
         env:
           KEYSTORE_PATH: keystore/release.keystore
@@ -43,12 +47,24 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew assembleRelease --no-daemon
 
+      - name: Verify APK signature and generate checksum
+        run: |
+          signer_path="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner | sort -V | tail -n 1)"
+          test -n "$signer_path"
+          "$signer_path" verify --verbose app/build/outputs/apk/release/gasolineras.apk
+          cd app/build/outputs/apk/release
+          sha256sum gasolineras.apk > gasolineras.apk.sha256
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Gass ${{ github.ref_name }}"
+          body_path: RELEASE_NOTES.md
           generate_release_notes: true
+          fail_on_unmatched_files: true
           draft: false
           prerelease: false
           make_latest: true
-          files: app/build/outputs/apk/release/gasolineras.apk
+          files: |
+            app/build/outputs/apk/release/gasolineras.apk
+            app/build/outputs/apk/release/gasolineras.apk.sha256

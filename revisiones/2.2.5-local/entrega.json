@@ -1,0 +1,12 @@
+{
+  "version": "2.2.5-local",
+  "versionCode": 24,
+  "build": "release con R8 y reducción de recursos",
+  "sha256": "7ee611b61efcd54db0c2b788212544764a80cd32f796d9f5322fadf661efbbab",
+  "bytes": 2025003,
+  "publicado": false,
+  "pruebas_unitarias": 23,
+  "pruebas_android": 6,
+  "emulador": "Pixel Android 15 API 35 arm64",
+  "lint": "sin errores; avisos de mantenimiento pendientes"
+}

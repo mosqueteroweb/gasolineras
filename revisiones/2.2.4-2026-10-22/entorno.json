@@ -1,0 +1,24 @@
+{
+  "fecha": "2026-10-22",
+  "apk_publicado": "https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk",
+  "versionName": "2.2.4",
+  "versionCode": 23,
+  "sha256": "2845e7a59f92d7295e9efedb207803850fe02ee8270b69d3aa6018fddba33bda",
+  "emulador": "test_pixel / Android 15 API 35 / arm64 / 1080x1920",
+  "fuente_local_consultada": "385f7e4",
+  "datos_oficiales_fecha": "22/10/2026 22:48:28",
+  "coordenadas": {
+    "Madrid": [
+      40.416775,
+      -3.70379
+    ],
+    "Zaragoza": [
+      41.6488,
+      -0.8891
+    ],
+    "Barcelona": [
+      41.3874,
+      2.1686
+    ]
+  }
+}

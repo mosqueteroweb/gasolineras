@@ -4,6 +4,14 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.gasolineras.app.data.local.FavoritesManager
+import com.gasolineras.app.data.local.LastLocationStore
+import com.gasolineras.app.data.local.StationCache
+import com.gasolineras.app.data.location.LocationProvider
+import com.gasolineras.app.domain.util.DistanceCalculator
+import java.io.File
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.catch
 import com.gasolineras.app.data.location.LocationClient
 import com.gasolineras.app.data.location.UserLocation
 import com.gasolineras.app.data.repository.FuelRepository
@@ -22,15 +30,19 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel @JvmOverloads constructor(
     application: Application,
-    private val repository: FuelRepository = FuelRepositoryImpl(),
-    private val locationClient: LocationClient = LocationClient(application)
+    private val repository: FuelRepository = FuelRepositoryImpl(
+        diskCache = StationCache(File(application.filesDir, "stations-v1.json"))
+    ),
+    private val locationClient: LocationProvider = LocationClient(application)
 ) : AndroidViewModel(application) {
 
+    private val lastLocationStore = LastLocationStore(application)
     private val favoritesManager = FavoritesManager(application)
     private val preferencesManager = UserPreferencesManager(application)
 
     private val _uiState = MutableStateFlow(
         HomeUiState(
+            userLocation = lastLocationStore.read(),
             favoriteIds = favoritesManager.getFavoriteIds(),
             visibleFuels = preferencesManager.getVisibleFuels(),
             selectedFuels = preferencesManager.getDefaultSelectedFuels(),
@@ -43,44 +55,118 @@ class HomeViewModel @JvmOverloads constructor(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private var searchDebounceJob: Job? = null
+    private var fetchJob: Job? = null
+    private var fetchRevision = 0L
+    private var locationJob: Job? = null
+    private var locationRevision = 0L
+    private var trackingJob: Job? = null
+    private var statusJob: Job? = null
+    private var foreground = false
 
     init {
-        checkLocationAndLoad(forceRefresh = false)
+        updateLocationStatus()
+        fetchStations(forceRefresh = false)
     }
 
-    /**
-     * Checks location permissions, immediately triggers station loading with current coordinates,
-     * and asynchronously fetches GPS location to refine distances without blocking UI.
-     */
-    fun checkLocationAndLoad(forceRefresh: Boolean = false) {
-        val hasPermission = locationClient.hasLocationPermission()
-        _uiState.update { it.copy(hasLocationPermission = hasPermission) }
-
-        // Start loading stations immediately so the user never waits on a blank screen
-        fetchStations(forceRefresh = forceRefresh)
-
-        // If permission is already granted, refine with current GPS coordinates concurrently
-        if (hasPermission) {
-            viewModelScope.launch {
-                val userLocation = locationClient.getCurrentLocation()
-                if (userLocation != _uiState.value.userLocation) {
-                    _uiState.update { it.copy(userLocation = userLocation) }
-                    fetchStations(forceRefresh = false)
+    fun onForeground() {
+        if (foreground) return
+        foreground = true
+        updateLocationStatus()
+        if (_uiState.value.savedAtMillis > 0L || _uiState.value.errorMessage != null) {
+            fetchStations(forceRefresh = false)
+        }
+        restartTracking()
+        locate(forceFresh = true)
+        statusJob = viewModelScope.launch {
+            while (isActive) {
+                delay(2_000L)
+                val before = _uiState.value
+                updateLocationStatus()
+                val after = _uiState.value
+                if (before.hasLocationPermission != after.hasLocationPermission ||
+                    before.isLocationEnabled != after.isLocationEnabled) {
+                    restartTracking()
+                    locate(forceFresh = true)
                 }
             }
         }
     }
 
-    /**
-     * Called when location permission is granted by the user.
-     */
-    fun onLocationPermissionGranted() {
-        _uiState.update { it.copy(hasLocationPermission = true) }
-        viewModelScope.launch {
-            val userLocation = locationClient.getCurrentLocation()
-            _uiState.update { it.copy(userLocation = userLocation) }
-            fetchStations(forceRefresh = false)
+    fun onBackground() {
+        foreground = false
+        statusJob?.cancel()
+        trackingJob?.cancel()
+        locationRevision++
+        locationJob?.cancel()
+        _uiState.update { it.copy(isLocating = false) }
+    }
+
+    private fun updateLocationStatus() {
+        _uiState.update { it.copy(
+            hasLocationPermission = locationClient.hasLocationPermission(),
+            isLocationEnabled = locationClient.isLocationEnabled()
+        ) }
+    }
+
+    private fun restartTracking() {
+        trackingJob?.cancel()
+        if (!foreground || !locationClient.hasLocationPermission() || !locationClient.isLocationEnabled()) return
+        trackingJob = viewModelScope.launch {
+            locationClient.observeLocations().catch { error ->
+                if (error is CancellationException) throw error
+                _uiState.update { it.copy(locationMessage = "No se puede seguir tu ubicación. Pulsa para reintentar.") }
+            }.collect { acceptLocation(it) }
         }
+    }
+
+    private fun acceptLocation(location: UserLocation) {
+        if (location.isDefaultLocation) return
+        val previous = _uiState.value.userLocation
+        if (location.obtainedAtMillis < previous.obtainedAtMillis) return
+        val moved = previous.isDefaultLocation || DistanceCalculator.calculateDistanceMeters(
+            previous.latitude, previous.longitude, location.latitude, location.longitude
+        ) >= 100.0
+        lastLocationStore.write(location)
+        _uiState.update { it.copy(
+            userLocation = if (moved) location else previous.copy(obtainedAtMillis = location.obtainedAtMillis),
+            locationMessage = null
+        ) }
+        if (moved) fetchStations(forceRefresh = false)
+    }
+
+    private suspend fun acquireLocation(forceFresh: Boolean, revision: Long): UserLocation? {
+        updateLocationStatus()
+        _uiState.update { it.copy(isLocating = true) }
+        val startedAt = System.currentTimeMillis()
+        return try {
+            val location = locationClient.getCurrentLocation(forceFresh)
+                ?: _uiState.value.userLocation.takeIf { !it.isDefaultLocation && it.obtainedAtMillis >= startedAt }
+            if (revision != locationRevision) return null
+            if (location != null && !location.isDefaultLocation) {
+                acceptLocation(location)
+                location
+            } else {
+                _uiState.update { it.copy(locationMessage =
+                    "No se ha podido obtener tu ubicación. Se conserva la última posición disponible.") }
+                null
+            }
+        } finally {
+            if (revision == locationRevision) _uiState.update { it.copy(isLocating = false) }
+        }
+    }
+
+    private fun locate(forceFresh: Boolean, onSuccess: (UserLocation) -> Unit = {}) {
+        val revision = ++locationRevision
+        locationJob?.cancel()
+        locationJob = viewModelScope.launch {
+            acquireLocation(forceFresh, revision)?.let(onSuccess)
+        }
+    }
+
+    fun onLocationPermissionGranted() {
+        updateLocationStatus()
+        restartTracking()
+        locate(forceFresh = true)
     }
 
     /**
@@ -88,6 +174,7 @@ class HomeViewModel @JvmOverloads constructor(
      * Ensures at least one fuel remains selected.
      */
     fun onToggleFuel(fuel: FuelType) {
+        if (fuel !in _uiState.value.visibleFuels) return
         val current = _uiState.value.selectedFuels
         val next = if (current.contains(fuel)) {
             if (current.size > 1) current - fuel else current
@@ -156,34 +243,15 @@ class HomeViewModel @JvmOverloads constructor(
 
     fun onToggleFavorite(stationId: String) {
         favoritesManager.toggleFavorite(stationId)
-        val updatedFavorites = favoritesManager.getFavoriteIds()
-        _uiState.update { state ->
-            val updatedStations = state.stations.map { s ->
-                if (s.id == stationId) s.copy(isFavorite = updatedFavorites.contains(s.id)) else s
+        val ids = favoritesManager.getFavoriteIds()
+        _uiState.update { state -> state.copy(
+            favoriteIds = ids,
+            selectedStationForDetail = state.selectedStationForDetail?.let {
+                it.copy(isFavorite = it.id in ids)
             }
-            val filteredStations = if (state.onlyFavorites) {
-                updatedStations.filter { it.isFavorite }
-            } else {
-                updatedStations
-            }
-            val updatedMapStations = state.mapStations.map { s ->
-                if (s.id == stationId) s.copy(isFavorite = updatedFavorites.contains(s.id)) else s
-            }
-            val filteredMapStations = if (state.onlyFavorites) {
-                updatedMapStations.filter { it.isFavorite }
-            } else {
-                updatedMapStations
-            }
-            val updatedDetail = state.selectedStationForDetail?.let { detail ->
-                if (detail.id == stationId) detail.copy(isFavorite = updatedFavorites.contains(detail.id)) else detail
-            }
-            state.copy(
-                favoriteIds = updatedFavorites,
-                stations = filteredStations,
-                mapStations = filteredMapStations,
-                selectedStationForDetail = updatedDetail
-            )
-        }
+        ) }
+        // Recompute counts, filters and cheapest badges together, including removal of the last favorite.
+        fetchStations(forceRefresh = false)
     }
 
     fun onToggleMapView() {
@@ -191,53 +259,17 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     fun setMapView(isMap: Boolean) {
-        if (_uiState.value.isMapView == isMap) return
-        if (isMap) {
-            viewModelScope.launch {
-                val state = _uiState.value
-                val optimalRadius = repository.findOptimalRadius(
-                    userLat = state.userLocation.latitude,
-                    userLon = state.userLocation.longitude,
-                    selectedFuels = state.selectedFuels,
-                    candidateRadii = listOf(3.0, 10.0, 25.0, 100.0)
-                )
-                _uiState.update { it.copy(isMapView = true, selectedRadiusKm = optimalRadius) }
-                fetchStations(forceRefresh = false)
-            }
-        } else {
-            _uiState.update { it.copy(isMapView = false) }
-        }
+        _uiState.update { it.copy(isMapView = isMap) }
     }
 
-    /**
-     * Forces real-time GPS acquisition and updates user location,
-     * recalculating all distances and stations from the new spot.
-     */
     fun recenterLocation(onSuccess: (UserLocation) -> Unit = {}) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isRefreshing = true) }
-            val freshLocation = locationClient.getCurrentLocation(forceFresh = true)
-            _uiState.update {
-                it.copy(
-                    userLocation = freshLocation,
-                    hasLocationPermission = locationClient.hasLocationPermission()
-                )
-            }
-            fetchStations(forceRefresh = false)
-            onSuccess(freshLocation)
-        }
+        locate(forceFresh = true, onSuccess = onSuccess)
     }
 
     fun onRefresh() {
-        viewModelScope.launch {
-            if (locationClient.hasLocationPermission()) {
-                val freshLocation = locationClient.getCurrentLocation(forceFresh = true)
-                if (freshLocation != _uiState.value.userLocation && !freshLocation.isDefaultLocation) {
-                    _uiState.update { it.copy(userLocation = freshLocation) }
-                }
-            }
-            fetchStations(forceRefresh = true)
-        }
+        // Price refresh does not wait for GPS; a failed GPS request must not block offline data.
+        locate(forceFresh = true)
+        fetchStations(forceRefresh = true)
     }
 
     fun onSelectStation(station: GasStation?) {
@@ -245,18 +277,16 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     private fun fetchStations(forceRefresh: Boolean) {
+        val refreshing = forceRefresh || _uiState.value.isRefreshing
+        fetchJob?.cancel()
+        val revision = ++fetchRevision
         val currentState = _uiState.value
-        val isFirstLoad = currentState.stations.isEmpty()
-
-        _uiState.update {
-            it.copy(
-                isLoading = isFirstLoad && !forceRefresh,
-                isRefreshing = forceRefresh,
-                errorMessage = null
-            )
-        }
-
-        viewModelScope.launch {
+        _uiState.update { it.copy(
+            isLoading = it.savedAtMillis == 0L,
+            isRefreshing = refreshing,
+            errorMessage = null
+        ) }
+        fetchJob = viewModelScope.launch {
             val result = repository.getNearbyStations(
                 userLat = currentState.userLocation.latitude,
                 userLon = currentState.userLocation.longitude,
@@ -266,35 +296,33 @@ class HomeViewModel @JvmOverloads constructor(
                 searchQuery = currentState.searchQuery,
                 onlyFavorites = currentState.onlyFavorites,
                 favoriteIds = currentState.favoriteIds,
-                forceRefresh = forceRefresh
+                forceRefresh = refreshing
             )
-
+            // A slow response for an earlier location/filter may never replace the latest query.
+            if (revision != fetchRevision) return@launch
             result.fold(
                 onSuccess = { data ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            stations = data.stations,
-                            mapStations = data.mapStations,
-                            minPrice = data.minPrice,
-                            maxPrice = data.maxPrice,
-                            averagePrice = data.averagePrice,
-                            minPricePerFuel = data.minPricePerFuel,
-                            errorMessage = null
-                        )
-                    }
+                    _uiState.update { it.copy(
+                        isLoading = false,
+                        isRefreshing = false,
+                        stations = data.stations,
+                        mapStations = data.mapStations,
+                        minPrice = data.minPrice,
+                        maxPrice = data.maxPrice,
+                        averagePrice = data.averagePrice,
+                        minPricePerFuel = data.minPricePerFuel,
+                        savedAtMillis = data.savedAtMillis,
+                        officialDate = data.officialDate,
+                        dataWarning = data.warningMessage,
+                        errorMessage = null
+                ) }
+                    if (data.refreshRequired) fetchStations(forceRefresh = true)
                 },
-                onFailure = { throwable ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            errorMessage = throwable.localizedMessage
-                                ?: "No se pudieron obtener los precios de las gasolineras."
-                        )
-                    }
-                }
+                onFailure = { _ -> _uiState.update { it.copy(
+                    isLoading = false,
+                    isRefreshing = false,
+                    errorMessage = "No se han podido consultar los precios. Comprueba tu conexión y vuelve a intentarlo."
+                ) } }
             )
         }
     }
@@ -331,6 +359,10 @@ class HomeViewModel @JvmOverloads constructor(
         }
         fetchStations(forceRefresh = false)
     }
+
+    fun getDefaultSelectedFuelsPreference() = preferencesManager.getDefaultSelectedFuels()
+    fun getDefaultViewPreference() = preferencesManager.getDefaultView()
+    fun getDefaultSortPreference() = preferencesManager.getDefaultSort()
 
     fun getDefaultRadiusPreference(): Double = preferencesManager.getDefaultRadiusKm()
 }
