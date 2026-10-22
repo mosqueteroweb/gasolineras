@@ -1,0 +1,18 @@
+{
+  "version": "2.2.5",
+  "versionCode": 25,
+  "autor_cambios": "Mosqueteroweb",
+  "commit_codigo": "87a79e8611a6355a8bb19243f208b659b483633e",
+  "tag": "v2.2.5",
+  "release_url": "https://github.com/mosqueteroweb/gasolineras/releases/tag/v2.2.5",
+  "workflow_run": "https://github.com/mosqueteroweb/gasolineras/actions/runs/39860744304",
+  "resultado_ci": "success",
+  "draft": false,
+  "prerelease": false,
+  "sha256_apk": "008010d8dac2116735bcbae196dd74166c401081a57176b7121bd8bb70a3a23b",
+  "bytes_apk": 2025031,
+  "checksum_descargado_verificado": true,
+  "firma_verificada": true,
+  "certificado_coincide_con_2_2_4": true,
+  "debuggable": false
+}

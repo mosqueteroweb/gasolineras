@@ -46,3 +46,7 @@ Salvo MainActivity, las rutas abreviadas de código de la tabla pertenecen a `ap
 Se conserva la arquitectura Kotlin/Compose, la fuente de datos MITECO y la integración de navegación existente. No se añaden cuentas, telemetría ni permisos de ubicación en segundo plano. El control de mantenimiento actualiza precios: no implementa un borrado manual de mapas. La compatibilidad con Waze/Petal Maps y las pruebas en teléfonos físicos, otras versiones de Android y viajes largos siguen pendientes.
 
 Las claves y la configuración local privada no forman parte del commit ni de las notas. Los APK se entregan como archivos de release; no se incorporan a los archivos de código de Git. Los informes históricos conservan los resultados y fechas originales, identificando cuándo describen una candidata todavía no publicada.
+
+## Cierre de la publicación
+
+Se comprobó la publicación de v2.2.5, la finalización correcta de GitHub Actions, los dos adjuntos, la huella del APK descargado y la continuidad del certificado de firma con 2.2.4. Se conservan el registro y la huella en [PUBLICACION.md](revisiones/2.2.5/PUBLICACION.md). El APK de la raíz corresponde ahora al binario publicado en GitHub. El cierre se registra como documentación posterior, sin modificar el código ni la etiqueta de la release.
