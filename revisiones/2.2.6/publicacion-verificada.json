@@ -1,0 +1,13 @@
+{
+  "version": "2.2.6",
+  "version_code": 26,
+  "autor": "Mosqueteroweb",
+  "commit": "6dd10178c495774fefefddd925380ca11e4ea65e",
+  "release": "https://github.com/mosqueteroweb/gasolineras/releases/tag/v2.2.6",
+  "workflow_run": "https://github.com/mosqueteroweb/gasolineras/actions/runs/39864149154",
+  "sha256": "21e937da111eb4f86bd24d57ad6229de68182293563589f2b87dc19e2845f245",
+  "size": 2027211,
+  "firma_verificada": true,
+  "mismo_certificado_2_2_5": true,
+  "debuggable": false
+}
