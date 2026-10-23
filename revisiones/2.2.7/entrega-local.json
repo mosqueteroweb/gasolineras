@@ -1,0 +1,11 @@
+{
+  "version": "2.2.7",
+  "version_code": 27,
+  "autor_publico": "Mosqueteroweb",
+  "source_commit": "595a38e217de6e0b996b334efea58250c34a9abd",
+  "sha256": "11f680cc9210a142a8d30e21047dc3ac0827ccc8da97d4c020d7857dcb754c77",
+  "signature_valid": true,
+  "same_certificate_as_2_2_6": true,
+  "debuggable": false,
+  "publication_status": "local; pending explicit authorization"
+}
