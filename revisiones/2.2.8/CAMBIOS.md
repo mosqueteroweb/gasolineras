@@ -17,7 +17,7 @@ Estado: publicación autorizada después de terminar la validación local. Inclu
 - Fechas de publicación y consulta diferenciadas; aviso de publicación de más de 24 horas; última posición identificada como tal, distancias en línea recta y carga sin un falso cero de resultados.
 - Última ubicación con caducidad de 24 horas, descarte al leerla si ha caducado y opción para no recordarla. Borrado separado de posición, favoritas, precios y mapa; explicación de comunicaciones con terceros.
 - Validación de números finitos, coordenadas, precios y longitudes de texto. Límite de 32 MiB de respuesta descomprimida y caché; una recarga fallida conserva la consulta válida.
-- Firma debug independiente; acciones fijadas por SHA, tareas de validación/firma/publicación separadas, permisos mínimos y retirada del keystore al terminar. Comprobación de versión, código, firma y ausencia de depuración. Wrapper y dependencias con SHA-256, incluido AAPT2 para Linux.
+- Firma debug independiente; acciones fijadas por SHA, tareas de validación/firma/publicación separadas, permisos mínimos y retirada del keystore al terminar. Comprobación de versión, código, firma y ausencia de depuración. Wrapper y dependencias con SHA-256, incluidos AAPT2 para Linux y los metadatos Gradle oficiales de JUnit BOM.
 - Atribución visible de OpenStreetMap, fuente de teselas oficial y agente identificado con versión/contacto del proyecto. Plan de mantenimiento en `MANTENIMIENTO_MAPA.md`.
 
 Los ajustes de seguridad de la cuenta GitHub, protecciones administrativas, pruebas en dispositivos físicos y migración del motor de mapa no se presentan como ejecutados. La validación y sus límites se registran en `VALIDACION.md`.
