@@ -30,3 +30,7 @@ La última ubicación se mantiene arriba. La fecha oficial de precios, la fecha 
 En modo oscuro y sin Internet, un reinicio conserva las 38 estaciones de Madrid guardadas. Una recarga fallida mantiene las tarjetas y muestra en el pie la fecha de precios, el aviso de fallo y el botón Reintentar. Se restauró la conexión del emulador. Evidencia: `evidencias/227-offline-refresh.png`.
 
 APK final local 2.2.7/27 con firma válida, mismo certificado que 2.2.6 y sin indicador de depuración. Identificación en `entrega-local.json` y `APK_LOCAL.sha256`. La nueva versión aún no se ha publicado en GitHub.
+
+## Publicación posterior
+
+Tras la validación local se autorizó y verificó la publicación. Véase [PUBLICACION.md](PUBLICACION.md) para el APK distribuido y sus comprobaciones.
