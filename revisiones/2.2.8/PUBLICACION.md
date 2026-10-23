@@ -7,3 +7,5 @@ La 2.2.7 ya está publicada y verificada. Publicación de la 2.2.8 autorizada y 
 ## Comprobación de metadatos en un entorno limpio
 
 La primera ejecución remota se detuvo antes de firmar porque la línea base local no incluía dos archivos `.module` anunciados por los POM de JUnit BOM 5.9.2 y 5.9.3. Se añadieron sus SHA-256 desde Maven Central, contrastándolos con las sumas del editor. La verificación estricta sigue activa. No se publicó un APK 2.2.8 en ese intento. Se repitieron correctamente las comprobaciones locales antes de volver a ejecutar la publicación.
+
+La resolución renovada también consultó los POM de Kotlin Coroutines BOM 1.7.3 y 1.7.1, necesarios para las restricciones transitivas y el análisis de pruebas. Se incorporaron sus sumas oficiales de Maven Central, contrastadas con el editor. Se completó correctamente una ejecución local con `--refresh-dependencies --dependency-verification strict`, incluyendo pruebas unitarias, lint y release. No se modificaron los binarios ni las versiones de las bibliotecas seleccionadas.
