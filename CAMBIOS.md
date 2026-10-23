@@ -74,4 +74,4 @@ Autor: Mosqueteroweb.
 
 ## Entrega local 2.2.8
 
-**Autor público: Mosqueteroweb.** Incluye la 2.2.7 y las mejoras detalladas en [revisiones/2.2.8/CAMBIOS.md](revisiones/2.2.8/CAMBIOS.md). La entrega permanece local según la última instrucción; no hay una release nueva en GitHub.
+**Autor público: Mosqueteroweb.** Incluye la 2.2.7 y las mejoras detalladas en [revisiones/2.2.8/CAMBIOS.md](revisiones/2.2.8/CAMBIOS.md). La publicación de 2.2.7 y 2.2.8 ha sido autorizada tras la validación local; su comprobación se registra en `revisiones/2.2.8/PUBLICACION.md`.

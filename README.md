@@ -10,9 +10,9 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
 
 ---
 
-## Versión local 2.2.8
+## Novedades de la versión 2.2.8
 
-**Autor: Mosqueteroweb.** La 2.2.8 / 28 incorpora las mejoras de seguridad, accesibilidad y uso documentadas en [sus cambios](revisiones/2.2.8/CAMBIOS.md), además de la 2.2.7. Ambas están solo en local; el enlace de descarga superior corresponde a la última publicación, 2.2.6.
+**Autor: Mosqueteroweb.** La 2.2.8 / 28 incorpora las mejoras de seguridad, accesibilidad y uso documentadas en [sus cambios](revisiones/2.2.8/CAMBIOS.md), además de la 2.2.7. La publicación de 2.2.7 y 2.2.8 está en preparación; el enlace superior se actualizará al verificar el APK publicado.
 
 Precios con unidad correcta, combustible de comparación explícito, búsqueda por municipio y zona del mapa, controles accesibles, ajustes con guardado visible y opciones de privacidad. La lista completa se desplaza con texto grande; las fechas del Ministerio aparecen después de las gasolineras. Consulta la [validación local](revisiones/2.2.8/VALIDACION.md) y el [plan de mantenimiento del mapa](revisiones/2.2.8/MANTENIMIENTO_MAPA.md).
 

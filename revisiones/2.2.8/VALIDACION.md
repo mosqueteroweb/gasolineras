@@ -2,7 +2,7 @@
 
 **Autor público: Mosqueteroweb. Fecha: 23/10/2026. Versión 2.2.8 / código 28.**
 
-Esta entrega incorpora la 2.2.7 y las mejoras descritas en [CAMBIOS.md](CAMBIOS.md). Permanece solo en local por la última indicación recibida. No se ha ejecutado la automatización remota ni creado una release en GitHub.
+Esta entrega incorpora la 2.2.7 y las mejoras descritas en [CAMBIOS.md](CAMBIOS.md). Esta validación se completó primero en local. Después se autorizó la publicación; el resultado de la compilación remota y la comprobación de sus adjuntos se registra en [PUBLICACION.md](PUBLICACION.md).
 
 ## Resultado final
 
