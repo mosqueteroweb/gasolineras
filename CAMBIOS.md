@@ -1,5 +1,12 @@
 # Cambios
 
+## Mapa simplificado — cambio local posterior a 2.2.9
+
+- Retirados el contador flotante de gasolineras y el acceso flotante a la leyenda. La leyenda sigue disponible en el menú de tres puntos.
+- «Buscar en esta zona» pasa a ser un botón circular con lupa y diana, debajo de GLP, con área táctil de 48 dp y descripción accesible. Mantiene la búsqueda por el centro actual del mapa y se desactiva hasta conocer ese centro.
+- Comprobado en emulador: disposición, desplazamiento y búsqueda de zona con actualización de marcadores/referencia manual, apertura de leyenda desde el menú y cierre con Atrás, y texto al 150 % sin solapamiento del botón con los carburantes.
+- Compilaciones debug y release correctas; lint sin errores (62 advertencias existentes). Candidata local instalada conservando los datos y el certificado de la app. No cambia la versión publicada ni su APK.
+
 **Autor: Mosqueteroweb.** **Fecha:** 22 de octubre de 2026. **Entrega:** Gass 2.2.5, código 25.
 
 Este documento recoge la revisión del APK 2.2.4, las propuestas, la implementación, las pruebas y la documentación de Gass 2.2.5.

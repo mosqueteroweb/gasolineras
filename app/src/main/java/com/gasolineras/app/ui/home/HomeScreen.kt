@@ -82,6 +82,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -416,76 +418,60 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    TextButton(
-                        onClick = { mapCenter?.let { (lat, lon) -> viewModel.useManualLocation(lat, lon, "Zona del mapa") } },
-                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 76.dp),
-                        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(containerColor = MaterialTheme.colorScheme.surface)
-                    ) { Text("Buscar en esta zona") }
                     Surface(modifier = Modifier.align(Alignment.BottomStart).padding(start = 8.dp, bottom = 8.dp), color = MaterialTheme.colorScheme.surface) {
                         TextButton(onClick = { android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://www.openstreetmap.org/copyright")).also { context.startActivity(it) } }) {
                             Text("© OpenStreetMap contributors", fontSize = 10.sp)
                         }
                     }
 
-                    // Floating solid fuel selector at top center
-                    FuelTypeSelector(
-                        selectedFuels = state.selectedFuels,
-                        visibleFuels = state.visibleFuels,
-                        onToggleFuel = { viewModel.onToggleFuel(it) },
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 8.dp)
-                    )
-
-                    // Floating Legend toggle pill at bottom-start
-                    if (!showMapLegend) {
-                        Surface(
-                            onClick = { showMapInfo = false; showMapLegend = true },
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
-                            shadowElevation = 3.dp,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(start = 14.dp, bottom = 114.dp)
+                    // Keep the zone action below the fuel row, aligned with GLP.
+                    Column(
+                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FuelTypeSelector(
+                            selectedFuels = state.selectedFuels,
+                            visibleFuels = state.visibleFuels,
+                            onToggleFuel = { viewModel.onToggleFuel(it) }
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                shadowElevation = 4.dp
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = "Ver leyenda de iconos",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(15.dp)
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-                                Text(
-                                    text = "Leyenda",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                IconButton(
+                                    onClick = {
+                                        mapCenter?.let { (lat, lon) ->
+                                            viewModel.useManualLocation(lat, lon, "Zona del mapa")
+                                        }
+                                    },
+                                    enabled = mapCenter != null,
+                                    modifier = Modifier.size(48.dp).semantics {
+                                        contentDescription = "Buscar en esta zona"
+                                    }
+                                ) {
+                                    Box(modifier = Modifier.size(32.dp)) {
+                                        Icon(
+                                            imageVector = Icons.Default.Search,
+                                            contentDescription = null,
+                                            modifier = Modifier.align(Alignment.TopStart).size(28.dp)
+                                        )
+                                        Icon(
+                                            imageVector = Icons.Default.MyLocation,
+                                            contentDescription = null,
+                                            modifier = Modifier.align(Alignment.BottomEnd)
+                                                .background(MaterialTheme.colorScheme.surface, CircleShape)
+                                                .size(16.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
-
-                    // Floating station count pill at bottom-start (raised above zoom controls)
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                        shadowElevation = 3.dp,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(start = 14.dp, bottom = 72.dp)
-                    ) {
-                        Text(
-                            text = "${minOf(80, mapVisibleCount)} de $mapVisibleCount gasolineras en pantalla",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
                     }
 
                     // Floating Legend Card when expanded
