@@ -105,11 +105,11 @@ fun StationDetailDialog(
 
                 IconButton(
                     onClick = onToggleFavorite,
-                    modifier = Modifier.size(44.dp)
+                    modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
                         imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (station.isFavorite) "Quitar de favoritas" else "Añadir a favoritas",
+                        contentDescription = if (station.isFavorite) "Quitar ${station.cleanBrand} de favoritas" else "Añadir ${station.cleanBrand} a favoritas",
                         tint = if (station.isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         modifier = Modifier.size(26.dp)
                     )
@@ -164,7 +164,7 @@ fun StationDetailDialog(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "A ${station.formattedDistance} de tu ubicación",
+                    text = "A ${station.formattedDistance} en línea recta desde la referencia",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -243,11 +243,12 @@ fun StationDetailDialog(
                         ) {
                             Text(
                                 text = fuelType.displayName,
+                                modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = String.format(java.util.Locale.US, "%.3f €/L", price),
+                                text = fuelType.formatPrice(price),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary

@@ -33,6 +33,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -137,11 +139,11 @@ fun StationCard(
                 // Heart favorite button
                 IconButton(
                     onClick = onToggleFavorite,
-                    modifier = Modifier.size(44.dp)
+                    modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
                         imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (station.isFavorite) "Quitar de favoritos" else "Añadir a favoritos",
+                        contentDescription = if (station.isFavorite) "Quitar ${station.cleanBrand} de favoritos" else "Añadir ${station.cleanBrand} a favoritos",
                         tint = if (station.isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
@@ -232,7 +234,7 @@ fun StationCard(
                 ) {
                     fuelsToShow.forEach { fuel ->
                         val p = station.priceFor(fuel)
-                        val pText = if (p != null) String.format(java.util.Locale.US, "%.3f €", p) else "—"
+                        val pText = if (p != null) fuel.formatPrice(p) else "—"
                         val label = when (fuel) {
                             FuelType.GASOLEO_A -> "Diésel"
                             FuelType.GASOLINA_95_E5 -> "Gas 95"
@@ -283,8 +285,8 @@ fun StationCard(
                                     text = pText,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    maxLines = 1,
-                                    softWrap = false,
+                                    maxLines = 3,
+                                    softWrap = true,
                                     overflow = TextOverflow.Ellipsis,
                                     color = when {
                                         isCheapestThisFuel -> Color(0xFF2E7D32)
@@ -364,7 +366,7 @@ fun StationCard(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 8.dp),
-                    modifier = Modifier.height(40.dp)
+                    modifier = Modifier.height(48.dp).semantics { contentDescription = "Cómo llegar a ${station.cleanBrand}, ${station.address}" }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Navigation,

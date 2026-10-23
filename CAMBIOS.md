@@ -71,3 +71,7 @@ Autor: Mosqueteroweb.
 - README, historial y notas de release actualizados.
 
 - `HomeScreen.kt` y `HomeStatus.kt`: separación de la información de ubicación y precios para colocar la información del Ministerio en el pie de la vista de lista. El mapa conserva su panel bajo demanda.
+
+## Entrega local 2.2.8
+
+**Autor público: Mosqueteroweb.** Incluye la 2.2.7 y las mejoras detalladas en [revisiones/2.2.8/CAMBIOS.md](revisiones/2.2.8/CAMBIOS.md). La entrega permanece local según la última instrucción; no hay una release nueva en GitHub.

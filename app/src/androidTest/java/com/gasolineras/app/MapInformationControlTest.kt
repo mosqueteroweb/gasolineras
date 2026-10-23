@@ -9,6 +9,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.isToggleable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.gasolineras.app.data.location.UserLocation
 import com.gasolineras.app.ui.components.MapInformationControl
@@ -27,13 +30,15 @@ class MapInformationControlTest {
     ))
 
     private fun launch() {
-        compose.mainClock.autoAdvance = false
+        compose.mainClock.autoAdvance = true
         compose.setContent {
             MaterialTheme {
                 MapInformationControl(state.value, expanded.value, { expanded.value = it }, {}, {},
                     Modifier.fillMaxSize())
             }
         }
+        compose.waitUntil(10_000) { compose.onNodeWithContentDescription("Información de ubicación y precios").isDisplayed() }
+        compose.mainClock.autoAdvance = false
         compose.mainClock.advanceTimeByFrame()
     }
 
@@ -46,8 +51,8 @@ class MapInformationControlTest {
         launch()
         compose.onNodeWithText("Última ubicación:", substring = true).assertDoesNotExist()
         open()
-        compose.onNodeWithText("Última ubicación:", substring = true).assertIsDisplayed()
-        compose.onNodeWithText("Precios del Ministerio:", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("Última ubicación:", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Publicados por el Ministerio:", substring = true).performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("Cerrar información").performClick()
         compose.mainClock.advanceTimeByFrame()
         compose.onNodeWithText("Información", useUnmergedTree = true).assertDoesNotExist()
@@ -58,7 +63,7 @@ class MapInformationControlTest {
         compose.mainClock.advanceTimeBy(3_000)
         compose.runOnIdle { state.value = state.value.copy(officialDate = "Fecha actualizada") }
         compose.mainClock.advanceTimeByFrame()
-        compose.onNodeWithText("Fecha actualizada", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("Fecha actualizada", substring = true).performScrollTo().assertIsDisplayed()
         compose.mainClock.advanceTimeBy(1_800)
         compose.onNodeWithContentDescription("Cerrar información").assertIsDisplayed()
         compose.mainClock.advanceTimeBy(300)
@@ -74,10 +79,17 @@ class MapInformationControlTest {
         launch()
         compose.runOnIdle { state.value = state.value.copy(dataWarning = "Sin conexión. Datos guardados.") }
         open()
-        compose.onNodeWithText("Sin conexión. Datos guardados.").assertIsDisplayed()
-        compose.onNodeWithText("Reintentar").assertIsDisplayed()
+        compose.onNodeWithText("Sin conexión. Datos guardados.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Reintentar").performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("Información de ubicación y precios").performClick()
         compose.mainClock.advanceTimeByFrame()
         compose.onNodeWithContentDescription("Cerrar información").assertDoesNotExist()
+    }
+
+    @Test fun keepOpenPreventsAutomaticDismissal() {
+        launch(); open()
+        compose.onNode(isToggleable()).performClick()
+        compose.mainClock.advanceTimeBy(10_000)
+        compose.onNodeWithContentDescription("Cerrar información").assertIsDisplayed()
     }
 }

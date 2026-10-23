@@ -10,6 +10,12 @@ class UserPreferencesManager(context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("gasolineras_user_preferences", Context.MODE_PRIVATE)
 
+    fun getComparisonFuel(): FuelType = runCatching {
+        FuelType.valueOf(prefs.getString("comparison_fuel", "") ?: "")
+    }.getOrNull()?.takeIf { it in getDefaultSelectedFuels() } ?: getDefaultSelectedFuels().first()
+
+    fun setComparisonFuel(fuel: FuelType) { prefs.edit().putString("comparison_fuel", fuel.name).apply() }
+
     fun getVisibleFuels(): List<FuelType> {
         val saved = prefs.getString(KEY_VISIBLE_FUELS, null) ?: return DEFAULT_FUELS
         val names = saved.split(",").filter { it.isNotBlank() }

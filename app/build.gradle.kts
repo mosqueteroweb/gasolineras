@@ -28,8 +28,8 @@ android {
         applicationId = "com.gasolineras.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 27
-        versionName = "2.2.7"
+        versionCode = 28
+        versionName = "2.2.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -72,9 +72,7 @@ android {
             )
         }
         debug {
-            if (hasSigningKeys) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+            // Debug builds use the dedicated Android debug certificate.
         }
     }
     compileOptions {

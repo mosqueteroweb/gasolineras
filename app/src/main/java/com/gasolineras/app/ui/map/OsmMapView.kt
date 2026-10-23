@@ -2,6 +2,7 @@ package com.gasolineras.app.ui.map
 
 import android.graphics.Color
 import android.view.View
+import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -77,21 +78,29 @@ fun OsmMapView(
     onSelectStation: (GasStation) -> Unit,
     onVisibleCountChanged: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
-    centerTrigger: Int = 0
+    centerTrigger: Int = 0,
+    referenceName: String? = null,
+    comparisonFuel: FuelType = FuelType.default,
+    onMapCenterChanged: (Double, Double) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
+    var followGps by remember { mutableStateOf(true) }
     var mapMoveTrigger by remember { mutableIntStateOf(0) }
 
     val mapView = remember {
         Configuration.getInstance().apply {
-            userAgentValue = context.packageName
+            userAgentValue = "${context.packageName}/${com.gasolineras.app.BuildConfig.VERSION_NAME} (https://github.com/mosqueteroweb/gasolineras)"
             osmdroidBasePath = context.filesDir
             osmdroidTileCache = java.io.File(context.cacheDir, "osmdroid")
         }
         MapView(context).apply {
-            setTileSource(TileSourceFactory.MAPNIK)
+            setTileSource(org.osmdroid.tileprovider.tilesource.XYTileSource("OpenStreetMap", 0, 19, 256, ".png", arrayOf("https://tile.openstreetmap.org/"), "© OpenStreetMap contributors"))
+            setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_MOVE) followGps = false
+                false
+            }
             setMultiTouchControls(true)
             val initialZoom = zoomLevelForRadius(selectedRadiusKm)
             controller.setZoom(initialZoom)
@@ -126,6 +135,7 @@ fun OsmMapView(
         onDispose {
             debounceJob?.cancel()
             mapView.onPause()
+            mapView.onDetach()
         }
     }
 
@@ -137,16 +147,17 @@ fun OsmMapView(
         mapView.controller.setCenter(center)
     }
 
-    // Auto-center camera on GPS location once acquired if starting from default
-    LaunchedEffect(userLocation) {
-        if (!userLocation.isDefaultLocation) {
-            val center = GeoPoint(userLocation.latitude, userLocation.longitude)
-            val zoom = zoomLevelForRadius(selectedRadiusKm)
-            mapView.controller.setZoom(zoom)
-            mapView.controller.animateTo(center)
+    LaunchedEffect(mapMoveTrigger) {
+        onMapCenterChanged(mapView.mapCenter.latitude, mapView.mapCenter.longitude)
+    }
+
+    LaunchedEffect(userLocation.latitude, userLocation.longitude, referenceName) {
+        if (followGps || referenceName != null) {
+            mapView.controller.animateTo(GeoPoint(userLocation.latitude, userLocation.longitude))
         }
     }
 
+    // Timestamp-only GPS updates never move the camera; touching the map pauses following.
     // Re-center and adjust zoom when distance radius changes
     LaunchedEffect(selectedRadiusKm) {
         val center = GeoPoint(userLocation.latitude, userLocation.longitude)
@@ -159,6 +170,7 @@ fun OsmMapView(
     // Re-center and adjust zoom ONLY when explicitly requested (centerTrigger / GPS recenter FAB)
     LaunchedEffect(centerTrigger) {
         if (centerTrigger > 0) {
+            followGps = true
             val center = GeoPoint(userLocation.latitude, userLocation.longitude)
             val zoom = zoomLevelForRadius(selectedRadiusKm)
             mapView.controller.setZoom(zoom)
@@ -178,7 +190,7 @@ fun OsmMapView(
         return if (parts.isNotEmpty()) {
             parts.joinToString("   ")
         } else {
-            station.prices.values.minOrNull()?.let { String.format(java.util.Locale.US, "%.3f €", it) } ?: "--"
+            station.prices[comparisonFuel]?.let { comparisonFuel.formatPrice(it) } ?: "--"
         }
     }
 
@@ -208,8 +220,8 @@ fun OsmMapView(
             // 2. User Position Marker
             val userMarker = Marker(view).apply {
                 position = userPoint
-                title = "📍 Tu posición"
-                snippet = if (userLocation.isDefaultLocation) "Madrid (referencia)" else "GPS en tiempo real"
+                title = if (referenceName != null) "Referencia: $referenceName" else "📍 Última posición"
+                snippet = if (referenceName != null) "Ubicación manual; no es tu posición GPS" else if (userLocation.isDefaultLocation) "Madrid (referencia)" else "Última posición obtenida; consulta su fecha en Información"
                 icon = MapMarkerHelper.createUserLocationMarker(context)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
             }
@@ -249,7 +261,7 @@ fun OsmMapView(
             val displayStations = if (visibleStations.size > 80) {
                 visibleStations.sortedWith(
                     compareBy<GasStation> { s ->
-                        activeFuels.mapNotNull { s.prices[it] }.minOrNull() ?: Double.MAX_VALUE
+                        s.prices[comparisonFuel] ?: Double.MAX_VALUE
                     }.thenBy { s ->
                         DistanceCalculator.calculateDistanceMeters(
                             centerGeo.latitude, centerGeo.longitude,

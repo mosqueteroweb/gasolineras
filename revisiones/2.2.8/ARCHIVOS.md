@@ -1,0 +1,65 @@
+# Archivos de la entrega local 2.2.8
+
+**Autor público: Mosqueteroweb.**
+
+Inventario de los archivos modificados o añadidos. No incluye APK ignorados, claves, configuración privada ni la auditoría completa local.
+
+- `.github/workflows/release.yml`
+- `AUDITORIA.md`
+- `CAMBIOS.md`
+- `CHANGELOG.md`
+- `README.md`
+- `RELEASE_NOTES.md`
+- `app/build.gradle.kts`
+- `app/src/androidTest/java/com/gasolineras/app/AuditAccessibilityTest.kt`
+- `app/src/androidTest/java/com/gasolineras/app/HomeViewModelRegressionTest.kt`
+- `app/src/androidTest/java/com/gasolineras/app/MapInformationControlTest.kt`
+- `app/src/main/java/com/gasolineras/app/data/api/ApiClient.kt`
+- `app/src/main/java/com/gasolineras/app/data/api/FuelStationDto.kt`
+- `app/src/main/java/com/gasolineras/app/data/local/LastLocationStore.kt`
+- `app/src/main/java/com/gasolineras/app/data/local/StationCache.kt`
+- `app/src/main/java/com/gasolineras/app/data/local/UserPreferencesManager.kt`
+- `app/src/main/java/com/gasolineras/app/data/repository/FuelRepository.kt`
+- `app/src/main/java/com/gasolineras/app/domain/model/FuelType.kt`
+- `app/src/main/java/com/gasolineras/app/domain/model/GasStation.kt`
+- `app/src/main/java/com/gasolineras/app/domain/util/DataFreshness.kt`
+- `app/src/main/java/com/gasolineras/app/domain/util/DistanceCalculator.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/FuelTypeSelector.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/HomeStatus.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/LocalityDialog.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/MapInformationControl.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/MapLegendCard.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/SettingsBottomSheet.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/StationCard.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/StationDetailDialog.kt`
+- `app/src/main/java/com/gasolineras/app/ui/components/StationListContent.kt`
+- `app/src/main/java/com/gasolineras/app/ui/home/HomeScreen.kt`
+- `app/src/main/java/com/gasolineras/app/ui/home/HomeUiState.kt`
+- `app/src/main/java/com/gasolineras/app/ui/home/HomeViewModel.kt`
+- `app/src/main/java/com/gasolineras/app/ui/map/OsmMapView.kt`
+- `app/src/test/java/com/gasolineras/app/AuditSecurityTest.kt`
+- `app/src/test/java/com/gasolineras/app/DistanceCalculatorTest.kt`
+- `app/src/test/java/com/gasolineras/app/FuelRepositoryTest.kt`
+- `app/src/test/java/com/gasolineras/app/FuelSortingTest.kt`
+- `gradle/verification-metadata.xml`
+- `gradle/wrapper/gradle-wrapper.properties`
+- `revisiones/2.2.8/APK_LOCAL.sha256`
+- `revisiones/2.2.8/ARCHIVOS.md`
+- `revisiones/2.2.8/CAMBIOS.md`
+- `revisiones/2.2.8/MANTENIMIENTO_MAPA.md`
+- `revisiones/2.2.8/PRUEBAS.json`
+- `revisiones/2.2.8/VALIDACION.md`
+- `revisiones/2.2.8/entrega-local.json`
+- `revisiones/2.2.8/evidencias/228-final-detalle.png`
+- `revisiones/2.2.8/evidencias/228-final-estable.png`
+- `revisiones/2.2.8/evidencias/228-final-estable.xml`
+- `revisiones/2.2.8/evidencias/228-horizontal200-acciones.png`
+- `revisiones/2.2.8/evidencias/228-horizontal200-acciones.xml`
+- `revisiones/2.2.8/evidencias/228-lista.png`
+- `revisiones/2.2.8/evidencias/228-lista.xml`
+- `revisiones/2.2.8/evidencias/228-ministerio-debajo.png`
+- `revisiones/2.2.8/evidencias/228-ministerio-debajo.xml`
+- `revisiones/2.2.8/evidencias/228-offline.png`
+- `revisiones/2.2.8/evidencias/228-offline.xml`
+- `revisiones/2.2.8/evidencias/228-viaje-barcelona.png`
+- `revisiones/2.2.8/evidencias/228-viaje-barcelona.xml`

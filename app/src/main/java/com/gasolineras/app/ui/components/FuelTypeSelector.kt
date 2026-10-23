@@ -17,6 +17,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.*
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,7 +66,7 @@ private fun getFuelButtonConfig(fuelType: FuelType): FuelButtonConfig {
         FuelType.GASOLINA_98_E5 -> FuelButtonConfig(
             fuelType = FuelType.GASOLINA_98_E5,
             label = "98",
-            selectedBg = Color(0xFFD84315),
+            selectedBg = Color(0xFFBF360C),
             selectedContentColor = Color.White,
             selectedIconTint = Color(0xFFFFCCBC),
             unselectedIconTint = Color(0xFFE64A19)
@@ -112,7 +114,7 @@ private fun getFuelButtonConfig(fuelType: FuelType): FuelButtonConfig {
         FuelType.BIODIESEL -> FuelButtonConfig(
             fuelType = FuelType.BIODIESEL,
             label = "Bio",
-            selectedBg = Color(0xFF558B2F),
+            selectedBg = Color(0xFF33691E),
             selectedContentColor = Color.White,
             selectedIconTint = Color(0xFFDCEDC8),
             unselectedIconTint = Color(0xFF689F38)
@@ -128,7 +130,7 @@ private fun getFuelButtonConfig(fuelType: FuelType): FuelButtonConfig {
         FuelType.HIDROGENO -> FuelButtonConfig(
             fuelType = FuelType.HIDROGENO,
             label = "H2",
-            selectedBg = Color(0xFF0288D1),
+            selectedBg = Color(0xFF01579B),
             selectedContentColor = Color.White,
             selectedIconTint = Color(0xFFB3E5FC),
             unselectedIconTint = Color(0xFF03A9F4)
@@ -167,7 +169,12 @@ fun FuelTypeSelector(
                 shadowElevation = if (isSelected) 3.dp else 2.dp,
                 modifier = Modifier
                     .weight(1f)
-                    .defaultMinSize(minHeight = 38.dp)
+                    .semantics {
+                        role = Role.Checkbox
+                        toggleableState = ToggleableState(isSelected)
+                        contentDescription = config.fuelType.displayName
+                    }
+                    .defaultMinSize(minHeight = 48.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

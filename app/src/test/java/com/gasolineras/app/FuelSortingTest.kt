@@ -94,7 +94,7 @@ class FuelSortingTest {
         assertEquals(true, s1.hasGLP)
         assertEquals(false, s2.hasGLP)
         assertEquals(0.949, s1.glpPrice!!, 0.0001)
-        assertEquals("0.949 €/L", s1.formattedGlpPrice)
+        assertEquals("0,949 €/L", s1.formattedGlpPrice)
 
         val stations = listOf(s1, s2)
         val glpOnly = stations.filter { it.hasGLP }

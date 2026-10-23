@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -45,6 +46,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -83,7 +85,9 @@ fun SettingsBottomSheet(
         themeMode: String
     ) -> Unit,
     onRefreshPrices: () -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onClearData: (String) -> Unit = {},
+    rememberLocation: Boolean = true
 ) {
     val context = LocalContext.current
     // Reserve the same two text lines and padding for every choice, including large fonts.
@@ -112,54 +116,19 @@ fun SettingsBottomSheet(
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 8.dp
     ) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight(0.95f).navigationBarsPadding()) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Ajustes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                IconButton(onClick = onDismissRequest) { Icon(Icons.Default.Close, contentDescription = "Cerrar") }
+            }
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth().weight(1f)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
                 .navigationBarsPadding()
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("⚙️", fontSize = 20.sp)
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Ajustes y Preferencias",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Personaliza carburantes y comportamiento",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
-                        )
-                    }
-                }
-
-                IconButton(onClick = onDismissRequest) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Cerrar",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            Text("Personaliza carburantes y comportamiento", style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.height(16.dp))
 
             // 1. Carburantes visibles en pantalla (máximo 3)
@@ -491,6 +460,14 @@ fun SettingsBottomSheet(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp)
             )
+            Text("Privacidad: la última posición caduca a las 24 horas y se descarta al volver a abrir la app. El Ministerio recibe una consulta nacional sin tus coordenadas. OpenStreetMap recibe las zonas del mapa; al abrir navegación se envía el destino a la aplicación elegida.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(vertical = 12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Recordar última ubicación (24 h)", modifier = Modifier.weight(1f))
+                androidx.compose.material3.Switch(checked = rememberLocation, onCheckedChange = { onClearData("remember") })
+            }
+            listOf("location" to "Borrar última ubicación guardada", "favorites" to "Borrar favoritas", "prices" to "Borrar precios guardados", "map" to "Borrar caché del mapa").forEach { (kind, label) ->
+                OutlinedButton(onClick = { onClearData(kind) }, modifier = Modifier.fillMaxWidth().height(choiceHeight)) { SettingsChoiceLabel(label) }
+            }
             Spacer(modifier = Modifier.height(14.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -516,6 +493,12 @@ fun SettingsBottomSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+        }
+            val dirty = tempVisibleFuels != visibleFuels || tempDefaultSelectedFuels != defaultSelectedFuels ||
+                tempDefaultView != defaultView || tempDefaultRadius != defaultRadiusKm ||
+                tempDefaultSort != defaultSort || tempThemeMode != themeMode
+            Text(if (dirty) "Cambios sin guardar" else "Sin cambios pendientes", modifier = Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = onDismissRequest, modifier = Modifier.fillMaxWidth()) { Text("Cancelar y cerrar") }
             // Botón Guardar
             Button(
                 onClick = {
@@ -532,13 +515,13 @@ fun SettingsBottomSheet(
                 },
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth().padding(horizontal = 20.dp)
                     .height(choiceHeight)
             ) {
                 Text("Guardar preferencias", fontWeight = FontWeight.Bold, fontSize = 14.sp, lineHeight = 20.sp, maxLines = 2, textAlign = TextAlign.Center)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

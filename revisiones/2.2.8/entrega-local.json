@@ -1,0 +1,12 @@
+{
+  "version": "2.2.8",
+  "version_code": 28,
+  "sha256": "66e914a1dffe737475b33fa631dd036c2fed486e20ef1cc31fadaab05d666cc9",
+  "size_bytes": 2067739,
+  "release_certificate_matches_2_2_6": true,
+  "debug_certificate_is_different": true,
+  "debuggable": false,
+  "publication_status": "local_only_per_latest_user_instruction",
+  "public_author": "Mosqueteroweb",
+  "source_inputs_sha256": "422bc4c9c3664609edb99af148e39841db15c4a31c271a9089ecd9bf835d8b67"
+}

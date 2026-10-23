@@ -66,6 +66,12 @@ enum class FuelType(
         shortName = "H2"
     );
 
+    val unit: String
+        get() = if (this in setOf(GNC, GNL, HIDROGENO)) "€/kg" else "€/L"
+
+    fun formatPrice(price: Double): String =
+        String.format(java.util.Locale("es", "ES"), "%.3f %s", price, unit)
+
     companion object {
         val default = GASOLINA_95_E5
     }

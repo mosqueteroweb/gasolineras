@@ -1,0 +1,314 @@
+{
+  "unit": {
+    "tests": 33,
+    "failures": 0,
+    "errors": 0,
+    "suites": [
+      {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "pricesUseSpanishDecimalsAndAppropriateUnits",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "limitsDisplayTextFromExternalSources",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "rejectsNonFiniteNumbersAndOversizedFields",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "publicationAgeDoesNotBecomeFreshJustBecauseItWasDownloadedAgain",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "oversizedDiskCacheIsRejectedWithoutParsing",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "rejectsCoordinatesOutsideEarthAndMissingIdentifiers",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "ignoresInvalidPricesWithoutDiscardingOtherStationData",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditSecurityTest",
+            "name": "antipodalDistanceRemainsFinite",
+            "passed": true
+          }
+        ]
+      },
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          {
+            "class": "com.gasolineras.app.FuelSortingTest",
+            "name": "testSortByCheapest",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelSortingTest",
+            "name": "testSortByNearest",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelSortingTest",
+            "name": "testMultiFuelConjunctionFiltering",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelSortingTest",
+            "name": "testGLPDetectionAndFiltering",
+            "passed": true
+          }
+        ]
+      },
+      {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          {
+            "class": "com.gasolineras.app.DistanceCalculatorTest",
+            "name": "testMadridPuertaDelSolToAtocha",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.DistanceCalculatorTest",
+            "name": "testFormatDistance",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.DistanceCalculatorTest",
+            "name": "testSameLocationDistanceIsZero",
+            "passed": true
+          }
+        ]
+      },
+      {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "favoriteRemovalRecalculatesMinimumPrice",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "expiredDiskCacheRemainsUsableOfflineAndRetriesWhenRequested",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "concurrentQueriesShareOneDownload",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "movingCitiesRecalculatesCachedDistancesAndBothViews",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "explicitClearRemovesDiskAndMemoryAndNextQueryReloads",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "corruptedCacheAllowsOnlineRecovery",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "malformedResponseDoesNotOverwriteValidCache",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "noCacheAndNoNetworkReturnsFailure",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "comparisonUsesChosenFuelInsteadOfCheapestDifferentProduct",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "failedForcedRefreshKeepsPersistentResponseAndWarns",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "emptyResponseDoesNotOverwriteValidCache",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "cancellationIsNotReportedAsAnOfflineSuccess",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelRepositoryTest",
+            "name": "restartWithoutNetworkRestoresStationsAndDate",
+            "passed": true
+          }
+        ]
+      },
+      {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          {
+            "class": "com.gasolineras.app.FuelStationDtoTest",
+            "name": "testParseEuropeanNumber",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelStationDtoTest",
+            "name": "testNewFuelsMapping",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelStationDtoTest",
+            "name": "testToDomainWithInvalidCoordinatesReturnsNull",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelStationDtoTest",
+            "name": "testToDomainMapping",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.FuelStationDtoTest",
+            "name": "testBrandCleaningAndLengthLimit",
+            "passed": true
+          }
+        ]
+      }
+    ]
+  },
+  "android": {
+    "tests": 16,
+    "failures": 0,
+    "errors": 0,
+    "suites": [
+      {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "cases": [
+          {
+            "class": "com.gasolineras.app.AuditAccessibilityTest",
+            "name": "settingsCloseAndSaveRemainAvailableAtTwoHundredPercent",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.AuditAccessibilityTest",
+            "name": "fuelControlsExposeNamesAndSelection",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "expiredSavedLocationIsNotRestored",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "continuousLocationChangesCityWithoutManualRefresh",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "failedOrDisabledGpsPreservesLastValidPositionAndDoesNotSignalSuccess",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "mapKeepsRadiusAndHiddenFuelsCannotBeActivated",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "manualReferenceSurvivesGpsAndCanBeReplacedByAnotherCity",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "lateResponseCannotOverwriteLatestFilter",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "returningFromBackgroundAcquiresNewPosition",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "noGpsOnFirstLaunchKeepsExplicitReference",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "municipalityReferenceAvoidsAnArbitraryPeripheralFirstStation",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.HomeViewModelRegressionTest",
+            "name": "failedGpsAfterManualSearchUsesLastGpsInsteadOfRelabellingManualCoordinates",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.MapInformationControlTest",
+            "name": "closesAfterFiveSecondsDespiteDataUpdatesAndReopeningGetsNewTimeout",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.MapInformationControlTest",
+            "name": "keepOpenPreventsAutomaticDismissal",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.MapInformationControlTest",
+            "name": "hiddenUntilOpenedAndCanBeClosedManually",
+            "passed": true
+          },
+          {
+            "class": "com.gasolineras.app.MapInformationControlTest",
+            "name": "infoIconAlsoClosesThePanelAndWarningsRetainRetryAction",
+            "passed": true
+          }
+        ]
+      }
+    ]
+  },
+  "lint": {
+    "Warning": 42,
+    "Information": 1
+  },
+  "dependency_verification": "strict",
+  "last_follow_up": {
+    "change": "Text for missing publication date, no layout or query changes",
+    "unit_tests": 33,
+    "unit_failures": 0,
+    "lint_and_release_build": "passed"
+  }
+}

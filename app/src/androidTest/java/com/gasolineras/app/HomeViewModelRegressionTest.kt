@@ -66,7 +66,7 @@ class HomeViewModelRegressionTest {
         }
         override suspend fun getNearbyStations(userLat: Double, userLon: Double, radiusKm: Double,
             selectedFuels: Set<FuelType>, sortOption: SortOption, searchQuery: String,
-            onlyFavorites: Boolean, favoriteIds: Set<String>, forceRefresh: Boolean): Result<NearbyStationsResult> {
+            onlyFavorites: Boolean, favoriteIds: Set<String>, forceRefresh: Boolean, comparisonFuel: FuelType?): Result<NearbyStationsResult> {
             calls++
             latestLatitude = userLat
             return Result.success(load(radiusKm))
@@ -123,14 +123,15 @@ class HomeViewModelRegressionTest {
     }
 
     @Test fun failedOrDisabledGpsPreservesLastValidPositionAndDoesNotSignalSuccess() {
-        LastLocationStore(app).write(barcelona)
+        val recentBarcelona = barcelona.copy(obtainedAtMillis = System.currentTimeMillis())
+        LastLocationStore(app).write(recentBarcelona)
         location.enabled = false
         create()
         var succeeded = false
         main { vm.recenterLocation { succeeded = true } }
         await { vm.uiState.value.locationMessage != null && !vm.uiState.value.isLocating }
         main {
-            assertEquals(barcelona, vm.uiState.value.userLocation)
+            assertEquals(recentBarcelona, vm.uiState.value.userLocation)
             assertFalse(vm.uiState.value.isLocationEnabled)
             assertFalse(succeeded)
         }
@@ -177,5 +178,56 @@ class HomeViewModelRegressionTest {
         releaseFirst.complete(Unit)
         instrumentation.waitForIdleSync()
         main { assertEquals(25.0, vm.uiState.value.minPrice!!, 0.0) }
+    }
+
+    @Test fun manualReferenceSurvivesGpsAndCanBeReplacedByAnotherCity() {
+        create()
+        main { vm.useManualLocation(41.3874, 2.1686, "Barcelona") }
+        await { repo.latestLatitude == 41.3874 }
+        main { vm.onForeground() }
+        instrumentation.waitForIdleSync()
+        main {
+            assertEquals("Barcelona", vm.uiState.value.manualLocationName)
+            vm.useManualLocation(41.6488, -0.8891, "Zaragoza")
+        }
+        await { repo.latestLatitude == 41.6488 }
+        main { assertEquals("Zaragoza", vm.uiState.value.manualLocationName) }
+    }
+
+    @Test fun expiredSavedLocationIsNotRestored() {
+        val preferences = app.getSharedPreferences("last_location", Context.MODE_PRIVATE)
+        preferences.edit().putLong("latitude", 41.0.toBits()).putLong("longitude", 2.0.toBits())
+            .putLong("time", System.currentTimeMillis() - 86_400_001L).commit()
+        create()
+        main { assertTrue(vm.uiState.value.userLocation.isDefaultLocation) }
+    }
+
+    @Test fun municipalityReferenceAvoidsAnArbitraryPeripheralFirstStation() {
+        fun station(id: String, latitude: Double) = com.gasolineras.app.domain.model.GasStation(
+            id, "Test", "Calle", "50001", "Zaragoza", "ZARAGOZA", "24H", latitude, -0.9, emptyMap())
+        val stations = listOf(station("periphery", 41.9), station("center", 41.61), station("near", 41.6))
+        repo.load = { NearbyStationsResult(stations, stations, null, null, null, emptyMap(), 3, savedAtMillis = 1000L) }
+        create()
+        main { vm.loadLocalities() }
+        await { !vm.uiState.value.isLoadingLocalities && vm.uiState.value.localityChoices.isNotEmpty() }
+        main { assertEquals("center", vm.uiState.value.localityChoices.single().id) }
+    }
+
+    @Test fun failedGpsAfterManualSearchUsesLastGpsInsteadOfRelabellingManualCoordinates() {
+        location.current = madrid
+        create()
+        main { vm.onForeground() }
+        await { vm.uiState.value.userLocation.latitude == madrid.latitude }
+        main {
+            vm.useManualLocation(barcelona.latitude, barcelona.longitude, "Barcelona")
+            location.current = null
+            location.enabled = false
+            vm.recenterLocation()
+        }
+        await { vm.uiState.value.locationMessage != null && !vm.uiState.value.isLocating && repo.latestLatitude == madrid.latitude }
+        main {
+            assertEquals(madrid.latitude, vm.uiState.value.userLocation.latitude, 0.0)
+            assertNull(vm.uiState.value.manualLocationName)
+        }
     }
 }

@@ -17,18 +17,22 @@ class StationCache(private val file: File) {
     private val gson = Gson()
 
     fun read(): Snapshot? = try {
-        if (!file.isFile) null else gson.fromJson(file.readText(), Snapshot::class.java)
+        if (!file.isFile || file.length() > 32L * 1024 * 1024) null else gson.fromJson(file.readText(), Snapshot::class.java)
             ?.takeIf { it.savedAt > 0 && !it.response.stations.isNullOrEmpty() }
     } catch (_: Exception) {
         null // A damaged cache must never prevent an online recovery.
     }
 
+    fun clear() { check(!file.exists() || file.delete()) { "No se pudo borrar la consulta" } }
+
     fun write(snapshot: Snapshot) {
         file.parentFile?.mkdirs()
+        val encoded = gson.toJson(snapshot).toByteArray(Charsets.UTF_8)
+        require(encoded.size <= 32 * 1024 * 1024) { "Respuesta demasiado grande para guardar" }
         val temporary = File(file.path + ".tmp")
         try {
             temporary.outputStream().use { stream ->
-                stream.write(gson.toJson(snapshot).toByteArray(Charsets.UTF_8))
+                stream.write(encoded)
                 stream.fd.sync()
             }
             Files.move(temporary.toPath(), file.toPath(),

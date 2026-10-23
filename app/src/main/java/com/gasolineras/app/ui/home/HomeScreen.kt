@@ -2,6 +2,8 @@ package com.gasolineras.app.ui.home
 
 import androidx.activity.compose.BackHandler
 import com.gasolineras.app.ui.components.MapInformationControl
+import com.gasolineras.app.ui.components.StationListContent
+import com.gasolineras.app.ui.components.LocalityDialog
 import com.gasolineras.app.ui.components.HomeStatus
 import android.content.Context
 import android.widget.Toast
@@ -116,6 +118,8 @@ fun HomeScreen(
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showOverflowMenu by remember { mutableStateOf(false) }
     var showMapLegend by remember { mutableStateOf(false) }
+    var mapCenter by remember { mutableStateOf<Pair<Double, Double>?>(null) }
+    var showLocalities by remember { mutableStateOf(false) }
     var showMapInfo by remember { mutableStateOf(false) }
 
     BackHandler(enabled = !showSettingsSheet && state.selectedStationForDetail == null &&
@@ -331,6 +335,14 @@ fun HomeScreen(
                                             }
                                         )
                                         DropdownMenuItem(
+                                        text = { Text("Elegir municipio") },
+                                        onClick = { showOverflowMenu = false; showLocalities = true; viewModel.loadLocalities() }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Usar mi ubicación GPS") },
+                                        onClick = { showOverflowMenu = false; viewModel.resumeGps(); onRequestLocationPermission() }
+                                    )
+                                    DropdownMenuItem(
                                             text = { Text("Ajustes y preferencias") },
                                             leadingIcon = {
                                                 Icon(
@@ -368,35 +380,12 @@ fun HomeScreen(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 )
-                if (!state.isMapView) {
-                    HomeStatus(
-                        state = state,
-                        onLocationAction = onRequestLocationPermission,
-                        onRetry = { viewModel.onRefresh() },
-                        showPriceInfo = false
-                    )
-                }
                 if (state.isLoading || state.isRefreshing || state.isLocating) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.secondary,
                         trackColor = MaterialTheme.colorScheme.primaryContainer
                     )
-                }
-            }
-        },
-        bottomBar = {
-            if (!state.isMapView &&
-                (state.isLoading || state.savedAtMillis > 0L || state.dataWarning != null)) {
-                Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
-                    Column(Modifier.navigationBarsPadding()) {
-                        HomeStatus(
-                            state = state,
-                            onLocationAction = onRequestLocationPermission,
-                            onRetry = { viewModel.onRefresh() },
-                            showLocationInfo = false
-                        )
-                    }
                 }
             }
         },
@@ -420,8 +409,22 @@ fun HomeScreen(
                         onSelectStation = { viewModel.onSelectStation(it) },
                         onVisibleCountChanged = { count -> mapVisibleCount = count },
                         centerTrigger = mapCenterTrigger,
+                        referenceName = state.manualLocationName,
+                        comparisonFuel = state.comparisonFuel,
+                        onMapCenterChanged = { lat, lon -> mapCenter = lat to lon },
                         modifier = Modifier.fillMaxSize()
                     )
+
+                    TextButton(
+                        onClick = { mapCenter?.let { (lat, lon) -> viewModel.useManualLocation(lat, lon, "Zona del mapa") } },
+                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 76.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) { Text("Buscar en esta zona") }
+                    Surface(modifier = Modifier.align(Alignment.BottomStart).padding(start = 8.dp, bottom = 8.dp), color = MaterialTheme.colorScheme.surface) {
+                        TextButton(onClick = { android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://www.openstreetmap.org/copyright")).also { context.startActivity(it) } }) {
+                            Text("© OpenStreetMap contributors", fontSize = 10.sp)
+                        }
+                    }
 
                     // Floating solid fuel selector at top center
                     FuelTypeSelector(
@@ -476,7 +479,7 @@ fun HomeScreen(
                             .padding(start = 14.dp, bottom = 72.dp)
                     ) {
                         Text(
-                            text = if (mapVisibleCount > 0) "$mapVisibleCount gasolineras en esta zona" else "0 gasolineras en esta zona",
+                            text = "${minOf(80, mapVisibleCount)} de $mapVisibleCount gasolineras en pantalla",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -582,208 +585,13 @@ fun HomeScreen(
                     )
                 }
             } else {
-                // ==================== LIST MODE ====================
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // 1. 3 Fuel Carousel
-                    FuelTypeSelector(
-                        selectedFuels = state.selectedFuels,
-                        visibleFuels = state.visibleFuels,
-                        onToggleFuel = { viewModel.onToggleFuel(it) }
-                    )
-
-                    // 2. Status Bar: Station count & Sort toggle button
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "${state.stations.size} encontradas",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                        )
-
-                        // Clear Sort button (Accessible min-height 42dp, High contrast)
-                        val isDark = when (state.themeMode) { "DARK" -> true; "LIGHT" -> false; else -> isSystemInDarkTheme() }
-                        val sortBg = if (isDark) Color(0xFF1E3A5F) else Color(0xFFE3F2FD)
-                        val sortBorder = if (isDark) Color(0xFF3B82F6) else Color(0xFF90CAF9)
-                        val sortContent = if (isDark) Color.White else Color(0xFF0D47A1)
-
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = sortBg,
-                            border = BorderStroke(1.dp, sortBorder),
-                            modifier = Modifier
-                                .defaultMinSize(minHeight = 42.dp)
-                                .clickable { viewModel.toggleSort() }
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.Sort,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(17.dp),
-                                    tint = sortContent
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-                                Text(
-                                    text = if (state.selectedSort == SortOption.CHEAPEST) "💶 Más barata" else "📍 Más cercana",
-                                    fontSize = 12.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = sortContent
-                                )
-                            }
-                        }
-                    }
-
-                    // 4. List / State content area
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    ) {
-                        when {
-                            state.isLoading -> {
-                                Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        text = "Consultando precios oficiales del Ministerio...",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                                    )
-                                }
-                            }
-
-                            state.errorMessage != null -> {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(32.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ErrorOutline,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.size(54.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        text = state.errorMessage ?: "",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Spacer(modifier = Modifier.height(20.dp))
-                                    Button(
-                                        onClick = { viewModel.onRefresh() },
-                                        shape = RoundedCornerShape(10.dp)
-                                    ) {
-                                        Text("Reintentar")
-                                    }
-                                }
-                            }
-
-                            state.stations.isEmpty() -> {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(32.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.LocalGasStation,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                        modifier = Modifier.size(64.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        text = when {
-                                            state.onlyFavorites && state.favoriteIds.isEmpty() -> "No tienes favoritas guardadas"
-                                            state.onlyFavorites -> "No hay favoritas que coincidan con estos filtros"
-                                            else -> "No se encontraron gasolineras"
-                                        },
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Text(
-                                        text = when {
-                                            state.onlyFavorites && state.favoriteIds.isEmpty() -> "Pulsa el corazón en una gasolinera para guardarla."
-                                            state.onlyFavorites -> "Tus favoritas siguen guardadas. Prueba a ampliar el radio de ${state.selectedRadiusKm.toInt()} km o cambiar los filtros."
-                                            else -> "Prueba a ampliar el radio de distancia o verificar los carburantes marcados."
-                                        },
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    if (state.onlyFavorites) {
-                                        Button(
-                                            onClick = { viewModel.onToggleOnlyFavorites() },
-                                            shape = RoundedCornerShape(10.dp)
-                                        ) {
-                                            Text("Ver todas las gasolineras")
-                                        }
-                                    } else {
-                                        Button(
-                                            onClick = { viewModel.cycleRadius() },
-                                            shape = RoundedCornerShape(10.dp)
-                                        ) {
-                                            Text("Cambiar radio de búsqueda")
-                                        }
-                                    }
-                                }
-                            }
-
-                            else -> {
-                                LazyColumn(
-                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    itemsIndexed(
-                                        items = state.stations,
-                                        key = { index, station -> "${station.id}_$index" }
-                                    ) { _, station ->
-                                        val cheapestFuels = state.cheapestFuelsFor(station)
-                                        val isCheapest = cheapestFuels.isNotEmpty()
-
-                                        StationCard(
-                                            station = station,
-                                            selectedFuels = state.selectedFuels,
-                                            visibleFuels = state.visibleFuels,
-                                            isCheapestInArea = isCheapest,
-                                            cheapestForFuels = cheapestFuels,
-                                            onClick = { viewModel.onSelectStation(station) },
-                                            onNavigateClick = {
-                                                NavigationHelper.navigateToStation(context, station)
-                                            },
-                                            onToggleFavorite = {
-                                                viewModel.onToggleFavorite(station.id)
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                StationListContent(state, viewModel, onRequestLocationPermission,
+                    onNavigate = { NavigationHelper.navigateToStation(context, it) })
             }
         }
     }
+
+    if (showLocalities) LocalityDialog(state, viewModel) { showLocalities = false }
 
     // Detail dialog popup (works for both Map and List modes)
     state.selectedStationForDetail?.let { station ->
@@ -815,6 +623,8 @@ fun HomeScreen(
             onRefreshPrices = {
                 viewModel.onRefresh()
             },
+            onClearData = viewModel::clearPrivateData,
+            rememberLocation = state.rememberLocation,
             onDismissRequest = { showSettingsSheet = false }
         )
     }

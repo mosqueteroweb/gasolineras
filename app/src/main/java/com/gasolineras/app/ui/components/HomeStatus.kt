@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gasolineras.app.ui.home.HomeUiState
@@ -25,12 +26,15 @@ fun HomeStatus(
     showLocationInfo: Boolean = true,
     showPriceInfo: Boolean = true
 ) {
-    val position = if (state.userLocation.isDefaultLocation) {
+    val position = if (state.manualLocationName != null) {
+        "Referencia manual: ${state.manualLocationName}. No es tu posición GPS."
+    } else if (state.userLocation.isDefaultLocation) {
         "Madrid como referencia; no es tu ubicación real."
     } else {
         "Última ubicación: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES")).format(Date(state.userLocation.obtainedAtMillis))}."
     }
     val locationText = when {
+        state.manualLocationName != null -> position
         !state.hasLocationPermission -> "Permiso de ubicación pendiente. $position Pulsa para activarlo."
         !state.isLocationEnabled -> "Ubicación desactivada. $position Pulsa para activarla."
         state.isLocating -> "Obteniendo tu ubicación… $position"
@@ -55,14 +59,17 @@ fun HomeStatus(
                 val savedDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
                     .format(Date(state.savedAtMillis))
                 Text(
-                    text = "Precios del Ministerio: ${state.officialDate?.takeIf { it.isNotBlank() } ?: savedDate} · Guardados: $savedDate",
+                    text = "Publicados por el Ministerio: ${state.officialDate?.takeIf { it.isNotBlank() } ?: "fecha no facilitada"} · Consultados: $savedDate",
                     style = MaterialTheme.typography.bodySmall
                 )
+            }
+            if (showPriceInfo && com.gasolineras.app.domain.util.DataFreshness.isPublicationOld(state.officialDate)) {
+                Text("La publicación del Ministerio tiene más de 24 horas; una nueva consulta puede devolver los mismos precios.", style = MaterialTheme.typography.bodySmall)
             }
             state.dataWarning?.takeIf { showPriceInfo }?.let { warning ->
                 Row {
                     Text(warning, style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
+                        color = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite })
                     TextButton(onClick = onRetry, enabled = !state.isRefreshing) { Text("Reintentar") }
                 }
             }

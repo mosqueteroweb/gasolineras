@@ -28,6 +28,8 @@ data class NearbyStationsResult(
 )
 
 interface FuelRepository {
+    suspend fun clearCache() {}
+
     suspend fun getNearbyStations(
         userLat: Double,
         userLon: Double,
@@ -37,7 +39,8 @@ interface FuelRepository {
         searchQuery: String = "",
         onlyFavorites: Boolean = false,
         favoriteIds: Set<String> = emptySet(),
-        forceRefresh: Boolean = false
+        forceRefresh: Boolean = false,
+        comparisonFuel: FuelType? = null
     ): Result<NearbyStationsResult>
 }
 
@@ -55,6 +58,17 @@ class FuelRepositoryImpl(
     private var lastAttempt: Long? = null
     private var warningMessage: String? = null
     private val cacheDurationMillis = 30 * 60 * 1000L
+
+    override suspend fun clearCache() = withContext(Dispatchers.IO) {
+        cacheMutex.withLock {
+            diskCache?.clear()
+            cachedStations = emptyList()
+            lastFetchTimestamp = 0L
+            officialDate = null
+            warningMessage = null
+            lastAttempt = null
+        }
+    }
 
     private data class LoadedStations(
         val stations: List<GasStation>, val savedAt: Long,
@@ -117,7 +131,8 @@ class FuelRepositoryImpl(
         searchQuery: String,
         onlyFavorites: Boolean,
         favoriteIds: Set<String>,
-        forceRefresh: Boolean
+        forceRefresh: Boolean,
+        comparisonFuel: FuelType?
     ): Result<NearbyStationsResult> = withContext(Dispatchers.IO) {
         try {
             val loaded = loadStations(forceRefresh)
@@ -167,15 +182,9 @@ class FuelRepositoryImpl(
             // Stations within user-selected radius (for List Mode)
             val inRadiusStations = processedStations.filter { (it.distanceMeters ?: Double.MAX_VALUE) <= radiusMeters }
 
-            // Helper for best price among selected fuels
-            fun GasStation.bestPrice(): Double? {
-                val candidatePrices = if (selectedFuels.isEmpty()) {
-                    prices.values
-                } else {
-                    selectedFuels.mapNotNull { prices[it] }
-                }
-                return candidatePrices.minOrNull()
-            }
+            val priceFuel = comparisonFuel?.takeIf { it in selectedFuels }
+                ?: FuelType.entries.firstOrNull { it in selectedFuels } ?: FuelType.default
+            fun GasStation.bestPrice(): Double? = prices[priceFuel]
 
             // 2. Compute price stats for selected fuels in this local radius
             val pricesList = inRadiusStations.mapNotNull { it.bestPrice() }

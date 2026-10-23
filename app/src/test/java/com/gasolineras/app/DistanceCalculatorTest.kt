@@ -31,8 +31,8 @@ class DistanceCalculatorTest {
     @Test
     fun testFormatDistance() {
         assertEquals("450 m", DistanceCalculator.formatDistance(450.0))
-        assertEquals("1.5 km", DistanceCalculator.formatDistance(1500.0))
-        assertEquals("12.0 km", DistanceCalculator.formatDistance(12000.0))
+        assertEquals("1,5 km", DistanceCalculator.formatDistance(1500.0))
+        assertEquals("12,0 km", DistanceCalculator.formatDistance(12000.0))
         assertEquals("-- km", DistanceCalculator.formatDistance(null))
     }
 }

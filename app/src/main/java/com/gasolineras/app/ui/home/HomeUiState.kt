@@ -28,6 +28,11 @@ data class HomeUiState(
         FuelType.GASOLINA_95_E5,
         FuelType.GLP
     ),
+    val rememberLocation: Boolean = true,
+    val comparisonFuel: FuelType = FuelType.GASOLEO_A,
+    val manualLocationName: String? = null,
+    val localityChoices: List<GasStation> = emptyList(),
+    val isLoadingLocalities: Boolean = false,
     val selectedRadiusKm: Double = 10.0,
     val selectedSort: SortOption = SortOption.CHEAPEST,
     val themeMode: String = "SYSTEM",

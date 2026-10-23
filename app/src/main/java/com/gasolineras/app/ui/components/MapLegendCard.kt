@@ -57,7 +57,7 @@ fun MapLegendCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = null,
@@ -74,7 +74,7 @@ fun MapLegendCard(
                 }
                 IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -202,7 +202,7 @@ fun MapLegendCard(
                     }
                 },
                 title = "Tu ubicación",
-                description = "Posición GPS actual en tiempo real"
+                description = "Referencia de búsqueda; fecha y origen en Información"
             )
 
             Spacer(modifier = Modifier.height(8.dp))

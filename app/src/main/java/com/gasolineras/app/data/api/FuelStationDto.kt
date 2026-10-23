@@ -81,29 +81,31 @@ data class FuelStationDto(
         val lat = parseEuropeanNumber(latitud) ?: return null
         val lon = parseEuropeanNumber(longitud) ?: return null
 
+        if (lat !in -90.0..90.0 || lon !in -180.0..180.0 || id.isNullOrBlank() || id.length > 64) return null
+
         val priceMap = mutableMapOf<FuelType, Double>()
 
-        parseEuropeanNumber(precioG95)?.let { priceMap[FuelType.GASOLINA_95_E5] = it }
-        parseEuropeanNumber(precioDiesel)?.let { priceMap[FuelType.GASOLEO_A] = it }
-        parseEuropeanNumber(precioG98)?.let { priceMap[FuelType.GASOLINA_98_E5] = it }
-        parseEuropeanNumber(precioDieselPremium)?.let { priceMap[FuelType.GASOLEO_PREMIUM] = it }
-        parseEuropeanNumber(precioGLP)?.let { priceMap[FuelType.GLP] = it }
-        parseEuropeanNumber(precioGNC)?.let { priceMap[FuelType.GNC] = it }
-        parseEuropeanNumber(precioGNL)?.let { priceMap[FuelType.GNL] = it }
-        parseEuropeanNumber(precioBiodiesel)?.let { priceMap[FuelType.BIODIESEL] = it }
-        parseEuropeanNumber(precioGasoleoB)?.let { priceMap[FuelType.GASOLEO_B] = it }
-        parseEuropeanNumber(precioAdblue)?.let { priceMap[FuelType.ADBLUE] = it }
-        parseEuropeanNumber(precioDieselRenovable)?.let { priceMap[FuelType.DIESEL_RENOVABLE] = it }
-        parseEuropeanNumber(precioHidrogeno)?.let { priceMap[FuelType.HIDROGENO] = it }
+        parseEuropeanNumber(precioG95)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GASOLINA_95_E5] = it }
+        parseEuropeanNumber(precioDiesel)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GASOLEO_A] = it }
+        parseEuropeanNumber(precioG98)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GASOLINA_98_E5] = it }
+        parseEuropeanNumber(precioDieselPremium)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GASOLEO_PREMIUM] = it }
+        parseEuropeanNumber(precioGLP)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GLP] = it }
+        parseEuropeanNumber(precioGNC)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GNC] = it }
+        parseEuropeanNumber(precioGNL)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GNL] = it }
+        parseEuropeanNumber(precioBiodiesel)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.BIODIESEL] = it }
+        parseEuropeanNumber(precioGasoleoB)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.GASOLEO_B] = it }
+        parseEuropeanNumber(precioAdblue)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.ADBLUE] = it }
+        parseEuropeanNumber(precioDieselRenovable)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.DIESEL_RENOVABLE] = it }
+        parseEuropeanNumber(precioHidrogeno)?.takeIf { it > 0.0 && it <= 1000.0 }?.let { priceMap[FuelType.HIDROGENO] = it }
 
         return GasStation(
             id = id.orEmpty(),
-            brand = rotulo?.trim().orEmpty().ifEmpty { "Gasolinera" },
-            address = direccion?.trim().orEmpty(),
+            brand = rotulo?.take(256)?.trim().orEmpty().ifEmpty { "Gasolinera" },
+            address = direccion?.take(512)?.trim().orEmpty(),
             postalCode = cp?.trim().orEmpty(),
-            municipality = municipio?.trim().orEmpty(),
-            province = provincia?.trim().orEmpty(),
-            schedule = horario?.trim().orEmpty().ifEmpty { "Consultar horario" },
+            municipality = municipio?.take(256)?.trim().orEmpty(),
+            province = provincia?.take(256)?.trim().orEmpty(),
+            schedule = horario?.take(1024)?.trim().orEmpty().ifEmpty { "Consultar horario" },
             latitude = lat,
             longitude = lon,
             prices = priceMap,
@@ -116,7 +118,7 @@ data class FuelStationDto(
         fun parseEuropeanNumber(value: String?): Double? {
             if (value.isNullOrBlank()) return null
             return try {
-                value.trim().replace(',', '.').toDouble()
+                value.takeIf { it.length <= 32 }?.trim()?.replace(',', '.')?.toDouble()?.takeIf { it.isFinite() }
             } catch (e: NumberFormatException) {
                 null
             }

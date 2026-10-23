@@ -158,4 +158,27 @@ class FuelRepositoryTest {
             fail("Cancellation must propagate")
         } catch (_: CancellationException) { }
     }
+
+    @Test fun comparisonUsesChosenFuelInsteadOfCheapestDifferentProduct() = runBlocking {
+        val first = madrid.copy(id = "cheapGas", precioG95 = "1,40", precioGLP = "1,10")
+        val second = madrid.copy(id = "cheapGlp", precioG95 = "1,80", precioGLP = "0,80")
+        val repo = FuelRepositoryImpl(Api { response.copy(stations = listOf(first, second)) }) { time }
+        suspend fun sorted(fuel: FuelType) = repo.getNearbyStations(40.416775, -3.703790, 10.0,
+            setOf(FuelType.GLP, FuelType.GASOLINA_95_E5), SortOption.CHEAPEST,
+            comparisonFuel = fuel).getOrThrow()
+        assertEquals("cheapGas", sorted(FuelType.GASOLINA_95_E5).stations.first().id)
+        assertEquals("cheapGlp", sorted(FuelType.GLP).stations.first().id)
+        assertEquals(1.4, sorted(FuelType.GASOLINA_95_E5).minPrice!!, 0.0001)
+    }
+
+    @Test fun explicitClearRemovesDiskAndMemoryAndNextQueryReloads() = runBlocking {
+        val cache = StationCache(folder.newFile("clear.json"))
+        val api = Api { response }
+        val repo = FuelRepositoryImpl(api, cache) { time }
+        repo.near().getOrThrow()
+        repo.clearCache()
+        assertNull(cache.read())
+        repo.near().getOrThrow()
+        assertEquals(2, api.calls.get())
+    }
 }

@@ -34,13 +34,13 @@ data class GasStation(
         get() = prices[FuelType.GLP]
 
     val formattedGlpPrice: String
-        get() = glpPrice?.let { String.format(java.util.Locale.US, "%.3f €/L", it) } ?: "--"
+        get() = glpPrice?.let { FuelType.GLP.formatPrice(it) } ?: "--"
 
     fun priceFor(fuelType: FuelType): Double? = prices[fuelType]
 
     fun formattedPriceFor(fuelType: FuelType): String {
         val price = prices[fuelType] ?: return "--"
-        return String.format(java.util.Locale.US, "%.3f €/L", price)
+        return fuelType.formatPrice(price)
     }
 
     /**

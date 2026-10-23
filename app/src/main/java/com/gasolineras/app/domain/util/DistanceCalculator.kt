@@ -24,7 +24,7 @@ object DistanceCalculator {
                 cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
                 sin(dLon / 2) * sin(dLon / 2)
 
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        val c = 2 * atan2(sqrt(a.coerceIn(0.0, 1.0)), sqrt(1 - a.coerceIn(0.0, 1.0)))
 
         return EARTH_RADIUS_METERS * c
     }
@@ -37,7 +37,7 @@ object DistanceCalculator {
         return if (meters < 1000) {
             "${meters.toInt()} m"
         } else {
-            String.format(java.util.Locale.US, "%.1f km", meters / 1000.0)
+            String.format(java.util.Locale("es", "ES"), "%.1f km", meters / 1000.0)
         }
     }
 }
