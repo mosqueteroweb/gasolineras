@@ -1,4 +1,4 @@
-Bibliotecas de ejecución resueltas para Gass 2.2.9
+Bibliotecas de ejecución resueltas para Gass 2.2.10
 
 androidx.activity:activity:1.9.1
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt

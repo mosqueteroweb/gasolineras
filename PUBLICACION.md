@@ -12,6 +12,8 @@ Se ejecutan las pruebas del publicador, las pruebas unitarias Android, lint y la
 
 ## Publicar una versión nueva
 
+Por instrucción del usuario, subir código de la aplicación a GitHub incluye preparar una nueva versión, subir su etiqueta mediante el publicador y comprobar la release con su APK. No terminar la entrega únicamente con el código en `main`, salvo indicación expresa en contra. La comprobación previa sigue siendo obligatoria: la etiqueta se envía después de que termine correctamente.
+
 Preparar su versión, cambios y notas; confirmar los archivos en la rama `main`. Con Python 3 y las credenciales normales de Git configuradas, ejecutar desde la raíz:
 
 ```sh

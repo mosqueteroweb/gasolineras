@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## 2.2.10 — 23 de octubre de 2026
+
+**Autor público: Mosqueteroweb.** Mapa simplificado: retirados el contador flotante de gasolineras y el botón duplicado de leyenda; esta permanece en los tres puntos. La búsqueda de zona se representa mediante una lupa con diana debajo de GLP, con área táctil de 48 dp y etiqueta accesible. Conserva la búsqueda por el centro del mapa. Versión Android 2.2.10 / código 30. [Cambios y validación](revisiones/2.2.10/VALIDACION.md).
+
+Las publicaciones exigen compilar desde cero en Linux y verificar las dependencias antes de crear su etiqueta. Cada subida de código de la app incluye ahora la publicación de su versión y APK, salvo indicación expresa del usuario.
+
 ## 2.2.9 — 23 de octubre de 2026
 
 **Autor público: Mosqueteroweb.** MapLibre Native 13.7.1 con OpenStreetMap, menú Autoría con licencias sin conexión, mapa detenido con el ciclo de vida, cancelación de GPS/consultas al salir y eliminación de sondeos y animaciones permanentes. Publicada con APK firmado y SHA-256; [publicación verificada](revisiones/2.2.9/PUBLICACION.md). Véanse [cambios](revisiones/2.2.9/CAMBIOS.md), [pruebas](revisiones/2.2.9/VALIDACION.md) y [consumo](revisiones/2.2.9/BATERIA.md).
