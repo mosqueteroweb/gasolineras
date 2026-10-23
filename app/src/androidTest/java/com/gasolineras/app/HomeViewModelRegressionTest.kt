@@ -230,4 +230,61 @@ class HomeViewModelRegressionTest {
             assertNull(vm.uiState.value.manualLocationName)
         }
     }
+    @Test fun backgroundStopsGpsSubscriptionsAndIgnoresLateUpdates() {
+        location.current = madrid
+        create()
+        main { vm.onForeground() }
+        await { location.updates.subscriptionCount.value == 1 && vm.uiState.value.userLocation.latitude == madrid.latitude }
+        main { vm.onBackground() }
+        await { location.updates.subscriptionCount.value == 0 }
+        val callsBefore = repo.calls
+        location.updates.tryEmit(barcelona)
+        instrumentation.waitForIdleSync()
+        main {
+            assertEquals(madrid.latitude, vm.uiState.value.userLocation.latitude, 0.0)
+            assertEquals(callsBefore, repo.calls)
+            assertFalse(vm.uiState.value.isLocating)
+        }
+        location.current = barcelona
+        main { vm.onForeground() }
+        await { location.updates.subscriptionCount.value == 1 && repo.latestLatitude == barcelona.latitude }
+    }
+
+    @Test fun backgroundCancelsNetworkWorkAndResumeReloadsWithoutLosingManualReference() {
+        val started = CompletableDeferred<Unit>()
+        val cancelled = CompletableDeferred<Unit>()
+        repo.load = { radius ->
+            started.complete(Unit)
+            try { kotlinx.coroutines.awaitCancellation() }
+            finally { cancelled.complete(Unit) }
+        }
+        create()
+        await { started.isCompleted }
+        main { vm.onBackground() }
+        await { cancelled.isCompleted }
+        main {
+            assertFalse(vm.uiState.value.isLoading)
+            assertFalse(vm.uiState.value.isRefreshing)
+        }
+        repo.load = { radius -> NearbyStationsResult(emptyList(), emptyList(), null, null, null, emptyMap(), 0, savedAtMillis = 1000L) }
+        main {
+            vm.useManualLocation(barcelona.latitude, barcelona.longitude, "Barcelona")
+            vm.onForeground()
+        }
+        await { repo.latestLatitude == barcelona.latitude && vm.uiState.value.savedAtMillis == 1000L }
+        main { assertEquals("Barcelona", vm.uiState.value.manualLocationName) }
+        assertEquals(0, location.updates.subscriptionCount.value)
+    }
+
+    @Test fun gpsSettingEventsStopAndRestartTrackingWithoutPolling() {
+        location.current = madrid
+        create()
+        main { vm.onForeground() }
+        await { location.updates.subscriptionCount.value == 1 }
+        main { location.enabled = false; vm.onLocationEnvironmentChanged() }
+        await { location.updates.subscriptionCount.value == 0 && !vm.uiState.value.isLocationEnabled }
+        main { location.current = barcelona; location.enabled = true; vm.onLocationEnvironmentChanged() }
+        await { location.updates.subscriptionCount.value == 1 && repo.latestLatitude == barcelona.latitude }
+    }
+
 }

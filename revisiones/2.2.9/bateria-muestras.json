@@ -1,0 +1,50 @@
+[
+  {
+    "version": "228",
+    "mode": "list",
+    "elapsedSeconds": 30.986,
+    "cpuSeconds": 0.39
+  },
+  {
+    "version": "228",
+    "mode": "map",
+    "elapsedSeconds": 30.945,
+    "cpuSeconds": 0.44
+  },
+  {
+    "version": "228",
+    "mode": "background",
+    "elapsedSeconds": 31.104,
+    "cpuSeconds": 0.01,
+    "gpsProviderService": "service: ProviderRequest[OFF]",
+    "wakeLocks": "Wake Locks: size=1"
+  },
+  {
+    "version": "229",
+    "mode": "map",
+    "elapsedSeconds": 31.574,
+    "cpuSeconds": 0.04
+  },
+  {
+    "version": "229",
+    "mode": "background",
+    "elapsedSeconds": 30.397,
+    "cpuSeconds": 0.01,
+    "gpsProviderService": "service: ProviderRequest[OFF]",
+    "wakeLocks": "Wake Locks: size=0"
+  },
+  {
+    "version": "229",
+    "mode": "screenoff",
+    "elapsedSeconds": 30.436,
+    "cpuSeconds": 0.03,
+    "gpsProviderService": "service: ProviderRequest[OFF]",
+    "wakeLocks": "Wake Locks: size=0"
+  },
+  {
+    "version": "229",
+    "mode": "return",
+    "elapsedSeconds": 30.354,
+    "cpuSeconds": 0.03
+  }
+]

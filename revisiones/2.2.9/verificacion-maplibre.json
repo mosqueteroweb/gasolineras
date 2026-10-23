@@ -1,0 +1,26 @@
+[
+  {
+    "library": "org.maplibre.gl:android-sdk-geojson:6.0.1",
+    "artifact": "android-sdk-geojson-6.0.1.jar",
+    "sha256": "0c4e4258ce258da9740c17c76f3ae90f89fcfa5822a797f5d466b35410571363",
+    "publisherChecksum": "https://repo.maven.apache.org/maven2/org/maplibre/gl/android-sdk-geojson/6.0.1/android-sdk-geojson-6.0.1.jar.sha256"
+  },
+  {
+    "library": "org.maplibre.gl:android-sdk-opengl:13.7.1",
+    "artifact": "android-sdk-opengl-13.7.1.aar",
+    "sha256": "4a6762e878ae8f392a27d89138c19196a519121d1449f824e542058147a8a072",
+    "publisherChecksum": "https://repo.maven.apache.org/maven2/org/maplibre/gl/android-sdk-opengl/13.7.1/android-sdk-opengl-13.7.1.aar.sha256"
+  },
+  {
+    "library": "org.maplibre.gl:android-sdk-turf:6.0.1",
+    "artifact": "android-sdk-turf-6.0.1.jar",
+    "sha256": "c0fd543d17fbd3b7c2e946515caf2d53b602f0eac1438ad4dca731d9a508af79",
+    "publisherChecksum": "https://repo.maven.apache.org/maven2/org/maplibre/gl/android-sdk-turf/6.0.1/android-sdk-turf-6.0.1.jar.sha256"
+  },
+  {
+    "library": "org.maplibre.gl:maplibre-android-gestures:0.0.4",
+    "artifact": "maplibre-android-gestures-0.0.4.aar",
+    "sha256": "44ff4fc2dd8bfbcf54a06f219e7ab40a2062eb6b4a10dcbf1f4e02b4a30c61af",
+    "publisherChecksum": "https://repo.maven.apache.org/maven2/org/maplibre/gl/maplibre-android-gestures/0.0.4/maplibre-android-gestures-0.0.4.aar.sha256"
+  }
+]

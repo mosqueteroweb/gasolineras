@@ -1,5 +1,7 @@
 package com.gasolineras.app.ui.home
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 import androidx.activity.compose.BackHandler
 import com.gasolineras.app.ui.components.MapInformationControl
 import com.gasolineras.app.ui.components.StationListContent
@@ -39,12 +41,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.LocationOff
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.draw.rotate
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MyLocation
@@ -101,7 +97,7 @@ import com.gasolineras.app.ui.components.NavigationHelper
 import com.gasolineras.app.ui.components.RadiusFilterBar
 import com.gasolineras.app.ui.components.StationCard
 import com.gasolineras.app.ui.components.StationDetailDialog
-import com.gasolineras.app.ui.map.OsmMapView
+import com.gasolineras.app.ui.map.StationMapView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +106,7 @@ fun HomeScreen(
     onRequestLocationPermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var isSearchExpanded by remember { mutableStateOf(false) }
     var mapCenterTrigger by remember { mutableIntStateOf(0) }
@@ -121,6 +117,12 @@ fun HomeScreen(
     var mapCenter by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var showLocalities by remember { mutableStateOf(false) }
     var showMapInfo by remember { mutableStateOf(false) }
+    var showAuthorship by remember { mutableStateOf(false) }
+    val requestGpsCenter = {
+        mapCenterTrigger++
+        viewModel.recenterLocation()
+        if (!state.hasLocationPermission || !state.isLocationEnabled) onRequestLocationPermission()
+    }
 
     BackHandler(enabled = !showSettingsSheet && state.selectedStationForDetail == null &&
         (showMapInfo || showMapLegend || isSearchExpanded || showOverflowMenu)) {
@@ -135,15 +137,6 @@ fun HomeScreen(
         }
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "refresh_spin")
-    val refreshRotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = LinearEasing)
-        ),
-        label = "refresh_angle"
-    )
 
     Scaffold(
         topBar = {
@@ -313,7 +306,7 @@ fun HomeScreen(
                                                 Icon(
                                                     imageVector = Icons.Default.Refresh,
                                                     contentDescription = null,
-                                                    modifier = Modifier.rotate(if (state.isRefreshing) refreshRotation else 0f)
+                                                    modifier = Modifier
                                                 )
                                             },
                                             onClick = {
@@ -340,7 +333,10 @@ fun HomeScreen(
                                     )
                                     DropdownMenuItem(
                                         text = { Text("Usar mi ubicación GPS") },
-                                        onClick = { showOverflowMenu = false; viewModel.resumeGps(); onRequestLocationPermission() }
+                                        onClick = {
+                                            showOverflowMenu = false
+                                            requestGpsCenter()
+                                        }
                                     )
                                     DropdownMenuItem(
                                             text = { Text("Ajustes y preferencias") },
@@ -354,6 +350,11 @@ fun HomeScreen(
                                                 showOverflowMenu = false
                                                 showSettingsSheet = true
                                             }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("Autoría") },
+                                            leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
+                                            onClick = { showOverflowMenu = false; showAuthorship = true }
                                         )
                                         if (state.isMapView) {
                                             DropdownMenuItem(
@@ -400,7 +401,7 @@ fun HomeScreen(
             if (state.isMapView) {
                 // ==================== MAP MODE: 100% CLEAN FULL SCREEN ====================
                 Box(modifier = Modifier.fillMaxSize()) {
-                    OsmMapView(
+                    StationMapView(
                         userLocation = state.userLocation,
                         stations = state.stations,
                         selectedFuels = state.selectedFuels,
@@ -502,9 +503,7 @@ fun HomeScreen(
                     // Floating GPS recenter button at bottom-end (ergonomic 52dp)
                     FloatingActionButton(
                         onClick = {
-                            if (!state.hasLocationPermission || !state.isLocationEnabled) {
-                                onRequestLocationPermission()
-                            } else viewModel.recenterLocation { mapCenterTrigger++ }
+                            requestGpsCenter()
                         },
                         containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.primary,
@@ -590,6 +589,8 @@ fun HomeScreen(
             }
         }
     }
+
+    if (showAuthorship) com.gasolineras.app.ui.components.AuthorshipDialog { showAuthorship = false }
 
     if (showLocalities) LocalityDialog(state, viewModel) { showLocalities = false }
 

@@ -1,0 +1,7 @@
+Google Play services Location, Base, Basement y Tasks
+Copyright Google LLC.
+Componentes propietarios sujetos a las condiciones del SDK de Google y Google APIs.
+https://developer.android.com/studio/terms
+https://developers.google.com/terms
+https://developers.google.com/android/guides/opensource
+Los avisos de código abierto incorporados a los binarios se reproducen en «Avisos incluidos en los binarios». No se les atribuye una licencia Apache general a los componentes propietarios.

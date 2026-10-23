@@ -1,0 +1,29 @@
+{
+  "version": "2.2.9",
+  "versionCode": 29,
+  "status": "candidata local, sin publicar",
+  "apk": "gass-2.2.9-local.apk",
+  "bytes": 44300243,
+  "sha256": "53e2ceec5572d588ed3b01e4738cb8be82c84cbd5b03c691f0d476a7d80ca76b",
+  "certificateSha256": "68a1531afbc6de0f84ac61eaf990579a4f867c261e168a53579abd09214f3774",
+  "debuggable": false,
+  "publishedApkUnchanged": "gasolineras.apk sigue siendo la 2.2.8 publicada",
+  "tests": {
+    "unit": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "runtimeLibraries": 86,
+  "lint": "0 errors, 62 warnings, 1 hint",
+  "sourceBaseCommit": "1c81e047ab62386f0ae64579e954af10b739200a",
+  "uncommittedLocalChanges": true
+}

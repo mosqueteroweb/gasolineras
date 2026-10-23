@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gasolineras.app.AuditSecurityTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-23T13:35:10" hostname="MacStudio-de-Pedro.local" time="0.04">
+  <properties/>
+  <testcase name="pricesUseSpanishDecimalsAndAppropriateUnits" classname="com.gasolineras.app.AuditSecurityTest" time="0.009"/>
+  <testcase name="limitsDisplayTextFromExternalSources" classname="com.gasolineras.app.AuditSecurityTest" time="0.005"/>
+  <testcase name="rejectsNonFiniteNumbersAndOversizedFields" classname="com.gasolineras.app.AuditSecurityTest" time="0.003"/>
+  <testcase name="publicationAgeDoesNotBecomeFreshJustBecauseItWasDownloadedAgain" classname="com.gasolineras.app.AuditSecurityTest" time="0.007"/>
+  <testcase name="oversizedDiskCacheIsRejectedWithoutParsing" classname="com.gasolineras.app.AuditSecurityTest" time="0.016"/>
+  <testcase name="rejectsCoordinatesOutsideEarthAndMissingIdentifiers" classname="com.gasolineras.app.AuditSecurityTest" time="0.0"/>
+  <testcase name="ignoresInvalidPricesWithoutDiscardingOtherStationData" classname="com.gasolineras.app.AuditSecurityTest" time="0.0"/>
+  <testcase name="antipodalDistanceRemainsFinite" classname="com.gasolineras.app.AuditSecurityTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

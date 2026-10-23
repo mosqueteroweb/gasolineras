@@ -75,3 +75,7 @@ Autor: Mosqueteroweb.
 ## Entrega local 2.2.8
 
 **Autor público: Mosqueteroweb.** Incluye la 2.2.7 y las mejoras detalladas en [revisiones/2.2.8/CAMBIOS.md](revisiones/2.2.8/CAMBIOS.md). La publicación de 2.2.7 y 2.2.8 está verificada; su comprobación se registra en `revisiones/2.2.8/PUBLICACION.md`.
+
+## Candidata local 2.2.9
+
+**Autor público: Mosqueteroweb.** Mapa migrado a MapLibre Native, autoría y licencias en una pantalla propia y correcciones del ciclo de vida y segundo plano. Detalles en [revisiones/2.2.9/CAMBIOS.md](revisiones/2.2.9/CAMBIOS.md). Sin publicación en GitHub.

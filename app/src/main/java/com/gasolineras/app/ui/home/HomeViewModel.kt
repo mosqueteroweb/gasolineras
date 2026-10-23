@@ -9,7 +9,6 @@ import com.gasolineras.app.data.local.StationCache
 import com.gasolineras.app.data.location.LocationProvider
 import com.gasolineras.app.domain.util.DistanceCalculator
 import java.io.File
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.catch
 import com.gasolineras.app.data.location.LocationClient
@@ -64,8 +63,10 @@ class HomeViewModel @JvmOverloads constructor(
     private var locationRevision = 0L
     private var acceptedLocationRevision = 0L
     private var trackingJob: Job? = null
-    private var statusJob: Job? = null
     private var foreground = false
+    private var backgrounded = false
+    private var localityJob: Job? = null
+    private var refreshOnResume = false
 
     init {
         updateLocationStatus()
@@ -75,30 +76,36 @@ class HomeViewModel @JvmOverloads constructor(
     fun onForeground() {
         if (foreground) return
         foreground = true
+        backgrounded = false
         updateLocationStatus()
-        if (_uiState.value.savedAtMillis > 0L || _uiState.value.errorMessage != null) {
-            fetchStations(forceRefresh = false)
-        }
+        val forceRefresh = refreshOnResume
+        refreshOnResume = false
+        fetchStations(forceRefresh)
         restartTracking()
         locate(forceFresh = true)
-        statusJob = viewModelScope.launch {
-            while (isActive) {
-                delay(2_000L)
-                val before = _uiState.value
-                updateLocationStatus()
-                val after = _uiState.value
-                if (before.hasLocationPermission != after.hasLocationPermission ||
-                    before.isLocationEnabled != after.isLocationEnabled) {
-                    restartTracking()
-                    locate(forceFresh = true)
-                }
-            }
+    }
+
+    /** Driven by Android's location-setting broadcasts while the activity is resumed. */
+    fun onLocationEnvironmentChanged() {
+        val before = _uiState.value
+        updateLocationStatus()
+        val after = _uiState.value
+        if (foreground && (before.hasLocationPermission != after.hasLocationPermission ||
+                before.isLocationEnabled != after.isLocationEnabled)) {
+            restartTracking()
+            locate(forceFresh = true)
         }
     }
 
     fun onBackground() {
         foreground = false
-        statusJob?.cancel()
+        backgrounded = true
+        refreshOnResume = refreshOnResume || _uiState.value.isRefreshing
+        fetchRevision++
+        fetchJob?.cancel()
+        searchDebounceJob?.cancel()
+        localityJob?.cancel()
+        _uiState.update { it.copy(isLoading = false, isRefreshing = false, isLoadingLocalities = false) }
         trackingJob?.cancel()
         locationRevision++
         locationJob?.cancel()
@@ -124,7 +131,7 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     private fun acceptLocation(location: UserLocation) {
-        if (location.isDefaultLocation || _uiState.value.manualLocationName != null) return
+        if (backgrounded || location.isDefaultLocation || _uiState.value.manualLocationName != null) return
         val previous = _uiState.value.userLocation
         if (location.obtainedAtMillis < previous.obtainedAtMillis) return
         val moved = previous.isDefaultLocation || DistanceCalculator.calculateDistanceMeters(
@@ -162,7 +169,7 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     private fun locate(forceFresh: Boolean, onSuccess: (UserLocation) -> Unit = {}) {
-        if (_uiState.value.manualLocationName != null) return
+        if (backgrounded || _uiState.value.manualLocationName != null) return
         val revision = ++locationRevision
         locationJob?.cancel()
         locationJob = viewModelScope.launch {
@@ -200,8 +207,10 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     fun loadLocalities() {
+        if (backgrounded) return
+        localityJob?.cancel()
         _uiState.update { it.copy(isLoadingLocalities = true) }
-        viewModelScope.launch {
+        localityJob = viewModelScope.launch {
             val result = repository.getNearbyStations(40.0, -3.0, 20_050.0,
                 emptySet(), SortOption.NEAREST)
             _uiState.update { state -> state.copy(isLoadingLocalities = false,
@@ -239,10 +248,9 @@ class HomeViewModel @JvmOverloads constructor(
                 _uiState.update { it.copy(isMapView = false) }
                 viewModelScope.launch {
                     delay(500)
-                    val cleared = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                        File(getApplication<Application>().cacheDir, "osmdroid").deleteRecursively()
+                    com.gasolineras.app.ui.map.MapResources.clearCache(getApplication()) { cleared ->
+                        if (!cleared) _uiState.update { it.copy(dataWarning = "No se pudo borrar toda la caché del mapa.") }
                     }
-                    if (!cleared) _uiState.update { it.copy(dataWarning = "No se pudo borrar toda la caché del mapa.") }
                 }
             }
             "favorites" -> {
@@ -363,6 +371,7 @@ class HomeViewModel @JvmOverloads constructor(
     }
 
     private fun fetchStations(forceRefresh: Boolean) {
+        if (backgrounded) return
         val refreshing = forceRefresh || _uiState.value.isRefreshing
         fetchJob?.cancel()
         val revision = ++fetchRevision

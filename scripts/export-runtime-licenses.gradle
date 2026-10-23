@@ -1,0 +1,15 @@
+gradle.projectsEvaluated {
+    def app = gradle.rootProject.project(':app')
+    app.tasks.register('runtimeLicenseIndex') {
+        doLast {
+            def config = app.configurations.getByName('releaseRuntimeClasspath')
+            def data = config.resolvedConfiguration.resolvedArtifacts.collect { artifact ->
+                [group: artifact.moduleVersion.id.group, name: artifact.moduleVersion.id.name,
+                 version: artifact.moduleVersion.id.version, file: artifact.file.absolutePath]
+            }.sort { it.group + ':' + it.name }
+            def output = new File(app.layout.buildDirectory.get().asFile, 'reports/runtime-license-index.json')
+            output.parentFile.mkdirs()
+            output.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(data))
+        }
+    }
+}

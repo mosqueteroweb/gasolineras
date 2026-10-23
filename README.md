@@ -10,6 +10,10 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
 
 ---
 
+## Candidata local 2.2.9 — pendiente de publicación
+
+**Autor público: Mosqueteroweb.** Migración del mapa a MapLibre Native conservando OpenStreetMap, nueva opción «Autoría» y correcciones del trabajo en segundo plano. Consulta [cambios y límites](revisiones/2.2.9/CAMBIOS.md), [pruebas](revisiones/2.2.9/VALIDACION.md) y [batería](revisiones/2.2.9/BATERIA.md). La descarga superior sigue siendo la versión publicada 2.2.8.
+
 ## Novedades de la versión 2.2.8
 
 **Autor: Mosqueteroweb.** La 2.2.8 / 28 incorpora las mejoras de seguridad, accesibilidad y uso documentadas en [sus cambios](revisiones/2.2.8/CAMBIOS.md), además de la 2.2.7. Las versiones 2.2.7 y 2.2.8 están publicadas y verificadas. La descarga superior corresponde a la 2.2.8.
@@ -69,8 +73,8 @@ Consulta [la revisión de la 2.2.4](revisiones/2.2.4-2026-10-22/INFORME.md), [la
   - Elección de vista inicial (Lista o Mapa), radio de búsqueda inicial (3, 10, 25, 100 km) y criterio de ordenación preferente (Más barata o Más cercana).
   - Selector de tema visual: Claro, Oscuro o Automático (según el sistema).
   - Actualización manual de precios conservando la última respuesta válida para consulta sin conexión.
-- **🔄 Animación de Actualización**:
-  - Efecto de giro continuo en el icono de recarga mientras se obtienen los últimos datos oficiales del MITECO.
+- **Actualización de precios**:
+  - Barra de progreso mientras se consultan los datos oficiales del MITECO; sin animación permanente en reposo.
 - **Geolocalización GPS y Cálculo de Distancias**:
   - Detección precisa de la posición del dispositivo con `FusedLocationProviderClient`.
   - Cálculo de distancia en tiempo real con la fórmula de Haversine.
@@ -94,11 +98,11 @@ Consulta [la revisión de la 2.2.4](revisiones/2.2.4-2026-10-22/INFORME.md), [la
 
 ## 🛠️ Tecnologías Utilizadas
 
-- **Lenguaje**: Kotlin 2.0+
+- **Lenguaje**: Kotlin 2.2.10 (candidata local 2.2.9)
 - **Interfaz**: Jetpack Compose con Material 3 y Material Icons Extended
 - **Red**: Retrofit 2 + OkHttp + Gson
 - **Ubicación**: Google Play Services Location (`FusedLocationProviderClient`)
-- **Mapas**: OpenStreetMap / Osmdroid (mapas libres sin API key) + Intent nativo de navegación
+- **Mapas**: MapLibre Native 13.7.1 con OpenStreetMap (candidata local 2.2.9, proveedor raster sin API key) + Intent nativo de navegación
 - **Asincronía y Reactividad**: Kotlin Coroutines & StateFlow
 - **Arquitectura**: Clean Architecture + MVVM
 

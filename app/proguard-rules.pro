@@ -26,9 +26,7 @@
     public static ** valueOf(java.lang.String);
 }
 
-# OpenStreetMap / OSMDroid (uses reflection for map overlays and views)
--keep class org.osmdroid.** { *; }
--dontwarn org.osmdroid.**
+# MapLibre packages its own consumer rules for JNI bindings.
 
 # Google Play Services Location
 -keep class com.google.android.gms.location.** { *; }

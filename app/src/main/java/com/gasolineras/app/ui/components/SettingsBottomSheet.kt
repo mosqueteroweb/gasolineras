@@ -468,29 +468,6 @@ fun SettingsBottomSheet(
             listOf("location" to "Borrar última ubicación guardada", "favorites" to "Borrar favoritas", "prices" to "Borrar precios guardados", "map" to "Borrar caché del mapa").forEach { (kind, label) ->
                 OutlinedButton(onClick = { onClearData(kind) }, modifier = Modifier.fillMaxWidth().height(choiceHeight)) { SettingsChoiceLabel(label) }
             }
-            Spacer(modifier = Modifier.height(14.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_mosqueteroweb),
-                    contentDescription = "Mosqueteroweb",
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = "Gass v${BuildConfig.VERSION_NAME} • Por Mosqueteroweb • Código Libre (GPLv3) • Datos oficiales del Ministerio MITECO",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            }
-
             Spacer(modifier = Modifier.height(24.dp))
 
         }

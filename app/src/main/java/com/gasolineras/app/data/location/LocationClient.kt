@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -81,7 +82,7 @@ class LocationClient(private val context: Context) : LocationProvider {
         }
     }
 
-    // Collected only while the activity is STARTED; no background location permission.
+    // Collected only while the activity is RESUMED; no background location permission.
     override fun observeLocations(): Flow<UserLocation> = callbackFlow {
         if (!hasLocationPermission() || !isLocationEnabled()) {
             close()
@@ -99,6 +100,10 @@ class LocationClient(private val context: Context) : LocationProvider {
             .build()
         try {
             client.requestLocationUpdates(request, callback, Looper.getMainLooper())
+                .addOnSuccessListener {
+                    // Registration can finish after cancellation (Home, lock screen or permission dialog).
+                    if (!isActive) client.removeLocationUpdates(callback)
+                }
                 .addOnFailureListener { close(it) }
         } catch (e: SecurityException) {
             close(e)

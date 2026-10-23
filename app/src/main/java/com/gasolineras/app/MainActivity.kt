@@ -2,6 +2,11 @@ package com.gasolineras.app
 
 import android.Manifest
 import android.os.Bundle
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
+import android.location.LocationManager
+import androidx.core.content.ContextCompat
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -19,7 +24,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -35,15 +40,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                val receiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) = viewModel.onLocationEnvironmentChanged()
+                }
+                ContextCompat.registerReceiver(this@MainActivity, receiver, IntentFilter().apply {
+                    addAction(LocationManager.MODE_CHANGED_ACTION)
+                    addAction(LocationManager.PROVIDERS_CHANGED_ACTION)
+                }, ContextCompat.RECEIVER_NOT_EXPORTED)
                 viewModel.onForeground()
-                try { awaitCancellation() } finally { viewModel.onBackground() }
+                try { awaitCancellation() } finally {
+                    unregisterReceiver(receiver)
+                    viewModel.onBackground()
+                }
             }
         }
         val permissionHistory = getSharedPreferences("permission_history", MODE_PRIVATE)
 
         setContent {
-            val state by viewModel.uiState.collectAsState()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             GasolinerasTheme(themeMode = state.themeMode) {
                 val permissionLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.RequestMultiplePermissions()

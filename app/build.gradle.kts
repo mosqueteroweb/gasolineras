@@ -28,8 +28,8 @@ android {
         applicationId = "com.gasolineras.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 28
-        versionName = "2.2.8"
+        versionCode = 29
+        versionName = "2.2.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -104,11 +104,12 @@ kotlin {
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
     implementation("androidx.activity:activity-compose:1.9.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
 
     // Jetpack Compose BOM
-    val composeBom = platform("androidx.compose:compose-bom:2024.08.00")
+    val composeBom = platform("androidx.compose:compose-bom:2025.08.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -127,12 +128,12 @@ dependencies {
     // Google Play Services Location for GPS coordinates
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
-    // OpenStreetMap (osmdroid) for free map without account or API key
-    implementation("org.osmdroid:osmdroid-android:6.1.18")
+    // Maintained renderer; OSM raster source configured locally, without API keys.
+    implementation("org.maplibre.gl:android-sdk-opengl:13.7.1")
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
@@ -142,3 +143,19 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+// Refuse to ship a runtime graph that no longer matches the bundled license inventory.
+val verifyRuntimeLicenses by tasks.registering {
+    doLast {
+        val actual = configurations.getByName("releaseRuntimeClasspath")
+            .resolvedConfiguration.resolvedArtifacts.map {
+                "${it.moduleVersion.id.group}:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}"
+            }.distinct().sorted()
+        val manifest = file("src/main/assets/license-runtime.json")
+        val recorded = groovy.json.JsonSlurper().parse(manifest) as List<*>
+        check(actual == recorded) {
+            "Runtime license inventory is stale. Export it with scripts/export-runtime-licenses.gradle, then run scripts/update-license-notices.py and review all new licenses."
+        }
+    }
+}
+tasks.named("preBuild") { dependsOn(verifyRuntimeLicenses) }
