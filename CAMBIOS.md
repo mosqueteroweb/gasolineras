@@ -1,5 +1,12 @@
 # Cambios
 
+## 2.2.11 — ordenación restaurada
+
+- Recuperado el botón de alternancia «💶 Más barata / 📍 Más cercana» junto al número de resultados.
+- Retirados el texto «Orden: precio de…», el rótulo «Comparar precio de» y las opciones de combustible de la ordenación. Los filtros de carburantes conservan su lugar habitual.
+- Botón adaptado al tema, con altura táctil mínima de 48 dp y texto que admite varias líneas.
+- Compilación release y lint correctos; probado en el emulador el cambio precio → cercanía → precio con 38 resultados y actualización efectiva del primer resultado.
+
 ## 2.2.10 — mapa simplificado
 
 - Retirados el contador flotante de gasolineras y el acceso flotante a la leyenda. La leyenda sigue disponible en el menú de tres puntos.

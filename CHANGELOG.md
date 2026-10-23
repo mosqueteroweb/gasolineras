@@ -1,5 +1,9 @@
 # Historial de cambios
 
+## 2.2.11 — 23 de octubre de 2026
+
+**Autor público: Mosqueteroweb.** Restaurado el botón «💶 Más barata / 📍 Más cercana» junto al contador de resultados. Retirados el texto de ordenación por combustible y las opciones «Comparar precio de». Se mantienen los filtros de carburantes y las mejoras del mapa de 2.2.10. Versión Android 2.2.11 / código 31. [Cambios y comprobaciones](revisiones/2.2.11/VALIDACION.md).
+
 ## 2.2.10 — 23 de octubre de 2026
 
 **Autor público: Mosqueteroweb.** Mapa simplificado: retirados el contador flotante de gasolineras y el botón duplicado de leyenda; esta permanece en los tres puntos. La búsqueda de zona se representa mediante una lupa con diana debajo de GLP, con área táctil de 48 dp y etiqueta accesible. Conserva la búsqueda por el centro del mapa. Versión Android 2.2.10 / código 30. [Cambios y validación](revisiones/2.2.10/VALIDACION.md).

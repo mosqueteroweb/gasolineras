@@ -3,11 +3,14 @@ package com.gasolineras.app.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import com.gasolineras.app.domain.model.GasStation
@@ -31,18 +34,31 @@ fun StationListContent(
         item("location") { HomeStatus(state, onLocationAction, { viewModel.onRefresh() }, showPriceInfo = false) }
         item("fuels") { FuelTypeSelector(state.selectedFuels, viewModel::onToggleFuel, state.visibleFuels) }
         item("sorting") {
-            Column(Modifier.padding(horizontal = 16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 Text(if (state.isLoading) "Buscando gasolineras…" else if (state.stations.size == 1) "1 encontrada" else "${state.stations.size} encontradas",
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                TextButton(onClick = viewModel::toggleSort) {
-                    Text(if (state.selectedSort == SortOption.CHEAPEST) "Orden: precio de ${state.comparisonFuel.displayName}" else "Orden: distancia en línea recta")
-                }
-                Text("Comparar precio de:", style = MaterialTheme.typography.labelMedium)
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    state.visibleFuels.filter { it in state.selectedFuels }.forEach { fuel ->
-                        FilterChip(selected = state.comparisonFuel == fuel,
-                            onClick = { viewModel.onComparisonFuelSelected(fuel) },
-                            label = { Text(fuel.displayName) }, modifier = Modifier.heightIn(min = 48.dp))
+                    modifier = Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite })
+                Surface(
+                    onClick = viewModel::toggleSort,
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    modifier = Modifier.widthIn(max = 220.dp).heightIn(min = 48.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null, modifier = Modifier.size(17.dp))
+                        Text(
+                            if (state.selectedSort == SortOption.CHEAPEST) "💶 Más barata" else "📍 Más cercana",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
             }
