@@ -1,4 +1,4 @@
-> Actualización local 2.2.8: las mejoras aplicadas y sus límites están en [cambios](revisiones/2.2.8/CAMBIOS.md) y [validación](revisiones/2.2.8/VALIDACION.md). El informe siguiente es histórico; no describe el estado actual de la app.
+> Actualización 2.2.8: las mejoras aplicadas y sus límites están en [cambios](revisiones/2.2.8/CAMBIOS.md) y [validación](revisiones/2.2.8/VALIDACION.md). El informe siguiente es histórico; no describe el estado actual de la app.
 
 > Contexto histórico: las correcciones posteriores están documentadas en [CAMBIOS.md](CAMBIOS.md).
 

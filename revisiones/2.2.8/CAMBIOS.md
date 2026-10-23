@@ -2,7 +2,7 @@
 
 **Autor público: Mosqueteroweb. Versión Android: 2.2.8 / 28.**
 
-Estado: publicación autorizada después de terminar la validación local. Incluye todos los cambios locales de 2.2.7: botones uniformes y datos del Ministerio debajo de las gasolineras.
+Estado: publicada y verificada en GitHub después de terminar la validación local. Incluye todos los cambios locales de 2.2.7: botones uniformes y datos del Ministerio debajo de las gasolineras.
 
 - Precios con coma decimal y unidad por combustible: GNC, GNL e hidrógeno por kilogramo; el resto por litro. Tarjetas, detalle y mapa comparten formato.
 - Comparación de precios por un combustible elegido explícitamente. Los otros seleccionados siguen siendo requisitos de disponibilidad, sin mezclar sus precios para ordenar.

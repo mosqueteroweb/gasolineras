@@ -1,0 +1,18 @@
+{
+  "version": "2.2.8",
+  "version_code": 28,
+  "source_commit": "1785415437344959b9a856c80444bae3db5bd402",
+  "verified_at": "2026-10-23T09:28:17.308496+00:00",
+  "release_url": "https://github.com/mosqueteroweb/gasolineras/releases/tag/v2.2.8",
+  "download_url": "https://github.com/mosqueteroweb/gasolineras/releases/download/v2.2.8/gasolineras.apk",
+  "sha256": "6cb1fdfb05ec069d222aa49df7ead05e50ab65fd5806672c6c4b0d6ed2b24e1c",
+  "size_bytes": 2067307,
+  "checksum_matches": true,
+  "signature_valid": true,
+  "signature_matches_previous_release": true,
+  "debuggable": false,
+  "public_author": "Mosqueteroweb",
+  "github_digest_matches": true,
+  "workflow_run_id": 39931277944,
+  "workflow_status": "success"
+}

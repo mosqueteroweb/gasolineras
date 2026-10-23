@@ -39,4 +39,8 @@ Lint puede mantener advertencias preexistentes de actualización de bibliotecas/
 
 La consulta autorizada de las 75 versiones Maven a OSV no devolvió avisos. Ausencia de avisos no significa ausencia de vulnerabilidades.
 
-Pendientes fuera de la entrega local: medidas de la cuenta GitHub y protecciones administrativas, ejecución de CI en Linux, migración del mapa, validación en dispositivos físicos, batería prolongada y recorrido hablado completo con TalkBack/Switch Access. No se afirma certificación de seguridad o accesibilidad.
+Pendientes fuera de la entrega local: medidas de la cuenta GitHub y protecciones administrativas, migración del mapa, validación en dispositivos físicos, batería prolongada y recorrido hablado completo con TalkBack/Switch Access. No se afirma certificación de seguridad o accesibilidad.
+
+## Publicación comprobada
+
+La compilación y publicación final en Linux se completaron correctamente con verificación estricta. El APK distribuido se descargó y verificó por versión, código, firma y suma. Véase [PUBLICACION.md](PUBLICACION.md).

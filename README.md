@@ -1,8 +1,8 @@
 # ⛽ Gass (con soporte especial GLP)
 
-[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.2.7-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
+[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.2.8-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
 
-> **[📥 Descarga directa de gasolineras.apk (versión publicada 2.2.7)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
+> **[📥 Descarga directa de gasolineras.apk (versión publicada 2.2.8)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
 
 Aplicación Android nativa desarrollada con **Kotlin + Jetpack Compose (Material 3)** para consultar gasolineras cercanas y los últimos precios publicados de carburantes en España.
 
@@ -12,7 +12,7 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
 
 ## Novedades de la versión 2.2.8
 
-**Autor: Mosqueteroweb.** La 2.2.8 / 28 incorpora las mejoras de seguridad, accesibilidad y uso documentadas en [sus cambios](revisiones/2.2.8/CAMBIOS.md), además de la 2.2.7. La 2.2.7 ya está publicada; la 2.2.8 se publicará tras completar sus comprobaciones automáticas.
+**Autor: Mosqueteroweb.** La 2.2.8 / 28 incorpora las mejoras de seguridad, accesibilidad y uso documentadas en [sus cambios](revisiones/2.2.8/CAMBIOS.md), además de la 2.2.7. Las versiones 2.2.7 y 2.2.8 están publicadas y verificadas. La descarga superior corresponde a la 2.2.8.
 
 Precios con unidad correcta, combustible de comparación explícito, búsqueda por municipio y zona del mapa, controles accesibles, ajustes con guardado visible y opciones de privacidad. La lista completa se desplaza con texto grande; las fechas del Ministerio aparecen después de las gasolineras. Consulta la [validación local](revisiones/2.2.8/VALIDACION.md) y el [plan de mantenimiento del mapa](revisiones/2.2.8/MANTENIMIENTO_MAPA.md).
 

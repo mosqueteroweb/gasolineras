@@ -2,7 +2,7 @@
 
 ## 2.2.8 — 23 de octubre de 2026
 
-**Autor: Mosqueteroweb.** Correcciones de unidades, comparación por combustible, ubicación manual y exploración del mapa, accesibilidad, privacidad y compilación verificable. Incluye 2.2.7. Detalle en [cambios](revisiones/2.2.8/CAMBIOS.md). Publicación solicitada tras la validación local.
+**Autor: Mosqueteroweb.** Correcciones de unidades, comparación por combustible, ubicación manual y exploración del mapa, accesibilidad, privacidad y compilación verificable. Incluye 2.2.7. Detalle en [cambios](revisiones/2.2.8/CAMBIOS.md). Publicada con APK firmado y suma SHA-256; véase [publicación verificada](revisiones/2.2.8/PUBLICACION.md).
 
 ## 2.2.7 — 23 de octubre de 2026
 

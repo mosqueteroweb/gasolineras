@@ -7,5 +7,5 @@
   "signature_valid": true,
   "same_certificate_as_2_2_6": true,
   "debuggable": false,
-  "publication_status": "local; pending explicit authorization"
+  "publication_status": "local validation candidate; official release verified separately in publicacion.json"
 }
