@@ -1,5 +1,16 @@
 # Historial de cambios
 
+## 2.2.7 — 23 de octubre de 2026
+
+**Autor: Mosqueteroweb.**
+
+- Botones de ajustes con altura mínima común de 64 dp.
+- Todas las opciones comparten una altura calculada para dos líneas según el tamaño de letra.
+- Radio, ordenación y tema con etiquetas centradas en dos líneas; «3 km» y «Claro» dejan de verse más pequeños que sus vecinos.
+- Botón de guardar sin altura fija para admitir texto ampliado.
+- Información de precios y actualización del Ministerio debajo de la lista, con fechas, avisos y reintento; ubicación conservada arriba.
+- Versión Android 2.2.7 / código 27.
+
 ## 2.2.6 — 23 de octubre de 2026
 
 **Autor: Mosqueteroweb.**

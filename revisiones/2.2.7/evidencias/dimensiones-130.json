@@ -1,0 +1,30 @@
+[
+  {
+    "label": "3\nkm",
+    "height_px": 168
+  },
+  {
+    "label": "10\nkm",
+    "height_px": 168
+  },
+  {
+    "label": "25\nkm",
+    "height_px": 168
+  },
+  {
+    "label": "100\nkm",
+    "height_px": 168
+  },
+  {
+    "label": "⚙️\nSistema",
+    "height_px": 168
+  },
+  {
+    "label": "☀️\nClaro",
+    "height_px": 168
+  },
+  {
+    "label": "🌙\nOscuro",
+    "height_px": 168
+  }
+]

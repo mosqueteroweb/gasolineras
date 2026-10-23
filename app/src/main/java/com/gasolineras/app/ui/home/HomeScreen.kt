@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -371,7 +372,8 @@ fun HomeScreen(
                     HomeStatus(
                         state = state,
                         onLocationAction = onRequestLocationPermission,
-                        onRetry = { viewModel.onRefresh() }
+                        onRetry = { viewModel.onRefresh() },
+                        showPriceInfo = false
                     )
                 }
                 if (state.isLoading || state.isRefreshing || state.isLocating) {
@@ -380,6 +382,21 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.secondary,
                         trackColor = MaterialTheme.colorScheme.primaryContainer
                     )
+                }
+            }
+        },
+        bottomBar = {
+            if (!state.isMapView &&
+                (state.isLoading || state.savedAtMillis > 0L || state.dataWarning != null)) {
+                Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
+                    Column(Modifier.navigationBarsPadding()) {
+                        HomeStatus(
+                            state = state,
+                            onLocationAction = onRequestLocationPermission,
+                            onRetry = { viewModel.onRefresh() },
+                            showLocationInfo = false
+                        )
+                    }
                 }
             }
         },

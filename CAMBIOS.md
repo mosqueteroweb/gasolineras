@@ -61,3 +61,13 @@ Autor: Mosqueteroweb.
 - `app/build.gradle.kts`: versión 2.2.6, código 26.
 - README, historial, notas e informes: documentación pública y autoría unificadas.
 - Publicación: corrección de notas de 2.2.5 sin recompilar ni sustituir su APK.
+
+## Gass 2.2.7
+
+Autor: Mosqueteroweb.
+
+- `SettingsBottomSheet.kt`: altura mínima común, altura adaptable al tamaño de letra y etiquetas centradas en dos líneas en radio, ordenación y tema. Botón de guardar con altura adaptable.
+- `app/build.gradle.kts`: versión 2.2.7 / código 27.
+- README, historial y notas de release actualizados.
+
+- `HomeScreen.kt` y `HomeStatus.kt`: separación de la información de ubicación y precios para colocar la información del Ministerio en el pie de la vista de lista. El mapa conserva su panel bajo demanda.

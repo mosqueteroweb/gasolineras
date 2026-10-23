@@ -1,14 +1,22 @@
 # ⛽ Gass (con soporte especial GLP)
 
-[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.2.6-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
+[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.2.7-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
 
-> **[📥 Descarga directa de gasolineras.apk (versión 2.2.6)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
+> **[📥 Descarga directa de gasolineras.apk (versión 2.2.7)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
 
 Aplicación Android nativa desarrollada con **Kotlin + Jetpack Compose (Material 3)** para consultar gasolineras cercanas y precios de carburantes en tiempo real en España.
 
 Especialmente diseñada para familias y conductores que desean ahorrar combustible, con **atención y resalte especial para gasolineras con GLP (Autogas)**.
 
 ---
+
+## Novedades de la versión 2.2.7
+
+**Autor: Mosqueteroweb.**
+
+Los botones de ajustes tienen una altura mínima común calculada para dos líneas según el tamaño de letra. Radio, ordenación y tema usan etiquetas centradas en dos líneas para que las opciones cortas y largas mantengan el mismo tamaño. La altura se adapta si se amplía la letra del teléfono.
+
+En la vista de lista, la fecha de precios del Ministerio, la fecha de guardado y los avisos de actualización aparecen en un pie debajo de las gasolineras; el estado de ubicación sigue arriba.
 
 ## Novedades de la versión 2.2.6
 

@@ -56,8 +56,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gasolineras.app.domain.model.FuelType
@@ -84,6 +86,10 @@ fun SettingsBottomSheet(
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
+    // Reserve the same two text lines and padding for every choice, including large fonts.
+    val choiceHeight = with(LocalDensity.current) {
+        (20.sp.toDp() * 2 + 16.dp).coerceAtLeast(64.dp)
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var tempVisibleFuels by remember { mutableStateOf(visibleFuels.take(3)) }
@@ -216,6 +222,7 @@ fun SettingsBottomSheet(
                                 )
                             }
                         },
+                        modifier = Modifier.height(choiceHeight),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                             selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -263,7 +270,9 @@ fun SettingsBottomSheet(
                         label = {
                             Text(
                                 text = fuel.shortName,
-                                fontWeight = if (isChecked) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (isChecked) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         },
                         leadingIcon = {
@@ -275,7 +284,7 @@ fun SettingsBottomSheet(
                                 )
                             }
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).height(choiceHeight)
                     )
                 }
             }
@@ -300,7 +309,7 @@ fun SettingsBottomSheet(
             ) {
                 OutlinedButton(
                     onClick = { tempDefaultView = "LIST" },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(choiceHeight),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (tempDefaultView == "LIST") MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                     ),
@@ -314,13 +323,16 @@ fun SettingsBottomSheet(
                     Text(
                         text = "Lista",
                         fontWeight = if (tempDefaultView == "LIST") FontWeight.Bold else FontWeight.Normal,
-                        color = if (tempDefaultView == "LIST") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                        color = if (tempDefaultView == "LIST") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        maxLines = 2
                     )
                 }
 
                 OutlinedButton(
                     onClick = { tempDefaultView = "MAP" },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(choiceHeight),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (tempDefaultView == "MAP") MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                     ),
@@ -334,7 +346,10 @@ fun SettingsBottomSheet(
                     Text(
                         text = "Mapa",
                         fontWeight = if (tempDefaultView == "MAP") FontWeight.Bold else FontWeight.Normal,
-                        color = if (tempDefaultView == "MAP") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                        color = if (tempDefaultView == "MAP") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        maxLines = 2
                     )
                 }
             }
@@ -357,8 +372,8 @@ fun SettingsBottomSheet(
                     FilterChip(
                         selected = isSelected,
                         onClick = { tempDefaultRadius = radius },
-                        label = { Text("${radius.toInt()} km", fontSize = 12.sp) },
-                        modifier = Modifier.weight(1f)
+                        label = { SettingsChoiceLabel("${radius.toInt()}\nkm") },
+                        modifier = Modifier.weight(1f).height(choiceHeight)
                     )
                 }
             }
@@ -378,7 +393,7 @@ fun SettingsBottomSheet(
             ) {
                 OutlinedButton(
                     onClick = { tempDefaultSort = SortOption.CHEAPEST },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(choiceHeight),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (tempDefaultSort == SortOption.CHEAPEST) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                     ),
@@ -388,15 +403,19 @@ fun SettingsBottomSheet(
                     )
                 ) {
                     Text(
-                        text = "💶 Más barata",
+                        text = "💶 Más\nbarata",
                         fontWeight = if (tempDefaultSort == SortOption.CHEAPEST) FontWeight.Bold else FontWeight.Normal,
-                        color = if (tempDefaultSort == SortOption.CHEAPEST) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                        color = if (tempDefaultSort == SortOption.CHEAPEST) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        maxLines = 2,
+                        textAlign = TextAlign.Center
                     )
                 }
 
                 OutlinedButton(
                     onClick = { tempDefaultSort = SortOption.NEAREST },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(choiceHeight),
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (tempDefaultSort == SortOption.NEAREST) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                     ),
@@ -406,9 +425,13 @@ fun SettingsBottomSheet(
                     )
                 ) {
                     Text(
-                        text = "📍 Más cercana",
+                        text = "📍 Más\ncercana",
                         fontWeight = if (tempDefaultSort == SortOption.NEAREST) FontWeight.Bold else FontWeight.Normal,
-                        color = if (tempDefaultSort == SortOption.NEAREST) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                        color = if (tempDefaultSort == SortOption.NEAREST) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        maxLines = 2,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -428,13 +451,13 @@ fun SettingsBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                listOf("SYSTEM" to "⚙️ Sistema", "LIGHT" to "☀️ Claro", "DARK" to "🌙 Oscuro").forEach { (mode, label) ->
+                listOf("SYSTEM" to "⚙️\nSistema", "LIGHT" to "☀️\nClaro", "DARK" to "🌙\nOscuro").forEach { (mode, label) ->
                     val isSelected = tempThemeMode == mode
                     FilterChip(
                         selected = isSelected,
                         onClick = { tempThemeMode = mode },
-                        label = { Text(label, fontSize = 12.sp) },
-                        modifier = Modifier.weight(1f)
+                        label = { SettingsChoiceLabel(label) },
+                        modifier = Modifier.weight(1f).height(choiceHeight)
                     )
                 }
             }
@@ -456,11 +479,11 @@ fun SettingsBottomSheet(
                     onRefreshPrices()
                     onDismissRequest()
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(choiceHeight)
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Actualizar precios del Ministerio")
+                SettingsChoiceLabel("Actualizar precios\ndel Ministerio")
             }
 
             Text(
@@ -510,12 +533,25 @@ fun SettingsBottomSheet(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(choiceHeight)
             ) {
-                Text("Guardar Preferencias", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Guardar preferencias", fontWeight = FontWeight.Bold, fontSize = 14.sp, lineHeight = 20.sp, maxLines = 2, textAlign = TextAlign.Center)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
+
+/** Shared two-line labels prevent short options from becoming smaller buttons. */
+@Composable
+private fun SettingsChoiceLabel(text: String) {
+    Text(
+        text = text,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        maxLines = 2,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
+    )
 }

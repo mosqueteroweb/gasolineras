@@ -1,14 +1,11 @@
-# Gass 2.2.6 — información del mapa bajo demanda
+# Gass 2.2.7 — botones de ajustes uniformes
 
 **Autor: Mosqueteroweb.**
 
-- La última ubicación y las fechas de precios del Ministerio dejan de ocupar una sección fija sobre el mapa.
-- Nuevo icono de información en la zona inferior, junto al botón de ubicación. Abre un panel con esos datos y los avisos de GPS, permisos o conexión y sus acciones.
-- El panel se cierra mediante la X, pulsando de nuevo el icono, con Atrás o automáticamente tras 5 segundos. Cada apertura dispone de su propio temporizador.
-- La información sigue actualizándose con los cambios de ubicación y precios, sin prolongar los 5 segundos. La lista conserva su bloque de estado visible.
-- Leyenda e información no se superponen.
-- Documentación pública y autoría de los commits de esta entrega y la anterior corregidas a Mosqueteroweb.
+- Altura mínima común para los botones de ajustes y opciones igualadas dentro de cada fila.
+- Radio, ordenación y tema con textos centrados en dos líneas. Las opciones «3 km» y «Claro» tienen el mismo tamaño que las demás.
+- La altura se adapta al tamaño de letra del teléfono; el botón de guardar admite ese crecimiento.
 
-Versión **2.2.6**, código Android **26**. El APK conserva la firma de las versiones anteriores.
+- En modo lista, la información de actualización del Ministerio pasa a un pie visible debajo de las gasolineras, conservando las fechas y los reintentos. El estado de ubicación permanece arriba.
 
-[Historial de cambios](https://github.com/mosqueteroweb/gasolineras/blob/v2.2.6/CHANGELOG.md).
+Versión **2.2.7**, código Android **27**.

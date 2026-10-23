@@ -18,7 +18,13 @@ import java.util.Locale
 import java.util.Date
 
 @Composable
-fun HomeStatus(state: HomeUiState, onLocationAction: () -> Unit, onRetry: () -> Unit) {
+fun HomeStatus(
+    state: HomeUiState,
+    onLocationAction: () -> Unit,
+    onRetry: () -> Unit,
+    showLocationInfo: Boolean = true,
+    showPriceInfo: Boolean = true
+) {
     val position = if (state.userLocation.isDefaultLocation) {
         "Madrid como referencia; no es tu ubicación real."
     } else {
@@ -34,16 +40,18 @@ fun HomeStatus(state: HomeUiState, onLocationAction: () -> Unit, onRetry: () -> 
     }
     Surface(color = MaterialTheme.colorScheme.surfaceVariant) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
-            Text(
-                text = locationText,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.clickable(enabled = !state.isLocating, onClick = onLocationAction)
-                    .padding(vertical = 4.dp)
-            )
-            if (state.isLoading) {
+            if (showLocationInfo) {
+                Text(
+                    text = locationText,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.clickable(enabled = !state.isLocating, onClick = onLocationAction)
+                        .padding(vertical = 4.dp)
+                )
+            }
+            if (showPriceInfo && state.isLoading) {
                 Text("Consultando precios del Ministerio…", style = MaterialTheme.typography.bodySmall)
             }
-            if (state.savedAtMillis > 0L) {
+            if (showPriceInfo && state.savedAtMillis > 0L) {
                 val savedDate = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
                     .format(Date(state.savedAtMillis))
                 Text(
@@ -51,7 +59,7 @@ fun HomeStatus(state: HomeUiState, onLocationAction: () -> Unit, onRetry: () -> 
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            state.dataWarning?.let { warning ->
+            state.dataWarning?.takeIf { showPriceInfo }?.let { warning ->
                 Row {
                     Text(warning, style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
