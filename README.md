@@ -48,6 +48,8 @@ La versión **2.2.5 (código 25)** incorpora las correcciones comprobadas primer
 - Mapa y lista comparten carburantes y radio. Se han corregido los textos de favoritas, el acceso a ajustes de permisos y el botón Atrás de la leyenda/búsqueda.
 - El control de mantenimiento se llama «Actualizar precios del Ministerio»: no anuncia éxito anticipadamente ni afirma limpiar la caché del mapa.
 
+La publicación utiliza ahora una [comprobación previa en Linux con caché vacía](PUBLICACION.md), que debe pasar para el commit exacto antes de que el publicador cree una etiqueta nueva. Detecta dependencias o metadatos sin suma registrada antes de intentar la release.
+
 Para compilar y comprobar localmente (JDK 17 y SDK Android configurados):
 
 ```sh

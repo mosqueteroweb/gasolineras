@@ -22,3 +22,7 @@ app/keystore/
 
 # Private local documentation
 /documentacion-local/
+
+# Local Python tooling caches
+__pycache__/
+*.pyc

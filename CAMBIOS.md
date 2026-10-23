@@ -79,3 +79,7 @@ Autor: Mosqueteroweb.
 ## Versión 2.2.9
 
 **Autor público: Mosqueteroweb.** Mapa migrado a MapLibre Native, autoría y licencias en una pantalla propia y correcciones del ciclo de vida y segundo plano. Detalles en [revisiones/2.2.9/CAMBIOS.md](revisiones/2.2.9/CAMBIOS.md). Publicación verificada en [su registro](revisiones/2.2.9/PUBLICACION.md).
+
+## Proceso de publicación — posterior a 2.2.9
+
+**Autor público: Mosqueteroweb.** Comprobación Linux automática al subir a `main` y en pull requests, sin caché Gradle ni de compilación, con pruebas, lint y release completa. Nuevo publicador que espera el resultado del SHA exacto antes de crear una etiqueta; GitHub lo vuelve a exigir antes de firmar. Rechazo de resultados antiguos, fallidos u omitidos y protección frente a cambios durante la espera. Diagnósticos conservados y 17 pruebas del control de publicación. Procedimiento en [PUBLICACION.md](PUBLICACION.md). No cambia la versión ni el APK publicado.
