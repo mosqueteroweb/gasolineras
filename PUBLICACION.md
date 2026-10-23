@@ -2,6 +2,8 @@
 
 Autor público: Mosqueteroweb. Procedimiento incorporado después de publicar 2.2.9 para detectar metadatos sin verificar antes de crear la siguiente etiqueta. No modifica el APK 2.2.9 ni su versión.
 
+Resultado de las comprobaciones: [validación del 23 de octubre de 2026](revisiones/proceso-publicacion-2026-10-23/VALIDACION.md).
+
 ## Comprobación automática
 
 Cada subida a `main`, pull request y ejecución manual lanza el trabajo `validate` en Ubuntu con Java 17. Cada ejecución usa un directorio Gradle nuevo dentro del espacio temporal del runner; comprueba que no existan cachés de dependencias, `.gradle` ni `app/build`. No se restaura caché de Gradle.
