@@ -36,7 +36,7 @@ Evidencias seleccionadas en [evidencias](evidencias/). Corresponden a las iterac
 - SHA-256: `53e2ceec5572d588ed3b01e4738cb8be82c84cbd5b03c691f0d476a7d80ca76b`.
 - Certificado SHA-256: `68a1531afbc6de0f84ac61eaf990579a4f867c261e168a53579abd09214f3774`; coincide con la 2.2.8 publicada.
 - Firma verificada y depuración desactivada. No incorpora permisos de ubicación en segundo plano, servicios en primer plano ni WAKE_LOCK.
-- La copia raíz `gasolineras.apk` y su checksum siguen identificando la 2.2.8 publicada. La candidata nueva se entrega por separado.
+- La copia raíz `gasolineras.apk` y su checksum se han actualizado después a la 2.2.9 publicada y verificada. La candidata local de validación se conserva por separado.
 
 La ampliación respecto a los 2.067.307 bytes de la 2.2.8 procede principalmente de las bibliotecas nativas para cuatro arquitecturas. No se presenta MapLibre como una reducción de tamaño. Si se quiere reducir el fichero de descarga, queda como propuesta distribuir APK por arquitectura o un bundle, conservando compatibilidad y firma; no se han eliminado arquitecturas en esta entrega.
 
@@ -45,3 +45,7 @@ Huella de los archivos fuente y recursos en [fuentes-sha256.json](fuentes-sha256
 ## Límites y mantenimiento
 
 Pendiente confirmar batería en el teléfono afectado, viajes largos, señal débil, fabricantes/versiones Android, consumo físico y TalkBack/Switch Access con lectores reales. Las pruebas de semántica y texto ampliado no son una certificación completa de accesibilidad. La API de anotaciones utilizada sigue disponible en MapLibre 13.7.1 y está deprecada por el proveedor; una futura actualización mayor debe revisar su sustitución por capas GeoJSON. No se ha repetido OSV para el nuevo grafo de dependencias; el resultado anterior de 2.2.8 no se extiende a esta candidata. No se han alterado credenciales ni protecciones de GitHub.
+
+## Publicación posterior
+
+La publicación autorizada pasó de nuevo las pruebas unitarias y lint en Linux, compiló y verificó el APK firmado y publicó sus archivos. El primer intento se detuvo por un metadato sin suma registrada; se completó con sumas oficiales y se mantuvo la verificación estricta. Esa corrección no cambia el código funcional ni las versiones runtime. Los hashes de `fuentes-sha256.json` conservan la candidata local previa a ese ajuste; el commit del APK distribuido se identifica en [PUBLICACION.md](PUBLICACION.md).

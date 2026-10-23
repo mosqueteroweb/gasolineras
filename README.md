@@ -1,8 +1,8 @@
 # ⛽ Gass (con soporte especial GLP)
 
-[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.2.8-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
+[![Descargar APK](https://img.shields.io/badge/📲_Descargar_APK-gasolineras.apk_v2.2.9-brightgreen?style=for-the-badge)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)
 
-> **[📥 Descarga directa de gasolineras.apk (versión publicada 2.2.8)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
+> **[📥 Descarga directa de gasolineras.apk (versión publicada 2.2.9)](https://github.com/mosqueteroweb/gasolineras/releases/latest/download/gasolineras.apk)** · [Ver Notas de la Release](https://github.com/mosqueteroweb/gasolineras/releases/latest)
 
 Aplicación Android nativa desarrollada con **Kotlin + Jetpack Compose (Material 3)** para consultar gasolineras cercanas y los últimos precios publicados de carburantes en España.
 
@@ -10,13 +10,13 @@ Especialmente diseñada para familias y conductores que desean ahorrar combustib
 
 ---
 
-## Candidata local 2.2.9 — pendiente de publicación
+## Novedades de la versión 2.2.9
 
-**Autor público: Mosqueteroweb.** Migración del mapa a MapLibre Native conservando OpenStreetMap, nueva opción «Autoría» y correcciones del trabajo en segundo plano. Consulta [cambios y límites](revisiones/2.2.9/CAMBIOS.md), [pruebas](revisiones/2.2.9/VALIDACION.md) y [batería](revisiones/2.2.9/BATERIA.md). La descarga superior sigue siendo la versión publicada 2.2.8.
+**Autor público: Mosqueteroweb.** Migración del mapa a MapLibre Native conservando OpenStreetMap, nueva opción «Autoría» y correcciones del trabajo en segundo plano. Consulta [cambios y límites](revisiones/2.2.9/CAMBIOS.md), [pruebas](revisiones/2.2.9/VALIDACION.md) y [batería](revisiones/2.2.9/BATERIA.md). La versión 2.2.9 está publicada y verificada; la descarga superior corresponde a ella. Consulta el [registro de publicación](revisiones/2.2.9/PUBLICACION.md).
 
 ## Novedades de la versión 2.2.8
 
-**Autor: Mosqueteroweb.** La 2.2.8 / 28 incorpora las mejoras de seguridad, accesibilidad y uso documentadas en [sus cambios](revisiones/2.2.8/CAMBIOS.md), además de la 2.2.7. Las versiones 2.2.7 y 2.2.8 están publicadas y verificadas. La descarga superior corresponde a la 2.2.8.
+**Autor: Mosqueteroweb.** La 2.2.8 / 28 incorpora las mejoras de seguridad, accesibilidad y uso documentadas en [sus cambios](revisiones/2.2.8/CAMBIOS.md), además de la 2.2.7. Las versiones 2.2.7 y 2.2.8 están publicadas y verificadas. La descarga superior corresponde ahora a la 2.2.9.
 
 Precios con unidad correcta, combustible de comparación explícito, búsqueda por municipio y zona del mapa, controles accesibles, ajustes con guardado visible y opciones de privacidad. La lista completa se desplaza con texto grande; las fechas del Ministerio aparecen después de las gasolineras. Consulta la [validación local](revisiones/2.2.8/VALIDACION.md) y el [plan de mantenimiento del mapa](revisiones/2.2.8/MANTENIMIENTO_MAPA.md).
 
@@ -98,11 +98,11 @@ Consulta [la revisión de la 2.2.4](revisiones/2.2.4-2026-10-22/INFORME.md), [la
 
 ## 🛠️ Tecnologías Utilizadas
 
-- **Lenguaje**: Kotlin 2.2.10 (candidata local 2.2.9)
+- **Lenguaje**: Kotlin 2.2.10 (versión 2.2.9)
 - **Interfaz**: Jetpack Compose con Material 3 y Material Icons Extended
 - **Red**: Retrofit 2 + OkHttp + Gson
 - **Ubicación**: Google Play Services Location (`FusedLocationProviderClient`)
-- **Mapas**: MapLibre Native 13.7.1 con OpenStreetMap (candidata local 2.2.9, proveedor raster sin API key) + Intent nativo de navegación
+- **Mapas**: MapLibre Native 13.7.1 con OpenStreetMap (versión 2.2.9, proveedor raster sin API key) + Intent nativo de navegación
 - **Asincronía y Reactividad**: Kotlin Coroutines & StateFlow
 - **Arquitectura**: Clean Architecture + MVVM
 

@@ -1,6 +1,6 @@
-# Gass 2.2.9 / 29 — candidata local
+# Gass 2.2.9 / 29
 
-Autor público: Mosqueteroweb. Trabajo autorizado para el 23/10/2026 a las 15:00, Europe/Madrid. Sin publicación, etiqueta ni subida a GitHub.
+Autor público: Mosqueteroweb. Trabajo autorizado para el 23/10/2026 a las 15:00, Europe/Madrid. Validada primero en local y publicada posteriormente con autorización; véase [PUBLICACION.md](PUBLICACION.md).
 
 ## Mapa
 

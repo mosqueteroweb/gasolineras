@@ -1,8 +1,8 @@
 # Historial de cambios
 
-## 2.2.9 — candidata local, 23 de octubre de 2026
+## 2.2.9 — 23 de octubre de 2026
 
-**Autor público: Mosqueteroweb.** MapLibre Native 13.7.1 con OpenStreetMap, menú Autoría con licencias sin conexión, mapa detenido con el ciclo de vida, cancelación de GPS/consultas al salir y eliminación de sondeos y animaciones permanentes. No publicada. Véanse [cambios](revisiones/2.2.9/CAMBIOS.md), [pruebas](revisiones/2.2.9/VALIDACION.md) y [consumo](revisiones/2.2.9/BATERIA.md).
+**Autor público: Mosqueteroweb.** MapLibre Native 13.7.1 con OpenStreetMap, menú Autoría con licencias sin conexión, mapa detenido con el ciclo de vida, cancelación de GPS/consultas al salir y eliminación de sondeos y animaciones permanentes. Publicada con APK firmado y SHA-256; [publicación verificada](revisiones/2.2.9/PUBLICACION.md). Véanse [cambios](revisiones/2.2.9/CAMBIOS.md), [pruebas](revisiones/2.2.9/VALIDACION.md) y [consumo](revisiones/2.2.9/BATERIA.md).
 
 ## 2.2.8 — 23 de octubre de 2026
 
