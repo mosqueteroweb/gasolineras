@@ -1,5 +1,8 @@
 package com.gasolineras.app.ui.components
 
+import com.gasolineras.app.ui.theme.priceColor
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.gasolineras.app.domain.model.FuelType
 import com.gasolineras.app.ui.theme.glpHighlight
 import androidx.compose.foundation.background
@@ -81,7 +84,8 @@ fun StationDetailDialog(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(CircleShape)
-                        .background(getDetailBrandColor(station.cleanBrand)),
+                        .background(getDetailBrandColor(station.cleanBrand))
+                        .clearAndSetSemantics { },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -250,7 +254,10 @@ fun StationDetailDialog(
                         ) {
                             Text(
                                 text = fuelType.displayName,
-                                modifier = Modifier.weight(1f),
+                                // Read as one item: "Gasolina 95 E5: 1,619 euros por litro".
+                                modifier = Modifier.weight(1f).clearAndSetSemantics {
+                                    contentDescription = "${fuelType.displayName}: ${fuelType.spokenPrice(price)}"
+                                },
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium
                             )
@@ -258,7 +265,9 @@ fun StationDetailDialog(
                                 text = fuelType.formatPrice(price),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = priceColor(),
+                                softWrap = false,
+                                modifier = Modifier.clearAndSetSemantics { }
                             )
                         }
                     }

@@ -34,9 +34,13 @@ fun isAppInDarkTheme(): Boolean = MaterialTheme.colorScheme.surface.luminance() 
 @Composable
 fun cheapestHighlight(): PriceHighlightColors = if (isAppInDarkTheme())
     PriceHighlightColors(Color(0xFF1E3B22), Color(0xFFC8E6C9), Color(0xFFA5D6A7))
-else PriceHighlightColors(Color(0xFFC8E6C9), Color(0xFF1B5E20), Color(0xFF2E7D32))
+else PriceHighlightColors(Color(0xFFC8E6C9), Color(0xFF1B5E20), Color(0xFF1B5E20))
 
 @Composable
 fun glpHighlight(): PriceHighlightColors = if (isAppInDarkTheme())
     PriceHighlightColors(Color(0xFF123A37), Color(0xFFB2DFDB), Color(0xFF80CBC4))
 else PriceHighlightColors(Color(0xFFE0F2F1), Color(0xFF004D40), Color(0xFF00695C))
+
+/** Regular prices: the primary blue only reaches 3:1 on the price tiles, below the 4.5:1 that small text needs. */
+@Composable
+fun priceColor(): Color = if (isAppInDarkTheme()) Color(0xFF90CAF9) else BlueDark

@@ -72,6 +72,10 @@ enum class FuelType(
     fun formatPrice(price: Double): String =
         String.format(java.util.Locale("es", "ES"), "%.3f %s", price, unit)
 
+    /** What a screen reader should say: "1,769 euros por litro" rather than "1,769 euro barra L". */
+    fun spokenPrice(price: Double): String =
+        String.format(java.util.Locale("es", "ES"), "%.3f euros por %s", price, if (unit == "€/kg") "kilo" else "litro")
+
     companion object {
         val default = GASOLINA_95_E5
     }

@@ -1,5 +1,6 @@
 package com.gasolineras.app.ui.home
 
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -245,14 +246,16 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .padding(horizontal = 2.dp)
                                         .defaultMinSize(minHeight = 36.dp)
+                                        // One announcement instead of the icon label followed by "10 km".
+                                        .semantics { contentDescription = "Radio de búsqueda: ${state.selectedRadiusKm.toInt()} km. Cambiar radio" }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp).clearAndSetSemantics { }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.NearMe,
-                                            contentDescription = "Cambiar radio de distancia (actual: ${state.selectedRadiusKm.toInt()} km)",
+                                            contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onPrimary,
                                             modifier = Modifier.size(15.dp)
                                         )

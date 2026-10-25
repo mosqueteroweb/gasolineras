@@ -1,5 +1,12 @@
 package com.gasolineras.app.ui.components
 
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import com.gasolineras.app.ui.theme.priceColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +69,7 @@ fun StationCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClickLabel = "Ver detalles", onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -84,14 +91,16 @@ fun StationCard(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(getBrandColor(station.cleanBrand)),
+                        .background(getBrandColor(station.cleanBrand))
+                        .clearAndSetSemantics { },
                     contentAlignment = Alignment.Center
                 ) {
+                    // Decorative initials inside a fixed circle: keep them from outgrowing it with large text.
                     Text(
                         text = station.cleanBrand.take(2).uppercase(),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
+                        fontSize = (15f / LocalDensity.current.fontScale).sp
                     )
                 }
 
@@ -107,7 +116,8 @@ fun StationCard(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
 
                         if (station.isOpen24Hours) {
@@ -119,6 +129,8 @@ fun StationCard(
                                 Text(
                                     text = "24H",
                                     fontSize = 10.sp,
+                                    maxLines = 1,
+                                    softWrap = false,
                                     fontWeight = FontWeight.Bold,
                                     color = if (isDark) Color.White else Color(0xFF0D47A1),
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -131,7 +143,7 @@ fun StationCard(
                         text = "${station.displayAddress}, ${station.displayMunicipality}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -197,6 +209,7 @@ fun StationCard(
                         shape = RoundedCornerShape(6.dp),
                         color = cheapestHighlight().container,
                         modifier = Modifier.weight(1f, fill = false)
+                            .clearAndSetSemantics { contentDescription = fuelsLabel.removePrefix("🏆 ") }
                     ) {
                         Text(
                             text = fuelsLabel,
@@ -228,6 +241,11 @@ fun StationCard(
                     fuelsToShow.forEach { fuel ->
                         val p = station.priceFor(fuel)
                         val pText = if (p != null) fuel.formatPrice(p) else "—"
+                        val spoken = buildString {
+                            append(fuel.shortName).append(": ")
+                            append(if (p != null) fuel.spokenPrice(p) else "sin precio")
+                            if (cheapestForFuels.contains(fuel)) append(", la más barata de la zona")
+                        }
                         val label = fuel.shortName
                         val isGLP = fuel == FuelType.GLP
                         val isCheapestThisFuel = cheapestForFuels.contains(fuel)
@@ -240,7 +258,7 @@ fun StationCard(
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = highlight?.container ?: MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).clearAndSetSemantics { contentDescription = spoken }
                         ) {
                             Column(
                                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 5.dp),
@@ -254,18 +272,22 @@ fun StationCard(
                                     },
                                     fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
+                                    maxLines = 2,
+                                    textAlign = TextAlign.Center,
                                     overflow = TextOverflow.Ellipsis,
                                     color = highlight?.label ?: MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                Text(
+                                // One line that shrinks with large text, instead of splitting "€/" and "L".
+                                BasicText(
                                     text = pText,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    maxLines = 3,
-                                    softWrap = true,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = highlight?.price ?: MaterialTheme.colorScheme.primary
+                                    style = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        textAlign = TextAlign.Center,
+                                        color = highlight?.price ?: priceColor()
+                                    ),
+                                    maxLines = 1,
+                                    autoSize = TextAutoSize.StepBased(minFontSize = 9.sp, maxFontSize = 14.sp)
                                 )
                             }
                         }

@@ -21,6 +21,11 @@ class ReadableTextTest {
         assertEquals("Área 117", ReadableText.toReadableCase("Área 117"))
     }
 
+    @Test fun aStrayLowercaseUnitDoesNotKeepTheWholeAddressInCapitals() {
+        assertEquals("Avda. Princesa Juana de Austria Km 4,700 km 4.700",
+            ReadableText.toReadableCase("AVDA. PRINCESA JUANA DE AUSTRIA KM 4,700 km 4.700"))
+    }
+
     @Test fun provinceIsOnlyShownWhenItAddsInformation() {
         assertEquals("Madrid", ReadableText.place("Madrid", "MADRID"))
         assertEquals("Getafe (Madrid)", ReadableText.place("Getafe", "MADRID"))

@@ -10,7 +10,7 @@ object ReadableText {
     private val romanNumeral = Regex("^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)$")
 
     fun toReadableCase(text: String): String {
-        if (text.isBlank() || text.any { it.isLowerCase() }) return text.trim()
+        if (text.isBlank() || !mostlyCapitals(text)) return text.trim()
         var first = true
         return text.trim().split(' ').filter { it.isNotEmpty() }.joinToString(" ") { word ->
             val readable = readableWord(word, first)
@@ -19,11 +19,18 @@ object ReadableText {
         }
     }
 
+    // Some Ministry entries mix a lowercase unit into a capitalised address ("AVDA. ... KM 4,700 km").
+    private fun mostlyCapitals(text: String): Boolean {
+        val letters = text.filter { it.isLetter() }
+        return letters.isNotEmpty() && letters.count { it.isUpperCase() } * 10 >= letters.length * 8
+    }
+
     private fun readableWord(word: String, first: Boolean): String {
         val letters = word.filter { it.isLetter() }
         return when {
             // Road codes (M-30, N-II, A6), kilometre points and "S/N" keep their capitals.
             word.any { it.isDigit() } || word.contains('/') || romanNumeral.matches(letters) -> word
+            word.none { it.isUpperCase() } -> word
             !first && word.lowercase(spanish) in connectors -> word.lowercase(spanish)
             word.contains('-') -> word.split('-').joinToString("-") { part ->
                 // Road prefixes (N-II, A-VI) keep their capitals; compound names (Castilla-La Mancha) do not.

@@ -48,11 +48,16 @@ fun StationListContent(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     modifier = Modifier.widthIn(max = 220.dp).heightIn(min = 48.dp)
+                        .semantics {
+                            contentDescription = if (state.selectedSort == SortOption.CHEAPEST)
+                                "Ordenadas por precio de ${state.comparisonFuel.shortName}. Cambiar a cercanía"
+                            else "Ordenadas por cercanía. Cambiar a precio"
+                        }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(5.dp),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).clearAndSetSemantics { }
                     ) {
                         Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null, modifier = Modifier.size(17.dp))
                         Text(

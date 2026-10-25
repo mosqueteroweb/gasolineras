@@ -1,15 +1,13 @@
-# Gass 2.2.14 — más clara y cómoda de leer
+# Gass 2.2.15 — accesibilidad
 
-**Autor: Mosqueteroweb. Versión Android: 2.2.14 / 34.**
+**Autor: Mosqueteroweb. Versión Android: 2.2.15 / 35.**
 
-- **Nombres de carburante iguales en toda la app**: «Gasolina 95» en lugar de «95», «Gas 95» o «G95».
-- **Sabes por qué carburante se ordena**: el botón dice «Más barata · Diésel».
-- **Marcas completas**: «Low Cost Repost» en vez de «Low Cost R».
-- **Direcciones legibles**: «Avenida Democracia, 15» en lugar de todo en mayúsculas, y sin «Madrid (MADRID)».
-- **Distancias claras**: la ficha indica si se miden desde tu ubicación, desde el municipio elegido o desde Madrid como referencia.
-- **Modo oscuro sin deslumbrar**: las casillas de precio más barato y GLP usan colores oscuros.
-- Detalles: «10 km» con espacio, iconos en todo el menú y carburantes de la ficha en el mismo orden que los botones.
+- **Precios con más contraste**: se leen mejor al sol y en modo oscuro.
+- **Letra grande sin desperfectos**: con el texto del móvil al 200 %, los precios caben en una línea, el distintivo «24H» no se parte y las direcciones ocupan dos líneas.
+- **TalkBack habla claro**: «Diésel: 1,769 euros por litro, la más barata de la zona», sin leer emojis ni iniciales.
+- **Botones que explican lo que hacen**: radio, ordenación y tarjetas anuncian su acción.
+- Direcciones con mezcla de mayúsculas y minúsculas también se muestran legibles.
 
-**Auditoría:** [AUDITORIA_UX.md](https://github.com/mosqueteroweb/gasolineras/blob/v2.2.14/revisiones/2.2.14/AUDITORIA_UX.md).
+**Auditoría:** [AUDITORIA_ACCESIBILIDAD.md](https://github.com/mosqueteroweb/gasolineras/blob/v2.2.15/revisiones/2.2.15/AUDITORIA_ACCESIBILIDAD.md).
 
-**Comprobación local:** 40 pruebas unitarias y 21 en emulador correctas, lint sin errores. Se instala encima de la 2.2.13 conservando datos.
+**Comprobación local:** 41 pruebas unitarias y 22 en emulador correctas, lint sin errores. Se instala encima de la 2.2.14 conservando datos.

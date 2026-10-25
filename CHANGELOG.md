@@ -1,5 +1,9 @@
 # Historial de cambios
 
+## 2.2.15 — 26 de octubre de 2026
+
+**Autor público: Mosqueteroweb.** Auditoría de usabilidad y accesibilidad. Contraste de los precios por encima de 4,5:1 en claro y oscuro; precios, distintivos e iniciales que no se rompen con texto al 200 %; lectura natural de precios con TalkBack («1,769 euros por litro»); avatares silenciados; botones de radio, ordenación y tarjeta con anuncios claros. Versión Android 2.2.15 / código 35. [Auditoría](revisiones/2.2.15/AUDITORIA_ACCESIBILIDAD.md) y [validación](revisiones/2.2.15/VALIDACION.md).
+
 ## 2.2.14 — 25 de octubre de 2026
 
 **Autor público: Mosqueteroweb.** Auditoría de UX. Nombres de carburante unificados, carburante de ordenación visible, marcas completas, direcciones en minúsculas legibles, provincia solo cuando aporta, origen de la distancia correcto, colores propios para modo oscuro, «10 km» con espacio e iconos en todo el menú. Versión Android 2.2.14 / código 34. [Auditoría](revisiones/2.2.14/AUDITORIA_UX.md) y [validación](revisiones/2.2.14/VALIDACION.md).
