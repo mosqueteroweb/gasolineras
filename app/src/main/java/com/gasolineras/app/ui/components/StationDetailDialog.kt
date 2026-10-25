@@ -1,5 +1,7 @@
 package com.gasolineras.app.ui.components
 
+import com.gasolineras.app.domain.model.FuelType
+import com.gasolineras.app.ui.theme.glpHighlight
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,7 +52,9 @@ fun StationDetailDialog(
     station: GasStation,
     onDismiss: () -> Unit,
     onNavigate: () -> Unit,
-    onToggleFavorite: () -> Unit
+    onToggleFavorite: () -> Unit,
+    distanceOrigin: String = "el punto de referencia",
+    preferredFuels: List<FuelType> = emptyList()
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -97,7 +101,7 @@ fun StationDetailDialog(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = station.municipality + if (station.province.isNotBlank()) " (${station.province})" else "",
+                        text = station.displayPlace,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
@@ -130,7 +134,7 @@ fun StationDetailDialog(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "${station.address}, CP ${station.postalCode}",
+                    text = if (station.postalCode.isBlank()) station.displayAddress else "${station.displayAddress}, CP ${station.postalCode}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -164,7 +168,7 @@ fun StationDetailDialog(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "A ${station.formattedDistance} en línea recta desde la referencia",
+                    text = "A ${station.formattedDistance} en línea recta desde $distanceOrigin",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -172,10 +176,11 @@ fun StationDetailDialog(
 
             // GLP Highlight
             if (station.hasGLP) {
+                val glp = glpHighlight()
                 Spacer(modifier = Modifier.height(12.dp))
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFFE0F2F1),
+                    color = glp.container,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -188,12 +193,12 @@ fun StationDetailDialog(
                                 text = "🟢 Estación con GLP / Autogas",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
-                                color = Color(0xFF00695C)
+                                color = glp.label
                             )
                             Text(
                                 text = "Surtidor para vehículos bifuel / GLP",
                                 fontSize = 11.sp,
-                                color = Color(0xFF004D40).copy(alpha = 0.8f)
+                                color = glp.label.copy(alpha = 0.85f)
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
@@ -201,7 +206,7 @@ fun StationDetailDialog(
                             text = station.formattedGlpPrice,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF004D40)
+                            color = glp.price
                         )
                     }
                 }
@@ -226,7 +231,9 @@ fun StationDetailDialog(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             } else {
-                station.prices.entries.forEach { (fuelType, price) ->
+                // Same order as the fuel buttons first, then the rest in the usual catalogue order.
+                val order = preferredFuels + FuelType.entries.filterNot { it in preferredFuels }
+                station.prices.entries.sortedBy { order.indexOf(it.key) }.forEach { (fuelType, price) ->
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),

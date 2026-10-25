@@ -1,5 +1,6 @@
 package com.gasolineras.app.ui.home
 
+import androidx.compose.material.icons.filled.LocationCity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import androidx.activity.compose.BackHandler
@@ -12,7 +13,6 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -258,7 +258,7 @@ fun HomeScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = "${state.selectedRadiusKm.toInt()}km",
+                                            text = "${state.selectedRadiusKm.toInt()} km",
                                             color = MaterialTheme.colorScheme.onPrimary,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold,
@@ -331,10 +331,12 @@ fun HomeScreen(
                                         )
                                         DropdownMenuItem(
                                         text = { Text("Elegir municipio") },
+                                        leadingIcon = { Icon(Icons.Default.LocationCity, contentDescription = null) },
                                         onClick = { showOverflowMenu = false; showLocalities = true; viewModel.loadLocalities() }
                                     )
                                     DropdownMenuItem(
                                         text = { Text("Usar mi ubicación GPS") },
+                                        leadingIcon = { Icon(Icons.Default.MyLocation, contentDescription = null) },
                                         onClick = {
                                             showOverflowMenu = false
                                             requestGpsCenter()
@@ -591,7 +593,13 @@ fun HomeScreen(
             },
             onToggleFavorite = {
                 viewModel.onToggleFavorite(station.id)
-            }
+            },
+            distanceOrigin = when {
+                state.manualLocationName != null -> state.manualLocationName!!
+                state.userLocation.isDefaultLocation -> "Madrid (referencia)"
+                else -> "tu ubicación"
+            },
+            preferredFuels = state.visibleFuels
         )
     }
 

@@ -1,6 +1,7 @@
 package com.gasolineras.app.domain.model
 
 import com.gasolineras.app.domain.util.DistanceCalculator
+import com.gasolineras.app.domain.util.ReadableText
 
 data class GasStation(
     val id: String,
@@ -20,6 +21,16 @@ data class GasStation(
 ) {
     val formattedDistance: String
         get() = DistanceCalculator.formatDistance(distanceMeters)
+
+    val displayAddress: String
+        get() = ReadableText.toReadableCase(address)
+
+    val displayMunicipality: String
+        get() = ReadableText.toReadableCase(municipality)
+
+    /** Municipality, plus the province only when it adds information. */
+    val displayPlace: String
+        get() = ReadableText.place(municipality, province)
 
     val distanceKm: Double?
         get() = distanceMeters?.let { it / 1000.0 }

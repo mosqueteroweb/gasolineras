@@ -1,5 +1,9 @@
 # Historial de cambios
 
+## 2.2.14 — 25 de octubre de 2026
+
+**Autor público: Mosqueteroweb.** Auditoría de UX. Nombres de carburante unificados, carburante de ordenación visible, marcas completas, direcciones en minúsculas legibles, provincia solo cuando aporta, origen de la distancia correcto, colores propios para modo oscuro, «10 km» con espacio e iconos en todo el menú. Versión Android 2.2.14 / código 34. [Auditoría](revisiones/2.2.14/AUDITORIA_UX.md) y [validación](revisiones/2.2.14/VALIDACION.md).
+
 ## 2.2.13 — 25 de octubre de 2026
 
 **Autor público: Mosqueteroweb.** Auditoría de seguridad. Plugins de Gradle resueltos solo desde Google Maven y Maven Central (el Plugin Portal hizo fallar la publicación de 2.2.12). Retirado el permiso `ACCESS_WIFI_STATE`, que la app no usa. Los enlaces externos ya no cierran la app si no hay navegador. Eliminado código sin uso. Versión Android 2.2.13 / código 33. [Auditoría](revisiones/2.2.13/AUDITORIA_SEGURIDAD.md) y [validación](revisiones/2.2.13/VALIDACION.md).

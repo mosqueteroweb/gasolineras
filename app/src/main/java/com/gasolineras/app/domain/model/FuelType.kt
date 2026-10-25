@@ -8,7 +8,7 @@ enum class FuelType(
     GASOLINA_95_E5(
         code = "Precio Gasolina 95 E5",
         displayName = "Gasolina 95 E5",
-        shortName = "G95"
+        shortName = "Gasolina 95"
     ),
     GASOLEO_A(
         code = "Precio Gasoleo A",
@@ -18,7 +18,7 @@ enum class FuelType(
     GASOLINA_98_E5(
         code = "Precio Gasolina 98 E5",
         displayName = "Gasolina 98 E5",
-        shortName = "G98"
+        shortName = "Gasolina 98"
     ),
     GASOLEO_PREMIUM(
         code = "Precio Gasoleo Premium",
@@ -43,7 +43,7 @@ enum class FuelType(
     BIODIESEL(
         code = "Precio Biodiesel",
         displayName = "Biodiésel",
-        shortName = "Bio"
+        shortName = "Biodiésel"
     ),
     GASOLEO_B(
         code = "Precio Gasoleo B",
@@ -63,7 +63,7 @@ enum class FuelType(
     HIDROGENO(
         code = "Precio Hidrogeno",
         displayName = "Hidrógeno (H2)",
-        shortName = "H2"
+        shortName = "Hidrógeno"
     );
 
     val unit: String

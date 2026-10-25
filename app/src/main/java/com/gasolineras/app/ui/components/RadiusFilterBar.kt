@@ -45,7 +45,7 @@ fun RadiusFilterBar(
                 onClick = { onRadiusSelected(radius) },
                 label = {
                     Text(
-                        text = "${radius.toInt()}km",
+                        text = "${radius.toInt()} km",
                         fontSize = 11.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                     )

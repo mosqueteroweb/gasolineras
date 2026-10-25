@@ -1,12 +1,15 @@
-# Gass 2.2.13 — seguridad
+# Gass 2.2.14 — más clara y cómoda de leer
 
-**Autor: Mosqueteroweb. Versión Android: 2.2.13 / 33.** Sin cambios visibles en el uso de la app.
+**Autor: Mosqueteroweb. Versión Android: 2.2.14 / 34.**
 
-- **Un permiso menos**: se retira el acceso al estado del Wi-Fi, que declaraba la biblioteca del mapa pero no se usaba.
-- **Sin cierres por enlaces**: los enlaces a OpenStreetMap, al código fuente y a la fuente de precios muestran un aviso si el móvil no tiene navegador, en vez de cerrar la app.
-- **Publicación más fiable**: las herramientas de compilación se descargan solo de Google y Maven Central, con sus sumas verificadas.
-- Código sin uso eliminado.
+- **Nombres de carburante iguales en toda la app**: «Gasolina 95» en lugar de «95», «Gas 95» o «G95».
+- **Sabes por qué carburante se ordena**: el botón dice «Más barata · Diésel».
+- **Marcas completas**: «Low Cost Repost» en vez de «Low Cost R».
+- **Direcciones legibles**: «Avenida Democracia, 15» en lugar de todo en mayúsculas, y sin «Madrid (MADRID)».
+- **Distancias claras**: la ficha indica si se miden desde tu ubicación, desde el municipio elegido o desde Madrid como referencia.
+- **Modo oscuro sin deslumbrar**: las casillas de precio más barato y GLP usan colores oscuros.
+- Detalles: «10 km» con espacio, iconos en todo el menú y carburantes de la ficha en el mismo orden que los botones.
 
-**Auditoría:** permisos, componentes, red, almacenamiento, registros, enlaces, firma y publicación revisados; sin vulnerabilidades graves. Informe completo en [AUDITORIA_SEGURIDAD.md](https://github.com/mosqueteroweb/gasolineras/blob/v2.2.13/revisiones/2.2.13/AUDITORIA_SEGURIDAD.md).
+**Auditoría:** [AUDITORIA_UX.md](https://github.com/mosqueteroweb/gasolineras/blob/v2.2.14/revisiones/2.2.14/AUDITORIA_UX.md).
 
-**Comprobación local:** 36 pruebas unitarias y 21 en emulador correctas, lint sin errores, compilación desde cero con verificación estricta. Se instala encima de la 2.2.12 conservando datos.
+**Comprobación local:** 40 pruebas unitarias y 21 en emulador correctas, lint sin errores. Se instala encima de la 2.2.13 conservando datos.

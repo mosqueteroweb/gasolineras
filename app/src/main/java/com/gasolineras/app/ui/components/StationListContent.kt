@@ -56,7 +56,7 @@ fun StationListContent(
                     ) {
                         Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null, modifier = Modifier.size(17.dp))
                         Text(
-                            if (state.selectedSort == SortOption.CHEAPEST) "💶 Más barata" else "📍 Más cercana",
+                            if (state.selectedSort == SortOption.CHEAPEST) "💶 Más barata · ${state.comparisonFuel.shortName}" else "📍 Más cercana",
                             style = MaterialTheme.typography.labelLarge
                         )
                     }

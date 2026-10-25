@@ -2,7 +2,6 @@ package com.gasolineras.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,8 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gasolineras.app.domain.model.FuelType
 import com.gasolineras.app.domain.model.GasStation
-import com.gasolineras.app.ui.theme.CheapGreen
-import com.gasolineras.app.ui.theme.CheapGreenContainer
+import com.gasolineras.app.ui.theme.cheapestHighlight
+import com.gasolineras.app.ui.theme.glpHighlight
+import com.gasolineras.app.ui.theme.isAppInDarkTheme
 
 @Composable
 fun StationCard(
@@ -103,7 +103,7 @@ fun StationCard(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            text = station.shortBrand,
+                            text = station.cleanBrand,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -111,7 +111,7 @@ fun StationCard(
                         )
 
                         if (station.isOpen24Hours) {
-                            val isDark = isSystemInDarkTheme()
+                            val isDark = isAppInDarkTheme()
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
                                 color = if (isDark) Color(0xFF1E3A5F) else Color(0xFFE3F2FD)
@@ -128,7 +128,7 @@ fun StationCard(
                     }
 
                     Text(
-                        text = "${station.address}, ${station.municipality}",
+                        text = "${station.displayAddress}, ${station.displayMunicipality}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         maxLines = 1,
@@ -143,7 +143,7 @@ fun StationCard(
                 ) {
                     Icon(
                         imageVector = if (station.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (station.isFavorite) "Quitar ${station.cleanBrand} de favoritos" else "Añadir ${station.cleanBrand} a favoritos",
+                        contentDescription = if (station.isFavorite) "Quitar ${station.cleanBrand} de favoritas" else "Añadir ${station.cleanBrand} a favoritas",
                         tint = if (station.isFavorite) Color(0xFFE53935) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                         modifier = Modifier.size(24.dp)
                     )
@@ -188,26 +188,19 @@ fun StationCard(
                 val showCheapest = isCheapestInArea || cheapestForFuels.isNotEmpty()
                 if (showCheapest) {
                     val fuelsLabel = if (cheapestForFuels.isNotEmpty()) {
-                        "🏆 " + cheapestForFuels.joinToString(", ") { fuel ->
-                            when (fuel) {
-                                FuelType.GASOLEO_A -> "Diésel"
-                                FuelType.GASOLINA_95_E5 -> "Gas 95"
-                                FuelType.GLP -> "GLP"
-                                else -> fuel.displayName
-                            }
-                        }
+                        "🏆 Más barata: " + cheapestForFuels.joinToString(", ") { it.shortName }
                     } else {
                         "🏆 ¡MÁS BARATA!"
                     }
 
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = CheapGreenContainer,
+                        color = cheapestHighlight().container,
                         modifier = Modifier.weight(1f, fill = false)
                     ) {
                         Text(
                             text = fuelsLabel,
-                            color = CheapGreen,
+                            color = cheapestHighlight().label,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.ExtraBold,
                             maxLines = 1,
@@ -235,30 +228,18 @@ fun StationCard(
                     fuelsToShow.forEach { fuel ->
                         val p = station.priceFor(fuel)
                         val pText = if (p != null) fuel.formatPrice(p) else "—"
-                        val label = when (fuel) {
-                            FuelType.GASOLEO_A -> "Diésel"
-                            FuelType.GASOLINA_95_E5 -> "Gas 95"
-                            FuelType.GLP -> "GLP"
-                            FuelType.GASOLINA_98_E5 -> "Gas 98"
-                            FuelType.GASOLEO_PREMIUM -> "Diésel+"
-                            FuelType.GASOLEO_B -> "Gasóleo B"
-                            FuelType.ADBLUE -> "AdBlue"
-                            FuelType.GNC -> "GNC"
-                            FuelType.GNL -> "GNL"
-                            FuelType.BIODIESEL -> "Bio"
-                            FuelType.DIESEL_RENOVABLE -> "HVO"
-                            FuelType.HIDROGENO -> "H2"
-                        }
+                        val label = fuel.shortName
                         val isGLP = fuel == FuelType.GLP
                         val isCheapestThisFuel = cheapestForFuels.contains(fuel)
+                        val highlight = when {
+                            isCheapestThisFuel -> cheapestHighlight()
+                            isGLP -> glpHighlight()
+                            else -> null
+                        }
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = when {
-                                isCheapestThisFuel -> Color(0xFFC8E6C9)
-                                isGLP -> Color(0xFFE0F2F1)
-                                else -> MaterialTheme.colorScheme.surfaceVariant
-                            },
+                            color = highlight?.container ?: MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier.weight(1f)
                         ) {
                             Column(
@@ -275,11 +256,7 @@ fun StationCard(
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    color = when {
-                                        isCheapestThisFuel -> Color(0xFF1B5E20)
-                                        isGLP -> Color(0xFF004D40)
-                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                    }
+                                    color = highlight?.label ?: MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     text = pText,
@@ -288,11 +265,7 @@ fun StationCard(
                                     maxLines = 3,
                                     softWrap = true,
                                     overflow = TextOverflow.Ellipsis,
-                                    color = when {
-                                        isCheapestThisFuel -> Color(0xFF2E7D32)
-                                        isGLP -> Color(0xFF00695C)
-                                        else -> MaterialTheme.colorScheme.primary
-                                    }
+                                    color = highlight?.price ?: MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -302,10 +275,11 @@ fun StationCard(
 
             // Destacado especial si tiene GLP pero GLP no estaba entre los seleccionados
             if (station.hasGLP && !selectedFuels.contains(FuelType.GLP)) {
+                val glp = glpHighlight()
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFE0F2F1),
+                    color = glp.container,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -317,13 +291,13 @@ fun StationCard(
                             text = "🟢 GLP / Autogas disponible:",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF00695C)
+                            color = glp.label
                         )
                         Text(
                             text = station.formattedGlpPrice,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF004D40)
+                            color = glp.price
                         )
                     }
                 }
@@ -366,7 +340,7 @@ fun StationCard(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 14.dp, vertical = 8.dp),
-                    modifier = Modifier.height(48.dp).semantics { contentDescription = "Cómo llegar a ${station.cleanBrand}, ${station.address}" }
+                    modifier = Modifier.height(48.dp).semantics { contentDescription = "Cómo llegar a ${station.cleanBrand}, ${station.displayAddress}" }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Navigation,
