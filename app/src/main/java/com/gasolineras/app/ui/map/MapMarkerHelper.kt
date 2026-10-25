@@ -1,13 +1,13 @@
 package com.gasolineras.app.ui.map
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toDrawable
 
 object MapMarkerHelper {
 
@@ -18,7 +18,7 @@ object MapMarkerHelper {
     fun createUserLocationMarker(context: Context): Drawable {
         val density = context.resources.displayMetrics.density
         val size = (32 * density).toInt().coerceAtLeast(64)
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(size, size)
         val canvas = Canvas(bitmap)
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -35,7 +35,7 @@ object MapMarkerHelper {
         paint.color = Color.rgb(25, 118, 210)
         canvas.drawCircle(size / 2f, size / 2f, size * 0.26f, paint)
 
-        return BitmapDrawable(context.resources, bitmap)
+        return bitmap.toDrawable(context.resources)
     }
 
     /**
@@ -50,7 +50,7 @@ object MapMarkerHelper {
         val density = context.resources.displayMetrics.density
         val width = (36 * density).toInt().coerceAtLeast(80)
         val height = (48 * density).toInt().coerceAtLeast(106)
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(width, height)
         val canvas = Canvas(bitmap)
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -99,6 +99,6 @@ object MapMarkerHelper {
         val textY = centerY - (fontMetrics.ascent + fontMetrics.descent) / 2f
         canvas.drawText(textToDraw, centerX, textY, paint)
 
-        return BitmapDrawable(context.resources, bitmap)
+        return bitmap.toDrawable(context.resources)
     }
 }

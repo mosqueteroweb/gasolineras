@@ -1,6 +1,6 @@
-> Actualización 2.2.8: las mejoras aplicadas y sus límites están en [cambios](revisiones/2.2.8/CAMBIOS.md) y [validación](revisiones/2.2.8/VALIDACION.md). El informe siguiente es histórico; no describe el estado actual de la app.
+> Actualización 2.2.8: las mejoras aplicadas y sus límites están en [cambios](../2.2.8/CAMBIOS.md) y [validación](../2.2.8/VALIDACION.md). El informe siguiente es histórico; no describe el estado actual de la app.
 
-> Contexto histórico: las correcciones posteriores están documentadas en [CAMBIOS.md](CAMBIOS.md).
+> Contexto histórico: las correcciones posteriores están documentadas en [CAMBIOS](CAMBIOS-2.2.5-a-2.2.11.md).
 
 > Documento histórico sobre la versión 2.2.1. Sus afirmaciones no describen necesariamente las versiones posteriores. La revisión funcional de 2.2.4 y la validación de 2.2.5-local están en `revisiones/`; en particular, el soporte offline persistente se implementa en 2.2.5-local.
 

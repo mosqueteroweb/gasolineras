@@ -1,5 +1,6 @@
 package com.gasolineras.app.ui.home
 
+import androidx.core.content.edit
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -255,7 +256,7 @@ class HomeViewModel @JvmOverloads constructor(
             }
             "favorites" -> {
                 getApplication<Application>().getSharedPreferences("gasolineras_preferences", 0)
-                    .edit().remove("favorite_station_ids").apply()
+                    .edit { remove("favorite_station_ids") }
                 _uiState.update { it.copy(favoriteIds = emptySet(), onlyFavorites = false) }
                 fetchStations(false)
             }

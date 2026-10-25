@@ -64,7 +64,7 @@ Las claves y la configuración local privada no forman parte del commit ni de la
 
 ## Cierre de la publicación
 
-Se comprobó la publicación de v2.2.5, la finalización correcta de GitHub Actions, los dos adjuntos, la huella del APK descargado y la continuidad del certificado de firma con 2.2.4. Se conservan el registro y la huella en [PUBLICACION.md](revisiones/2.2.5/PUBLICACION.md). El APK de la raíz corresponde ahora al binario publicado en GitHub. El cierre se registra como documentación posterior, sin modificar el código del APK publicado.
+Se comprobó la publicación de v2.2.5, la finalización correcta de GitHub Actions, los dos adjuntos, la huella del APK descargado y la continuidad del certificado de firma con 2.2.4. Se conservan el registro y la huella en [PUBLICACION.md](../2.2.5/PUBLICACION.md). El APK de la raíz corresponde ahora al binario publicado en GitHub. El cierre se registra como documentación posterior, sin modificar el código del APK publicado.
 
 ## Gass 2.2.6
 
@@ -89,12 +89,12 @@ Autor: Mosqueteroweb.
 
 ## Entrega local 2.2.8
 
-**Autor público: Mosqueteroweb.** Incluye la 2.2.7 y las mejoras detalladas en [revisiones/2.2.8/CAMBIOS.md](revisiones/2.2.8/CAMBIOS.md). La publicación de 2.2.7 y 2.2.8 está verificada; su comprobación se registra en `revisiones/2.2.8/PUBLICACION.md`.
+**Autor público: Mosqueteroweb.** Incluye la 2.2.7 y las mejoras detalladas en [revisiones/2.2.8/CAMBIOS.md](../2.2.8/CAMBIOS.md). La publicación de 2.2.7 y 2.2.8 está verificada; su comprobación se registra en `revisiones/2.2.8/PUBLICACION.md`.
 
 ## Versión 2.2.9
 
-**Autor público: Mosqueteroweb.** Mapa migrado a MapLibre Native, autoría y licencias en una pantalla propia y correcciones del ciclo de vida y segundo plano. Detalles en [revisiones/2.2.9/CAMBIOS.md](revisiones/2.2.9/CAMBIOS.md). Publicación verificada en [su registro](revisiones/2.2.9/PUBLICACION.md).
+**Autor público: Mosqueteroweb.** Mapa migrado a MapLibre Native, autoría y licencias en una pantalla propia y correcciones del ciclo de vida y segundo plano. Detalles en [revisiones/2.2.9/CAMBIOS.md](../2.2.9/CAMBIOS.md). Publicación verificada en [su registro](../2.2.9/PUBLICACION.md).
 
 ## Proceso de publicación — posterior a 2.2.9
 
-**Autor público: Mosqueteroweb.** Comprobación Linux automática al subir a `main` y en pull requests, sin caché Gradle ni de compilación, con pruebas, lint y release completa. Nuevo publicador que espera el resultado del SHA exacto antes de crear una etiqueta; GitHub lo vuelve a exigir antes de firmar. Rechazo de resultados antiguos, fallidos u omitidos y protección frente a cambios durante la espera. Diagnósticos conservados y 17 pruebas del control de publicación. Procedimiento en [PUBLICACION.md](PUBLICACION.md). No cambia la versión ni el APK publicado.
+**Autor público: Mosqueteroweb.** Comprobación Linux automática al subir a `main` y en pull requests, sin caché Gradle ni de compilación, con pruebas, lint y release completa. Nuevo publicador que espera el resultado del SHA exacto antes de crear una etiqueta; GitHub lo vuelve a exigir antes de firmar. Rechazo de resultados antiguos, fallidos u omitidos y protección frente a cambios durante la espera. Diagnósticos conservados y 17 pruebas del control de publicación. Procedimiento en [PUBLICACION.md](../../PUBLICACION.md). No cambia la versión ni el APK publicado.

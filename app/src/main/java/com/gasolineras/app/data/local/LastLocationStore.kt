@@ -1,5 +1,6 @@
 package com.gasolineras.app.data.local
 
+import androidx.core.content.edit
 import android.content.Context
 import com.gasolineras.app.data.location.UserLocation
 
@@ -10,7 +11,7 @@ class LastLocationStore(context: Context) {
 
     fun setEnabled(enabled: Boolean) {
         clear()
-        prefs.edit().putBoolean("remember", enabled).apply()
+        prefs.edit { putBoolean("remember", enabled) }
     }
 
     fun read(): UserLocation {
@@ -26,12 +27,14 @@ class LastLocationStore(context: Context) {
         }
     }
 
-    fun clear() { prefs.edit().remove("latitude").remove("longitude").remove("time").apply() }
+    fun clear() { prefs.edit { remove("latitude"); remove("longitude"); remove("time") } }
 
     fun write(location: UserLocation) {
         if (location.isDefaultLocation || !isEnabled()) return
-        prefs.edit().putLong("latitude", location.latitude.toBits())
-            .putLong("longitude", location.longitude.toBits())
-            .putLong("time", location.obtainedAtMillis).apply()
+        prefs.edit {
+            putLong("latitude", location.latitude.toBits())
+            putLong("longitude", location.longitude.toBits())
+            putLong("time", location.obtainedAtMillis)
+        }
     }
 }

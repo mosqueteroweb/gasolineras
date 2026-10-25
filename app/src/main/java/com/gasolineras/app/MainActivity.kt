@@ -1,5 +1,7 @@
 package com.gasolineras.app
 
+import androidx.core.net.toUri
+import androidx.core.content.edit
 import android.Manifest
 import android.os.Bundle
 import android.content.BroadcastReceiver
@@ -8,7 +10,6 @@ import android.content.IntentFilter
 import android.location.LocationManager
 import androidx.core.content.ContextCompat
 import android.content.Intent
-import android.net.Uri
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
@@ -80,9 +81,9 @@ class MainActivity : ComponentActivity() {
                     )
                     if (requested && !canExplain) {
                         startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.parse("package:$packageName")))
+                            "package:$packageName".toUri()))
                     } else {
-                        permissionHistory.edit().putBoolean("location_requested", true).apply()
+                        permissionHistory.edit { putBoolean("location_requested", true) }
                         permissionLauncher.launch(arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION

@@ -1,12 +1,12 @@
-Bibliotecas de ejecución resueltas para Gass 2.2.11
+Bibliotecas de ejecución resueltas para Gass
 
-androidx.activity:activity:1.9.1
+androidx.activity:activity:1.13.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.activity:activity-compose:1.9.1
+androidx.activity:activity-compose:1.13.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.activity:activity-ktx:1.9.1
+androidx.activity:activity-ktx:1.13.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
 androidx.annotation:annotation-experimental:1.4.1
@@ -54,46 +54,46 @@ The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICEN
 androidx.compose.material:material-ripple-android:1.9.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.runtime:runtime-android:1.9.0
+androidx.compose.runtime:runtime-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.runtime:runtime-annotation-android:1.9.0
+androidx.compose.runtime:runtime-annotation-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.runtime:runtime-saveable-android:1.9.0
+androidx.compose.runtime:runtime-saveable-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.ui:ui-android:1.9.0
+androidx.compose.ui:ui-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.ui:ui-geometry-android:1.9.0
+androidx.compose.ui:ui-geometry-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.ui:ui-graphics-android:1.9.0
+androidx.compose.ui:ui-graphics-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.ui:ui-text-android:1.9.0
+androidx.compose.ui:ui-text-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.ui:ui-tooling-preview-android:1.9.0
+androidx.compose.ui:ui-tooling-preview-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.ui:ui-unit-android:1.9.0
+androidx.compose.ui:ui-unit-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.compose.ui:ui-util-android:1.9.0
+androidx.compose.ui:ui-util-android:1.9.2
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
 androidx.concurrent:concurrent-futures:1.1.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.core:core:1.15.0
+androidx.core:core:1.18.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.core:core:1.15.0
+androidx.core:core:1.18.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.core:core-ktx:1.15.0
+androidx.core:core-ktx:1.18.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
 androidx.core:core-viewtree:1.0.0
@@ -120,61 +120,67 @@ The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICEN
 androidx.interpolator:interpolator:1.0.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-common-java8:2.9.0
+androidx.lifecycle:lifecycle-common-java8:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-common-jvm:2.9.0
+androidx.lifecycle:lifecycle-common-jvm:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-livedata:2.9.0
+androidx.lifecycle:lifecycle-livedata:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-livedata-core:2.9.0
+androidx.lifecycle:lifecycle-livedata-core:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-livedata-core-ktx:2.9.0
+androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-process:2.9.0
+androidx.lifecycle:lifecycle-process:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-runtime-android:2.9.0
+androidx.lifecycle:lifecycle-runtime-android:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-runtime-compose-android:2.9.0
+androidx.lifecycle:lifecycle-runtime-compose-android:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-runtime-ktx-android:2.9.0
+androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-viewmodel:2.9.0
+androidx.lifecycle:lifecycle-viewmodel:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-viewmodel-android:2.9.0
+androidx.lifecycle:lifecycle-viewmodel-android:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-viewmodel-compose-android:2.9.0
+androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0
+androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.9.0
+androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
 androidx.loader:loader:1.0.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
+androidx.navigationevent:navigationevent-android:1.0.0
+The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
+
+androidx.navigationevent:navigationevent-compose-android:1.0.0
+The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
+
 androidx.profileinstaller:profileinstaller:1.4.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.savedstate:savedstate-android:1.3.0
+androidx.savedstate:savedstate-android:1.4.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.savedstate:savedstate-compose-android:1.3.0
+androidx.savedstate:savedstate-compose-android:1.4.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-androidx.savedstate:savedstate-ktx:1.3.0
+androidx.savedstate:savedstate-ktx:1.4.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
 androidx.startup:startup-runtime:1.1.1
@@ -189,16 +195,16 @@ The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICEN
 androidx.viewpager:viewpager:1.0.0
 The Apache Software License, Version 2.0 · http://www.apache.org/licenses/LICENSE-2.0.txt
 
-com.google.android.gms:play-services-base:18.5.0
+com.google.android.gms:play-services-base:18.9.0
 Android Software Development Kit License · https://developer.android.com/studio/terms.html
 
-com.google.android.gms:play-services-basement:18.4.0
+com.google.android.gms:play-services-basement:18.9.0
 Android Software Development Kit License · https://developer.android.com/studio/terms.html
 
-com.google.android.gms:play-services-location:21.3.0
+com.google.android.gms:play-services-location:21.4.0
 Android Software Development Kit License · https://developer.android.com/studio/terms.html
 
-com.google.android.gms:play-services-tasks:18.2.0
+com.google.android.gms:play-services-tasks:18.4.0
 Android Software Development Kit License · https://developer.android.com/studio/terms.html
 
 com.google.code.gson:gson:2.10.1

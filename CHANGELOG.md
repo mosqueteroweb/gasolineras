@@ -1,5 +1,9 @@
 # Historial de cambios
 
+## 2.2.12 — 25 de octubre de 2026
+
+**Autor público: Mosqueteroweb.** APK de 44 a 22 MB al incluir solo el código nativo ARM del mapa. SDK objetivo 36, Gradle 8.14.6, Android Gradle Plugin 8.13.2 y AndroidX Core 1.18.0, Lifecycle 2.10.0, Activity 1.13.0 y Play Services Location 21.4.0, con sumas e inventario de licencias regenerados. Datos excluidos de las transferencias entre dispositivos en Android 12+. Recursos sin uso eliminados y avisos de lint corregidos. Documentación simplificada: README nuevo y documentos históricos movidos a `revisiones/historico/`. Versión Android 2.2.12 / código 32. [Cambios y comprobaciones](revisiones/2.2.12/VALIDACION.md).
+
 ## 2.2.11 — 23 de octubre de 2026
 
 **Autor público: Mosqueteroweb.** Restaurado el botón «💶 Más barata / 📍 Más cercana» junto al contador de resultados. Retirados el texto de ordenación por combustible y las opciones «Comparar precio de». Se mantienen los filtros de carburantes y las mejoras del mapa de 2.2.10. Versión Android 2.2.11 / código 31. [Cambios y comprobaciones](revisiones/2.2.11/VALIDACION.md).
@@ -59,7 +63,7 @@ Las publicaciones exigen compilar desde cero en Linux y verificar las dependenci
 - Automatización de release con pruebas unitarias, lint, comprobación de firma, checksum y notas detalladas.
 - Versión pública 2.2.5 / código 25, posterior a la candidata interna 2.2.5-local / código 24.
 
-Véanse [notas de release](RELEASE_NOTES.md), [cambios por archivo](CAMBIOS.md) y [publicación](revisiones/2.2.5/PUBLICACION.md).
+Véanse [notas de release](RELEASE_NOTES.md), [cambios por archivo](revisiones/historico/CAMBIOS-2.2.5-a-2.2.11.md) y [publicación](revisiones/2.2.5/PUBLICACION.md).
 
 ## 2.2.4 y versiones anteriores
 

@@ -1,6 +1,6 @@
 # Revisión funcional de Gass 2.2.4
 
-**Autor: Mosqueteroweb.** Evaluación histórica del APK 2.2.4; las correcciones posteriores están en [CAMBIOS.md](../../CAMBIOS.md).
+**Autor: Mosqueteroweb.** Evaluación histórica del APK 2.2.4; las correcciones posteriores están en [CAMBIOS.md](../historico/CAMBIOS-2.2.5-a-2.2.11.md).
 
 Fecha: 22 de octubre de 2026. Pruebas manuales sobre el APK publicado, ejecutado en un Pixel emulado con Android 15 (API 35, arm64, 1080 × 1920). No se ha modificado código, compilado la aplicación ni cambiado los APK del proyecto. Esta carpeta contiene únicamente documentación y evidencias de la revisión.
 

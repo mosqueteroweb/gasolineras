@@ -2,6 +2,7 @@ package com.gasolineras.app.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.gasolineras.app.domain.model.FuelType
 import com.gasolineras.app.domain.model.SortOption
 
@@ -14,7 +15,7 @@ class UserPreferencesManager(context: Context) {
         FuelType.valueOf(prefs.getString("comparison_fuel", "") ?: "")
     }.getOrNull()?.takeIf { it in getDefaultSelectedFuels() } ?: getDefaultSelectedFuels().first()
 
-    fun setComparisonFuel(fuel: FuelType) { prefs.edit().putString("comparison_fuel", fuel.name).apply() }
+    fun setComparisonFuel(fuel: FuelType) { prefs.edit { putString("comparison_fuel", fuel.name) } }
 
     fun getVisibleFuels(): List<FuelType> {
         val saved = prefs.getString(KEY_VISIBLE_FUELS, null) ?: return DEFAULT_FUELS
@@ -28,7 +29,7 @@ class UserPreferencesManager(context: Context) {
     fun setVisibleFuels(fuels: List<FuelType>) {
         val validList = fuels.distinct().take(3).ifEmpty { DEFAULT_FUELS }
         val serialized = validList.joinToString(",") { it.name }
-        prefs.edit().putString(KEY_VISIBLE_FUELS, serialized).apply()
+        prefs.edit { putString(KEY_VISIBLE_FUELS, serialized) }
 
         // Ensure default selected fuels are within visible fuels
         val currentSelected = getDefaultSelectedFuels()
@@ -55,7 +56,7 @@ class UserPreferencesManager(context: Context) {
         val filtered = fuels.filter { visible.contains(it) }.take(3).toSet()
         val finalList = if (filtered.isEmpty()) setOf(visible.first()) else filtered
         val serialized = finalList.joinToString(",") { it.name }
-        prefs.edit().putString(KEY_DEFAULT_SELECTED_FUELS, serialized).apply()
+        prefs.edit { putString(KEY_DEFAULT_SELECTED_FUELS, serialized) }
     }
 
     fun getDefaultView(): String {
@@ -64,7 +65,7 @@ class UserPreferencesManager(context: Context) {
 
     fun setDefaultView(view: String) {
         val sanitized = if (view == "MAP") "MAP" else "LIST"
-        prefs.edit().putString(KEY_DEFAULT_VIEW, sanitized).apply()
+        prefs.edit { putString(KEY_DEFAULT_VIEW, sanitized) }
     }
 
     fun getDefaultRadiusKm(): Double {
@@ -73,7 +74,7 @@ class UserPreferencesManager(context: Context) {
     }
 
     fun setDefaultRadiusKm(radiusKm: Double) {
-        prefs.edit().putFloat(KEY_DEFAULT_RADIUS, radiusKm.toFloat()).apply()
+        prefs.edit { putFloat(KEY_DEFAULT_RADIUS, radiusKm.toFloat()) }
     }
 
     fun getDefaultSort(): SortOption {
@@ -86,7 +87,7 @@ class UserPreferencesManager(context: Context) {
     }
 
     fun setDefaultSort(sort: SortOption) {
-        prefs.edit().putString(KEY_DEFAULT_SORT, sort.name).apply()
+        prefs.edit { putString(KEY_DEFAULT_SORT, sort.name) }
     }
 
     fun getThemeMode(): String {
@@ -98,7 +99,7 @@ class UserPreferencesManager(context: Context) {
             "LIGHT", "DARK" -> mode
             else -> "SYSTEM"
         }
-        prefs.edit().putString(KEY_THEME_MODE, sanitized).apply()
+        prefs.edit { putString(KEY_THEME_MODE, sanitized) }
     }
 
     companion object {

@@ -1,5 +1,6 @@
 package com.gasolineras.app.ui.components
 
+import androidx.core.net.toUri
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -14,14 +15,14 @@ object NavigationHelper {
     fun navigateToStation(context: Context, station: GasStation) {
         val label = Uri.encode(station.cleanBrand + " - " + station.address)
         // Intent URI format that works across Google Maps, Waze and OsmAnd
-        val geoUri = Uri.parse("geo:${station.latitude},${station.longitude}?q=${station.latitude},${station.longitude}($label)")
+        val geoUri = "geo:${station.latitude},${station.longitude}?q=${station.latitude},${station.longitude}($label)".toUri()
         val intent = Intent(Intent.ACTION_VIEW, geoUri)
 
         try {
             context.startActivity(intent)
         } catch (e: Exception) {
             // Fallback to web browser Google Maps directions
-            val webUri = Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}")
+            val webUri = "https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}".toUri()
             val webIntent = Intent(Intent.ACTION_VIEW, webUri)
             try {
                 context.startActivity(webIntent)

@@ -13,7 +13,7 @@
 
 ## Cambios
 
-El inventario completo de cambios está en [CAMBIOS.md](../../CAMBIOS.md). El resumen público está en [RELEASE_NOTES.md](../../RELEASE_NOTES.md) y [CHANGELOG.md](../../CHANGELOG.md). Autor: Mosqueteroweb.
+El inventario completo de cambios está en [CAMBIOS.md](../historico/CAMBIOS-2.2.5-a-2.2.11.md). El resumen público está en [RELEASE_NOTES.md](../../RELEASE_NOTES.md) y [CHANGELOG.md](../../CHANGELOG.md). Autor: Mosqueteroweb.
 
 ## Controles previos y publicación reproducible
 

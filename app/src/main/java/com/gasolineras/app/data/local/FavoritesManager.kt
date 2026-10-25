@@ -1,5 +1,6 @@
 package com.gasolineras.app.data.local
 
+import androidx.core.content.edit
 import android.content.Context
 import android.content.SharedPreferences
 
@@ -25,7 +26,7 @@ class FavoritesManager(context: Context) {
             current.add(stationId)
             true
         }
-        prefs.edit().putStringSet(KEY_FAVORITES, current).apply()
+        prefs.edit { putStringSet(KEY_FAVORITES, current) }
         return isNowFavorite
     }
 
