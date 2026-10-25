@@ -1,5 +1,9 @@
 # Historial de cambios
 
+## 2.2.13 — 25 de octubre de 2026
+
+**Autor público: Mosqueteroweb.** Auditoría de seguridad. Plugins de Gradle resueltos solo desde Google Maven y Maven Central (el Plugin Portal hizo fallar la publicación de 2.2.12). Retirado el permiso `ACCESS_WIFI_STATE`, que la app no usa. Los enlaces externos ya no cierran la app si no hay navegador. Eliminado código sin uso. Versión Android 2.2.13 / código 33. [Auditoría](revisiones/2.2.13/AUDITORIA_SEGURIDAD.md) y [validación](revisiones/2.2.13/VALIDACION.md).
+
 ## 2.2.12 — 25 de octubre de 2026
 
 **Autor público: Mosqueteroweb.** APK de 44 a 22 MB al incluir solo el código nativo ARM del mapa. SDK objetivo 36, Gradle 8.14.6, Android Gradle Plugin 8.13.2 y AndroidX Core 1.18.0, Lifecycle 2.10.0, Activity 1.13.0 y Play Services Location 21.4.0, con sumas e inventario de licencias regenerados. Datos excluidos de las transferencias entre dispositivos en Android 12+. Recursos sin uso eliminados y avisos de lint corregidos. Documentación simplificada: README nuevo y documentos históricos movidos a `revisiones/historico/`. Versión Android 2.2.12 / código 32. [Cambios y comprobaciones](revisiones/2.2.12/VALIDACION.md).

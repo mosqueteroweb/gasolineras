@@ -1,6 +1,7 @@
 package com.gasolineras.app.ui.components
 
 import androidx.core.net.toUri
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -29,6 +30,15 @@ object NavigationHelper {
             } catch (ex: Exception) {
                 Toast.makeText(context, "No se encontró ninguna aplicación de mapas.", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    /** Opens an external web page without crashing when the device has no browser. */
+    fun openLink(context: Context, url: String) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(context, "No hay ningún navegador para abrir el enlace.", Toast.LENGTH_SHORT).show()
         }
     }
 }

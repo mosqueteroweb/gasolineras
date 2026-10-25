@@ -28,7 +28,6 @@ class FuelRepositoryTest {
     private class Api(var fetch: suspend () -> FuelApiResponse) : FuelApiService {
         val calls = AtomicInteger()
         override suspend fun getAllStations(): FuelApiResponse { calls.incrementAndGet(); return fetch() }
-        override suspend fun getStationsByProvince(idProvincia: String) = getAllStations()
     }
 
     private fun station(id: String, lat: String, lon: String, price: String = "0,95") = FuelStationDto(

@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -23,7 +22,6 @@ import kotlinx.coroutines.withContext
 @Composable
 fun AuthorshipDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val uri = LocalUriHandler.current
     var loading by remember { mutableStateOf(true) }
     var licenses by remember { mutableStateOf<List<Pair<String,List<String>>>>(emptyList()) }
     LaunchedEffect(Unit) {
@@ -47,11 +45,11 @@ fun AuthorshipDialog(onDismiss: () -> Unit) {
                         Image(painterResource(R.drawable.ic_mosqueteroweb), contentDescription = "Mosqueteroweb", modifier = Modifier.size(48.dp))
                         Text("Gass ${BuildConfig.VERSION_NAME} · Mosqueteroweb", style = MaterialTheme.typography.titleMedium)
                         Text("Aplicación de código libre · GNU GPLv3")
-                        TextButton(onClick = { uri.openUri("https://github.com/mosqueteroweb/gasolineras") }) { Text("Código fuente y contacto") }
+                        TextButton(onClick = { NavigationHelper.openLink(context, "https://github.com/mosqueteroweb/gasolineras") }) { Text("Código fuente y contacto") }
                         Text("Datos de gasolineras: Ministerio MITECO. Se conserva la fecha de publicación proporcionada por el Ministerio.")
-                        TextButton(onClick = { uri.openUri("https://geoportalgasolineras.es/") }) { Text("Fuente de los precios") }
+                        TextButton(onClick = { NavigationHelper.openLink(context, "https://geoportalgasolineras.es/") }) { Text("Fuente de los precios") }
                         Text("Cartografía © OpenStreetMap contributors · Datos bajo ODbL 1.0. Servicio de mapas de OpenStreetMap Foundation.")
-                        TextButton(onClick = { uri.openUri("https://www.openstreetmap.org/copyright") }) { Text("OpenStreetMap: autoría y licencia") }
+                        TextButton(onClick = { NavigationHelper.openLink(context, "https://www.openstreetmap.org/copyright") }) { Text("OpenStreetMap: autoría y licencia") }
                         Text("Bibliotecas y licencias", style = MaterialTheme.typography.titleLarge)
                         Text("Los avisos y textos completos siguientes se incluyen en la aplicación y pueden consultarse sin conexión.")
                     }

@@ -7,8 +7,9 @@ pluginManagement {
                 includeGroupByRegex("androidx.*")
             }
         }
+        // All plugins are published on Google Maven or Maven Central. The Gradle Plugin Portal serves
+        // different marker POMs for the same plugins, which strict dependency verification rejects.
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {

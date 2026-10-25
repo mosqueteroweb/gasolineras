@@ -1,6 +1,5 @@
 package com.gasolineras.app.ui.home
 
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 import androidx.activity.compose.BackHandler
@@ -420,7 +419,7 @@ fun HomeScreen(
                     )
 
                     Surface(modifier = Modifier.align(Alignment.BottomStart).padding(start = 8.dp, bottom = 8.dp), color = MaterialTheme.colorScheme.surface) {
-                        TextButton(onClick = { android.content.Intent(android.content.Intent.ACTION_VIEW, "https://www.openstreetmap.org/copyright".toUri()).also { context.startActivity(it) } }) {
+                        TextButton(onClick = { NavigationHelper.openLink(context, "https://www.openstreetmap.org/copyright") }) {
                             Text("© OpenStreetMap contributors", fontSize = 10.sp)
                         }
                     }
