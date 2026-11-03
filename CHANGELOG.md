@@ -1,5 +1,9 @@
 # Historial de cambios
 
+## 2.2.17 — 3 de noviembre de 2026
+
+**Autor público: Mosqueteroweb.** «Ir» y «Cómo llegar con GPS» abren la navegación paso a paso de Google Maps hacia la gasolinera y sustituyen la ruta que ya estuviera activa; antes solo mostraban el sitio y, con una ruta en marcha, Maps la mantenía. Con otro navegador predeterminado (Waze, OsmAnd…) se sigue usando ese. Versión Android 2.2.17 / código 37. [Validación](revisiones/2.2.17/VALIDACION.md).
+
 ## 2.2.16 — 3 de noviembre de 2026
 
 **Autor público: Mosqueteroweb.** «Atrás» desde el mapa vuelve a la lista en lugar de cerrar la app (salvo si el mapa es la vista inicial). Hallazgo de la auditoría de UX en Galaxy Z Fold8. Versión Android 2.2.16 / código 36. [Validación](revisiones/2.2.16/VALIDACION.md).
