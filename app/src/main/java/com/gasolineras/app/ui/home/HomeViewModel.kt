@@ -1,5 +1,6 @@
 package com.gasolineras.app.ui.home
 
+import android.os.SystemClock
 import androidx.core.content.edit
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -27,6 +28,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+/** A pause shorter than this (a fold, unfold or rotation) keeps the current location. */
+private const val BRIEF_PAUSE_MS = 60_000L
 
 class HomeViewModel @JvmOverloads constructor(
     application: Application,
@@ -68,6 +72,7 @@ class HomeViewModel @JvmOverloads constructor(
     private var backgrounded = false
     private var localityJob: Job? = null
     private var refreshOnResume = false
+    private var backgroundedAt = 0L
 
     init {
         updateLocationStatus()
@@ -81,9 +86,15 @@ class HomeViewModel @JvmOverloads constructor(
         updateLocationStatus()
         val forceRefresh = refreshOnResume
         refreshOnResume = false
-        fetchStations(forceRefresh)
+        // Folding or unfolding the phone recreates the activity: after such a short pause keep the
+        // stations and the fix we already have instead of showing «Obteniendo tu ubicación…» again.
+        val state = _uiState.value
+        val briefPause = backgroundedAt != 0L &&
+            SystemClock.elapsedRealtime() - backgroundedAt < BRIEF_PAUSE_MS &&
+            state.userLocation != null && state.stations.isNotEmpty()
+        if (!briefPause || forceRefresh) fetchStations(forceRefresh)
         restartTracking()
-        locate(forceFresh = true)
+        if (!briefPause) locate(forceFresh = true)
     }
 
     /** Driven by Android's location-setting broadcasts while the activity is resumed. */
@@ -101,6 +112,7 @@ class HomeViewModel @JvmOverloads constructor(
     fun onBackground() {
         foreground = false
         backgrounded = true
+        backgroundedAt = SystemClock.elapsedRealtime()
         refreshOnResume = refreshOnResume || _uiState.value.isRefreshing
         fetchRevision++
         fetchJob?.cancel()

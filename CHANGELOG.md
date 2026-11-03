@@ -1,5 +1,9 @@
 # Historial de cambios
 
+## 2.2.18 — 3 de noviembre de 2026
+
+**Autor público: Mosqueteroweb.** En pantallas anchas (interior de un plegable, tablets, horizontal) la lista y el mapa se ven a la vez, uno al lado del otro. Al plegar o desplegar el móvil ya no vuelve a buscar la ubicación ni a recargar la lista si acabas de usarla. Hallazgos G2 y G3 de la auditoría de UX en Galaxy Z Fold8. Versión Android 2.2.18 / código 38. [Validación](revisiones/2.2.18/VALIDACION.md).
+
 ## 2.2.17 — 3 de noviembre de 2026
 
 **Autor público: Mosqueteroweb.** «Ir» y «Cómo llegar con GPS» abren la navegación paso a paso de Google Maps hacia la gasolinera y sustituyen la ruta que ya estuviera activa; antes solo mostraban el sitio y, con una ruta en marcha, Maps la mantenía. Con otro navegador predeterminado (Waze, OsmAnd…) se sigue usando ese. Versión Android 2.2.17 / código 37. [Validación](revisiones/2.2.17/VALIDACION.md).

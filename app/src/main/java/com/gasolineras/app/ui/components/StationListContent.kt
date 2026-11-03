@@ -24,10 +24,11 @@ fun StationListContent(
     state: HomeUiState,
     viewModel: HomeViewModel,
     onLocationAction: () -> Unit,
-    onNavigate: (GasStation) -> Unit
+    onNavigate: (GasStation) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

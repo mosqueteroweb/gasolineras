@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -73,6 +74,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -85,6 +87,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -111,6 +114,9 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    // Inner screen of a foldable, tablets and landscape: list and map side by side.
+    val isTwoPane = LocalConfiguration.current.screenWidthDp >= 600
+    val showsMap = state.isMapView || isTwoPane
     var isSearchExpanded by remember { mutableStateOf(false) }
     var mapCenterTrigger by remember { mutableIntStateOf(0) }
     var mapVisibleCount by remember { mutableIntStateOf(0) }
@@ -129,7 +135,7 @@ fun HomeScreen(
 
     // Back from the map returns to the list unless the map is the start view.
     // Declared first so the overlay handler below takes priority while open.
-    BackHandler(enabled = state.isMapView && viewModel.getDefaultViewPreference() != "MAP") {
+    BackHandler(enabled = state.isMapView && !isTwoPane && viewModel.getDefaultViewPreference() != "MAP") {
         viewModel.setMapView(false)
     }
 
@@ -223,8 +229,8 @@ fun HomeScreen(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // 1. Toggle Lista / Mapa (Accesible 48dp touch target, 24dp icon)
-                                IconButton(
+                                // 1. Toggle Lista / Mapa (Accesible 48dp touch target, 24dp icon); not needed with both panes visible
+                                if (!isTwoPane) IconButton(
                                     onClick = {
                                         showMapInfo = false
                                         val willBeMap = !state.isMapView
@@ -369,7 +375,7 @@ fun HomeScreen(
                                             leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
                                             onClick = { showOverflowMenu = false; showAuthorship = true }
                                         )
-                                        if (state.isMapView) {
+                                        if (showsMap) {
                                             DropdownMenuItem(
                                                 text = { Text("Leyenda del mapa") },
                                                 leadingIcon = {
@@ -411,9 +417,9 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            if (state.isMapView) {
-                // ==================== MAP MODE: 100% CLEAN FULL SCREEN ====================
-                Box(modifier = Modifier.fillMaxSize()) {
+            // Map with its floating controls. Beside the list, the list already shows the fuel row.
+            val mapPane: @Composable (Modifier, Boolean) -> Unit = { paneModifier, showFuelSelector ->
+                Box(modifier = paneModifier) {
                     StationMapView(
                         userLocation = state.userLocation,
                         stations = state.stations,
@@ -440,11 +446,13 @@ fun HomeScreen(
                         modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        FuelTypeSelector(
-                            selectedFuels = state.selectedFuels,
-                            visibleFuels = state.visibleFuels,
-                            onToggleFuel = { viewModel.onToggleFuel(it) }
-                        )
+                        if (showFuelSelector) {
+                            FuelTypeSelector(
+                                selectedFuels = state.selectedFuels,
+                                visibleFuels = state.visibleFuels,
+                                onToggleFuel = { viewModel.onToggleFuel(it) }
+                            )
+                        }
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.End
@@ -580,8 +588,17 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-            } else {
-                StationListContent(state, viewModel, onRequestLocationPermission,
+            }
+            when {
+                isTwoPane -> Row(modifier = Modifier.fillMaxSize()) {
+                    StationListContent(state, viewModel, onRequestLocationPermission,
+                        onNavigate = { NavigationHelper.navigateToStation(context, it) },
+                        modifier = Modifier.weight(0.42f))
+                    VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    mapPane(Modifier.weight(0.58f).fillMaxHeight(), false)
+                }
+                state.isMapView -> mapPane(Modifier.fillMaxSize(), true)
+                else -> StationListContent(state, viewModel, onRequestLocationPermission,
                     onNavigate = { NavigationHelper.navigateToStation(context, it) })
             }
         }
