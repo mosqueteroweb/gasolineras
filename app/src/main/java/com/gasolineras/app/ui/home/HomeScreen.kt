@@ -127,6 +127,12 @@ fun HomeScreen(
         if (!state.hasLocationPermission || !state.isLocationEnabled) onRequestLocationPermission()
     }
 
+    // Back from the map returns to the list unless the map is the start view.
+    // Declared first so the overlay handler below takes priority while open.
+    BackHandler(enabled = state.isMapView && viewModel.getDefaultViewPreference() != "MAP") {
+        viewModel.setMapView(false)
+    }
+
     BackHandler(enabled = !showSettingsSheet && state.selectedStationForDetail == null &&
         (showMapInfo || showMapLegend || isSearchExpanded || showOverflowMenu)) {
         when {

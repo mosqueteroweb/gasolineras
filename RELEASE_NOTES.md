@@ -1,13 +1,9 @@
-# Gass 2.2.15 — accesibilidad
+# Gass 2.2.16 — volver del mapa
 
-**Autor: Mosqueteroweb. Versión Android: 2.2.15 / 35.**
+**Autor: Mosqueteroweb. Versión Android: 2.2.16 / 36.**
 
-- **Precios con más contraste**: se leen mejor al sol y en modo oscuro.
-- **Letra grande sin desperfectos**: con el texto del móvil al 200 %, los precios caben en una línea, el distintivo «24H» no se parte y las direcciones ocupan dos líneas.
-- **TalkBack habla claro**: «Diésel: 1,769 euros por litro, la más barata de la zona», sin leer emojis ni iniciales.
-- **Botones que explican lo que hacen**: radio, ordenación y tarjetas anuncian su acción.
-- Direcciones con mezcla de mayúsculas y minúsculas también se muestran legibles.
+- **«Atrás» ya no cierra la app en el mapa**: vuelve a la lista de gasolineras. Si en Ajustes elegiste el mapa como vista inicial, «atrás» sale como siempre.
 
-**Auditoría:** [AUDITORIA_ACCESIBILIDAD.md](https://github.com/mosqueteroweb/gasolineras/blob/v2.2.15/revisiones/2.2.15/AUDITORIA_ACCESIBILIDAD.md).
+**Validación:** [VALIDACION.md](https://github.com/mosqueteroweb/gasolineras/blob/v2.2.16/revisiones/2.2.16/VALIDACION.md).
 
-**Comprobación local:** 41 pruebas unitarias y 22 en emulador correctas, lint sin errores. Se instala encima de la 2.2.14 conservando datos.
+**Comprobación local:** pruebas unitarias correctas, lint sin errores y prueba en emulador con el tamaño de la pantalla exterior del Fold. Se instala encima de la 2.2.15 conservando datos.
